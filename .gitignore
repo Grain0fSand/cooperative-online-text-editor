@@ -1,16 +1,9 @@
-# Created by https://www.gitignore.io/api/visualstudiocode
-# Edit at https://www.gitignore.io/?templates=visualstudiocode
+#Elia Migliore part of .gitignore
 
 ### VisualStudioCode ###
-./c++_project/vscode/*
-./c++_project/vscode/settings.json
-./c++_project/vscode/tasks.json
-./c++_project/vscode/launch.json
-./c++_project/vscode/extensions.json
-./c++_project/Makefile
+c++_project/.vscode/*
+c++_project/Makefile
 
 ### VisualStudioCode Patch ###
 # Ignore all local history of files
 .history
-
-# End of https://www.gitignore.io/api/visualstudiocode
