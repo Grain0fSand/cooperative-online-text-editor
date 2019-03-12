@@ -2,11 +2,12 @@
 # Edit at https://www.gitignore.io/?templates=visualstudiocode
 
 ### VisualStudioCode ###
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
+./c++_project/vscode/*
+./c++_project/vscode/settings.json
+./c++_project/vscode/tasks.json
+./c++_project/vscode/launch.json
+./c++_project/vscode/extensions.json
+./c++_project/Makefile
 
 ### VisualStudioCode Patch ###
 # Ignore all local history of files
