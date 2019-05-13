@@ -30,4 +30,4 @@ standard module, remember:
 9) before write code think about the general structure of you're library
 a good design avoid problems, also think about common sense names
 
-10) do not be a: ![](https://www.google.com/url?sa=i&rct=j&q=&esrc=s&source=images&cd=&cad=rja&uact=8&ved=2ahUKEwjig-HO25jiAhXOK1AKHU0_DrsQjRx6BAgBEAU&url=%2Furl%3Fsa%3Di%26rct%3Dj%26q%3D%26esrc%3Ds%26source%3Dimages%26cd%3D%26ved%3D%26url%3Dhttps%253A%252F%252Fwww.japantimes.co.jp%252Fnews%252F2017%252F06%252F30%252Fnational%252Fforeign-workers-seen-solution-industry-shortage%252F%26psig%3DAOvVaw3KbtD6AkiG5KzJ3tQgG_n1%26ust%3D1557844085035843&psig=AOvVaw3KbtD6AkiG5KzJ3tQgG_n1&ust=1557844085035843)
+10) do not be a: ![](http://fmv.jku.at/fmcad09/pictures/index.html)
