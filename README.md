@@ -30,4 +30,4 @@ standard module, remember:
 9) before write code think about the general structure of you're library
 a good design avoid problems, also think about common sense names
 
-10) do not be a: ![](http://fmv.jku.at/fmcad09/pictures/index.html)
+10) from big languages derives big responsability: ![](https://upload.wikimedia.org/wikipedia/commons/1/18/ISO_C%2B%2B_Logo.svg)
