@@ -7,3 +7,24 @@ c++_project/Makefile
 ### VisualStudioCode Patch ###
 # Ignore all local history of files
 .history
+
+#Dario Patti part of .gitignore
+
+### CLion ###
+
+# Generated files
+.idea/
+
+# CMake
+cmake-build-*/
+
+# File-based project format
+*.iws
+
+### CLion Patch ###
+# Comment Reason: https://github.com/joeblau/gitignore.io/issues/186#issuecomment-215987721
+
+ *.iml
+ modules.xml
+ .idea/misc.xml
+ *.ipr
