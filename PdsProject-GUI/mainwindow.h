@@ -4,54 +4,44 @@
 #include <QMainWindow>
 #include <thread>
 #include <chrono>
+#include <qthread.h>
 
-class Killable_taks {
-    std::atomic<bool> alive;
+class Periodic_task : public QThread
+{
+    Q_OBJECT
+
     int milliseconds;
     std::atomic<bool> launched;
-    std::atomic<bool> is_lambda_setted;
-    std::function<void()> lambda;
 
 public:
 
-    Killable_taks(int milliseconds) : alive(true),milliseconds(milliseconds),is_lambda_setted(false) {
+    void run(void) override {
+        launched = true;
+        while (true){
+            std::this_thread::sleep_for(std::chrono::milliseconds(this->milliseconds));
+            if (launched){
+                emit tick_clock();
+            }
+        }
+    }
+
+    Periodic_task(int milliseconds) : milliseconds(milliseconds){
         if (milliseconds < 10){
             throw "timeout too short, maybe it is an error";
         }
     }
 
-    void start(std::function<void()> func){
-        lambda = [func,this]{
-            while(alive){
-                std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
-                func();
-            }
-        };
-
-        is_lambda_setted = true;
-        launched = true;
-
-        std::thread(lambda).detach();
+    void restart_tick(){
+        this->launched = true;
     }
 
-    void stop(){
-        if (!is_lambda_setted || !launched)
-            throw "cannot stop a thread never started or created";
-        this->alive = false;
+    void stop_tick(){
         this->launched = false;
     }
 
-    void restart(){
-        if (!is_lambda_setted)
-            throw "cannot restart a task never started";
-        if (launched)
-            throw "cannot restart a thread not stopped";
+signals:
+    void tick_clock();
 
-        this->alive = true;
-        this->launched = true;
-
-        std::thread(lambda).detach();
-    }
 };
 
 namespace Ui {
@@ -75,11 +65,12 @@ public:
 public slots:
     void exportPDF();
     void selectFont();
+    void redrawBlinkingImage();
 
 
 private:
     Ui::MainWindow *ui;
-    Killable_taks background_task;
+    Periodic_task background_task;
 };
 
 #endif // MAINWINDOW_H

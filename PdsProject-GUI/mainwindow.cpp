@@ -11,9 +11,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     ui->textEditShared->setAcceptRichText(true);
 
-    background_task.start([]{
-        qDebug() << "try for the periodic signal that enable an action on the ui";
-    });
+    connect(&background_task,SIGNAL(tick_clock()),this,SLOT(redrawBlinkingImage()));
+    background_task.start();
 
     // how to stop and restart the periodic task
     //background_task.stop();
@@ -32,6 +31,10 @@ void MainWindow::exportPDF() {
     qDebug() << "exported pdf button pressed";
 }
 
+void MainWindow::redrawBlinkingImage() {
+    qDebug() << "now it must redraw (show/hide) the images for blinking effect";
+}
+
 void MainWindow::selectFont()
 {
     auto textEdit = ui->textEditShared;
@@ -39,7 +42,7 @@ void MainWindow::selectFont()
 
     // TODO: left as it is, elia will fix it
     if (cursor.selectionStart() != cursor.selectionEnd()){
-        qDebug() << 'end and begin are the same, so i change all the text';
+        qDebug() << "end and begin are the same, so i change all the text";
 
         cursor = textEdit->textCursor();
         QFont boldFont(textEdit->font());
