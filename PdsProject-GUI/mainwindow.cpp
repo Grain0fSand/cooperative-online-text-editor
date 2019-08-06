@@ -5,13 +5,19 @@
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    background_task(200)
 {
     ui->setupUi(this);
-
-
     ui->textEditShared->setAcceptRichText(true);
 
+    background_task.start([]{
+        qDebug() << "try for the periodic signal that enable an action on the ui";
+    });
+
+    // how to stop and restart the periodic task
+    //background_task.stop();
+    //background_task.restart();
 
     // setting up my connect event
     connect(ui->pushButtonFont,SIGNAL(clicked()),this,SLOT(selectFont()));
@@ -32,7 +38,7 @@ void MainWindow::selectFont()
     auto cursor = textEdit->textCursor();
 
     // TODO: left as it is, elia will fix it
-    if (cursor.selectionStart() == cursor.selectionEnd()){
+    if (cursor.selectionStart() != cursor.selectionEnd()){
         qDebug() << 'end and begin are the same, so i change all the text';
 
         cursor = textEdit->textCursor();
