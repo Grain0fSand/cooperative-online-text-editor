@@ -14,9 +14,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(&background_task,SIGNAL(tick_clock()),this,SLOT(redrawBlinkingImage()));
     background_task.start();
 
-    // how to stop and restart the periodic task
-    //background_task.stop();
-    //background_task.restart();
+
+
 
     // setting up my connect event
     connect(ui->pushButtonFont,SIGNAL(clicked()),this,SLOT(selectFont()));
@@ -24,6 +23,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+    background_task.cancel();
+    background_task.wait();
     delete ui;
 }
 

@@ -11,32 +11,25 @@ class Periodic_task : public QThread
     Q_OBJECT
 
     int milliseconds;
-    std::atomic<bool> launched;
+    std::atomic<bool> running;
 
 public:
 
     void run(void) override {
-        launched = true;
-        while (true){
+        while (running){
             std::this_thread::sleep_for(std::chrono::milliseconds(this->milliseconds));
-            if (launched){
-                emit tick_clock();
-            }
+            emit tick_clock();
         }
     }
 
-    Periodic_task(int milliseconds) : milliseconds(milliseconds){
+    void cancel(){
+        this->running = false;
+    }
+
+    Periodic_task(int milliseconds) : milliseconds(milliseconds),running(true) {
         if (milliseconds < 10){
             throw "timeout too short, maybe it is an error";
         }
-    }
-
-    void restart_tick(){
-        this->launched = true;
-    }
-
-    void stop_tick(){
-        this->launched = false;
     }
 
 signals:
