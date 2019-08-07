@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QThread>
 #include <vector>
+#include <QMutex>
 
 
 class OnlineQuery : public QThread
@@ -17,14 +18,14 @@ class OnlineQuery : public QThread
 };
 
 
-template <typename SynkObj>
+class SynkObj {};
 
 // for templating class is not possible split
 // definition from implementation due to the
 // size that the compiler must know for the type
 // during the precompilation phases
 
-class OnlineSynchronizer
+class OnlineSynchronizer : public QObject
 {
     Q_OBJECT
 
@@ -37,11 +38,11 @@ signals:
 public slots:
     void sendSynkObj(SynkObj obj){
         // for thread safe implementation
-        QMutexLocker l(synk_mutex_send);
+        QMutexLocker l(&synk_mutex_send);
 
         send.push_back(obj);
 
-    };
+    }
 
 private:
     QMutex synk_mutex_send;
@@ -53,7 +54,7 @@ private:
 
     void sendSynkObjFromQueue(){
         // for thread safe implementation
-        QMutexLocker l(synk_mutex_receive);
+        QMutexLocker l(&synk_mutex_receive);
         SynkObj obj = receive.back();
         receive.pop_back();
         emit sendSynkObj(obj); // during that phase no-one can access to the receive queue
