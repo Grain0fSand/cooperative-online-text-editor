@@ -104,7 +104,7 @@ class OnlineSynchronizer : public QObject
 
 public:
     OnlineSynchronizer(){
-        this->query.request();
+        this->query.start();
         connect(&(this->query),&OnlineQuery::response_arrived,this,&OnlineSynchronizer::receiveSynkObj);
     }
 
