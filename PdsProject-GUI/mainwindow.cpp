@@ -42,8 +42,11 @@ void MainWindow::selectFont()
     auto cursor = textEdit->textCursor();
 
     // TODO: left as it is, elia will fix it
-    if (cursor.selectionStart() != cursor.selectionEnd()){
+    if (cursor.selectionEnd()&& cursor.selectionStart() != cursor.selectionEnd()){
         qDebug() << "end and begin are the same, so i change all the text";
+
+
+        //QTextDocumentFragment sel = cursor.selection();
 
         cursor = textEdit->textCursor();
         QFont boldFont(textEdit->font());
@@ -59,9 +62,9 @@ void MainWindow::selectFont()
             ui->textEditShared->setFont(font);
             qDebug() << ui->textEditShared->font().toString();
 
-            //QTextCharFormat format;
-            //format.setFont(boldFont);
-            //cursor.setBlockCharFormat(format);
+            QTextCharFormat format;
+            format.setFont(boldFont);
+            cursor.setBlockCharFormat(format);
         }
     }
 

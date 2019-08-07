@@ -29,7 +29,8 @@ SOURCES += \
         mainwindow.cpp
 
 HEADERS += \
-        mainwindow.h
+        mainwindow.h \
+        online_synchronizer.h
 
 FORMS += \
         mainwindow.ui
