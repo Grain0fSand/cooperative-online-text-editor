@@ -1,7 +1,9 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "online_synchronizer.h"
 #include <QDebug>
 #include <QFontDialog>
+#include <QErrorMessage>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -11,11 +13,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     ui->textEditShared->setAcceptRichText(true);
 
-    connect(&background_task,SIGNAL(tick_clock()),this,SLOT(redrawBlinkingImage()));
-    background_task.start();
+    //connect(&background_task,SIGNAL(tick_clock()),this,SLOT(redrawBlinkingImage()));
+    //background_task.start();
 
-
-
+    OnlineSynchronizer* synk = new OnlineSynchronizer{};
 
     // setting up my connect event
     connect(ui->pushButtonFont,SIGNAL(clicked()),this,SLOT(selectFont()));
