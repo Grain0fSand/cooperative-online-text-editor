@@ -56,7 +56,7 @@ private:
         QMutexLocker l(synk_mutex_receive);
         SynkObj obj = receive.back();
         receive.pop_back();
-        sendSynkObj(obj); // during that phase no-one can access to the receive queue
+        emit sendSynkObj(obj); // during that phase no-one can access to the receive queue
     }
 };
 
