@@ -62,3 +62,4 @@ private:
 };
 
 #endif // ONLINE_SYNCHRONIZER_H
+
