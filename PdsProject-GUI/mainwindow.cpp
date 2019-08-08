@@ -13,13 +13,19 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     ui->textEditShared->setAcceptRichText(true);
 
+    // for blinking images
     //connect(&background_task,SIGNAL(tick_clock()),this,SLOT(redrawBlinkingImage()));
     //background_task.start();
 
-    OnlineSynchronizer* synk = new OnlineSynchronizer{};
+    // for web request
+    //OnlineSynchronizer* synk = new OnlineSynchronizer{};
+
+    // setting up the cursor position to understand if text was inserted or deleted
+    this->last_cursor_position = ui->textEditShared->textCursor().position();
 
     // setting up my connect event
     connect(ui->pushButtonFont,SIGNAL(clicked()),this,SLOT(selectFont()));
+    connect(ui->textEditShared,&QTextEdit::textChanged,this,&MainWindow::textChanged);
 }
 
 MainWindow::~MainWindow()
@@ -36,6 +42,30 @@ void MainWindow::exportPDF() {
 void MainWindow::redrawBlinkingImage() {
     qDebug() << "now it must redraw (show/hide) the images for blinking effect";
 }
+
+void MainWindow::textChanged() {
+    int previus_position = this->last_cursor_position;
+    this->last_cursor_position = ui->textEditShared->textCursor().position();
+
+    bool is_text_deleted = (this->last_cursor_position-previus_position) < 0;
+
+    if (is_text_deleted){
+        qDebug() << "the text was deleted";
+    } else {
+        qDebug() << "the text was inserted";
+    }
+
+
+
+    auto charapter = ui->textEditShared->toPlainText().at(this->last_cursor_position-1);
+
+    qDebug() << charapter;
+    //auto text = ui->textEditShared;
+
+
+
+}
+
 
 void MainWindow::selectFont()
 {

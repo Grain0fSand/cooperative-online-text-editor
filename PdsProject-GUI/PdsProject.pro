@@ -26,10 +26,12 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 SOURCES += \
+        json_comunicator.cpp \
         main.cpp \
         mainwindow.cpp
 
 HEADERS += \
+        json_comunicator.h \
         mainwindow.h \
         online_synchronizer.h
 

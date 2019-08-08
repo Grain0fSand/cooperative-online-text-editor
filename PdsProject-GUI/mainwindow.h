@@ -61,9 +61,12 @@ public slots:
     void redrawBlinkingImage();
 
 
+protected slots:
+    void textChanged();
 private:
     Ui::MainWindow *ui;
     Periodic_task background_task;
+    int last_cursor_position;
 };
 
 #endif // MAINWINDOW_H

@@ -116,7 +116,7 @@ public slots:
         // for thread safe implementation
         QMutexLocker l(&synk_mutex_send);
 
-        qDebug() << QString(obj.c_str());
+        qDebug() << "text downloaded from webrequest: " << QString(obj.c_str());
 
         send.push_back(SynkObj(obj));
 
