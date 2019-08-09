@@ -47,31 +47,6 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-bool MainWindow::eventFilter(QObject *obj, QEvent *event)
-{
-
-    if (event->type() == QEvent::KeyPress) {
-        QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
-
-        // filter to remove undo and redo
-
-        if (keyEvent->matches(QKeySequence::Undo))
-        {
-            qDebug() << "Undo pressed" << keyEvent->key();
-            return true;
-        }
-        if (keyEvent->matches(QKeySequence::Redo))
-        {
-            qDebug() << "Redo pressed" << keyEvent->key();
-            return true;
-        }
-        return false;
-    } else {
-        return false;
-    }
-
-}
-
 void MainWindow::exportPDF() {
     qDebug() << "exported pdf button pressed";
 }
@@ -157,6 +132,7 @@ void MainWindow::memorizeSelection()
     this->toDelete = cursor.selectionStart() - cursor.selectionEnd();
 }
 
+// TODO: refactory for shared_editor.h
 void MainWindow::makeBold()
 {
     auto textEdit = ui->textEditShared;
@@ -197,6 +173,7 @@ void MainWindow::redrawBlinkingImage() {
     qDebug() << "now it must redraw (show/hide) the images for blinking effect";
 }
 
+// TODO: refactory for shared_editor.h
 void MainWindow::makeItalic()
 {
     auto textEdit = ui->textEditShared;
@@ -228,6 +205,8 @@ void MainWindow::makeItalic()
     }
 }
 
+
+// TODO: refactory for shared_editor.h
 void MainWindow::makeUnderline()
 {
     auto textEdit = ui->textEditShared;
@@ -259,6 +238,7 @@ void MainWindow::makeUnderline()
     }
 }
 
+// TODO: refactory delete for shared_editor.h
 void MainWindow::textChanged() {
     int previus_position = this->last_cursor_position;
     this->last_cursor_position = ui->textEditShared->textCursor().position();
@@ -280,6 +260,7 @@ void MainWindow::textChanged() {
 }
 
 
+// TODO: refactory for shared_editor.h
 void MainWindow::selectFont()
 {
     auto initial_font = ui->textEditShared->font();
@@ -294,5 +275,31 @@ void MainWindow::selectFont()
     ui->textEditShared->setTextCursor(text_cursor);
 
     qDebug() << ui->textEditShared->toHtml();
+
+}
+
+
+bool MainWindow::eventFilter(QObject *obj, QEvent *event)
+{
+
+    if (event->type() == QEvent::KeyPress) {
+        QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+
+        // filter to remove undo and redo
+
+        if (keyEvent->matches(QKeySequence::Undo))
+        {
+            qDebug() << "Undo pressed" << keyEvent->key();
+            return true;
+        }
+        if (keyEvent->matches(QKeySequence::Redo))
+        {
+            qDebug() << "Redo pressed" << keyEvent->key();
+            return true;
+        }
+        return false;
+    } else {
+        return false;
+    }
 
 }
