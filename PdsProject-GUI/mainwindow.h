@@ -49,16 +49,19 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    void keyPressed();
-    void textCopied();
-    void textPasted();
     void collaborativeURI_Copied();
     void collaborativeURI_Pasted();
 
 public slots:
     void exportPDF();
+    void makeBold();
     void selectFont();
     void redrawBlinkingImage();
+    void makeItalic();
+    void makeUnderline();
+    void alignLeft();
+    void alignCenter();
+    void alignRight();
 
 
 protected slots:

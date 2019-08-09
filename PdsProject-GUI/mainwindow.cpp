@@ -24,7 +24,13 @@ MainWindow::MainWindow(QWidget *parent) :
     this->last_cursor_position = ui->textEditShared->textCursor().position();
 
     // setting up my connect event
+    connect(ui->pushButtonAlignLeft,SIGNAL(clicked()),this,SLOT(alignLeft()));
+    connect(ui->pushButtonAlignCenter,SIGNAL(clicked()),this,SLOT(alignCenter()));
+    connect(ui->pushButtonAlignRight,SIGNAL(clicked()),this,SLOT(alignRight()));
+    connect(ui->pushButtonBold,SIGNAL(clicked()),this,SLOT(makeBold()));
     connect(ui->pushButtonFont,SIGNAL(clicked()),this,SLOT(selectFont()));
+    connect(ui->pushButtonItalic,SIGNAL(clicked()),this,SLOT(makeItalic()));
+    connect(ui->pushButtonUnderlined,SIGNAL(clicked()),this,SLOT(makeUnderline()));
     connect(ui->textEditShared,&QTextEdit::textChanged,this,&MainWindow::textChanged);
 }
 
@@ -39,8 +45,152 @@ void MainWindow::exportPDF() {
     qDebug() << "exported pdf button pressed";
 }
 
+void MainWindow::alignLeft()
+{
+    auto textEdit = ui->textEditShared;
+    auto cursor = textEdit->textCursor();
+
+    auto format = cursor.charFormat();
+    auto font = format.font();
+    auto initial_font = font;
+
+    auto is_bold = !font.bold();
+
+    if (cursor.selectionStart() != cursor.selectionEnd()){
+        auto text = cursor.selectedText();
+        cursor.insertHtml("<p align=\"left\">" + text + "</p>");
+    }
+}
+
+void MainWindow::alignCenter()
+{
+    auto textEdit = ui->textEditShared;
+    auto cursor = textEdit->textCursor();
+
+    auto format = cursor.charFormat();
+    auto font = format.font();
+    auto initial_font = font;
+
+    auto is_bold = !font.bold();
+
+    if (cursor.selectionStart() != cursor.selectionEnd()){
+        auto text = cursor.selectedText();
+        cursor.insertHtml("<p align=\"center\">" + text + "</p>");
+    }
+}
+
+void MainWindow::alignRight()
+{
+    auto textEdit = ui->textEditShared;
+    auto cursor = textEdit->textCursor();
+
+    auto format = cursor.charFormat();
+    auto font = format.font();
+    auto initial_font = font;
+
+    auto is_bold = !font.bold();
+
+    if (cursor.selectionStart() != cursor.selectionEnd()){
+        auto text = cursor.selectedText();
+        cursor.insertHtml("<p align=\"right\">" + text + "</p>");
+    }
+}
+
+void MainWindow::makeBold()
+{
+    auto textEdit = ui->textEditShared;
+    auto cursor = textEdit->textCursor();
+
+    auto format = cursor.charFormat();
+    auto font = format.font();
+    auto initial_font = font;
+
+    auto is_bold = !font.bold();
+
+    if (cursor.selectionStart() != cursor.selectionEnd()){
+        font.setBold(is_bold);
+
+        format.setFont(font);
+
+        cursor.setCharFormat(format);
+        int pos = cursor.selectionEnd();
+        cursor.setPosition(pos);
+
+        format.setFont(initial_font);
+        cursor.setCharFormat(format);
+        textEdit->setTextCursor(cursor);
+    } else {
+        initial_font.setBold(is_bold);
+        format.setFont(initial_font);
+        cursor.setCharFormat(format);
+        textEdit->setTextCursor(cursor);
+    }
+}
+
 void MainWindow::redrawBlinkingImage() {
     qDebug() << "now it must redraw (show/hide) the images for blinking effect";
+}
+
+void MainWindow::makeItalic()
+{
+    auto textEdit = ui->textEditShared;
+    auto cursor = textEdit->textCursor();
+
+    auto format = cursor.charFormat();
+    auto font = format.font();
+    auto initial_font = font;
+
+    auto is_italic = !font.italic();
+
+    if (cursor.selectionStart() != cursor.selectionEnd()){
+        font.setItalic(is_italic);
+
+        format.setFont(font);
+
+        cursor.setCharFormat(format);
+        int pos = cursor.selectionEnd();
+        cursor.setPosition(pos);
+
+        format.setFont(initial_font);
+        cursor.setCharFormat(format);
+        textEdit->setTextCursor(cursor);
+    } else {
+        font.setItalic(is_italic);
+        format.setFont(initial_font);
+        cursor.setCharFormat(format);
+        textEdit->setTextCursor(cursor);
+    }
+}
+
+void MainWindow::makeUnderline()
+{
+    auto textEdit = ui->textEditShared;
+    auto cursor = textEdit->textCursor();
+
+    auto format = cursor.charFormat();
+    auto font = format.font();
+    auto initial_font = font;
+
+    auto is_underlined = !font.underline();
+
+    if (cursor.selectionStart() != cursor.selectionEnd()){
+        font.setUnderline(is_underlined);
+
+        format.setFont(font);
+
+        cursor.setCharFormat(format);
+        int pos = cursor.selectionEnd();
+        cursor.setPosition(pos);
+
+        format.setFont(initial_font);
+        cursor.setCharFormat(format);
+        textEdit->setTextCursor(cursor);
+    } else {
+        initial_font.setUnderline(is_underlined);
+        format.setFont(initial_font);
+        cursor.setCharFormat(format);
+        textEdit->setTextCursor(cursor);
+    }
 }
 
 void MainWindow::textChanged() {
@@ -56,12 +206,16 @@ void MainWindow::textChanged() {
     }
 
 
+    int pos = this->last_cursor_position-1;
 
-    auto charapter = ui->textEditShared->toPlainText().at(this->last_cursor_position-1);
+    if (pos >= 0){
+        auto charapter = ui->textEditShared->toPlainText().at(pos);
 
-    qDebug() << charapter;
-    //auto text = ui->textEditShared;
-
+        qDebug() << "the previus char of the deleted is: " << charapter;
+        //auto text = ui->textEditShared;
+    } else {
+        qDebug() << "all the text is deleted";
+    }
 
 
 }
@@ -69,34 +223,17 @@ void MainWindow::textChanged() {
 
 void MainWindow::selectFont()
 {
-    auto textEdit = ui->textEditShared;
-    auto cursor = textEdit->textCursor();
+    auto initial_font = ui->textEditShared->font();
+    bool ok;
+    QFont font = QFontDialog::getFont(&ok, initial_font, this);
 
-    // TODO: left as it is, elia will fix it
-    if (cursor.selectionEnd()&& cursor.selectionStart() != cursor.selectionEnd()){
-        qDebug() << "end and begin are the same, so i change all the text";
+    auto text_cursor = ui->textEditShared->textCursor();
+    auto format = text_cursor.charFormat();
+    format.setFont(font);
 
+    text_cursor.setCharFormat(format);
+    ui->textEditShared->setTextCursor(text_cursor);
 
-        //QTextDocumentFragment sel = cursor.selection();
-
-        cursor = textEdit->textCursor();
-        QFont boldFont(textEdit->font());
-
-        QFont initialFont = ui->textEditShared->font();
-        qDebug() << initialFont.toString();
-
-        bool ok;
-        QFont font = QFontDialog::getFont(
-                        &ok, initialFont, this);
-        if (ok) {
-            qDebug() << font.toString();
-            ui->textEditShared->setFont(font);
-            qDebug() << ui->textEditShared->font().toString();
-
-            QTextCharFormat format;
-            format.setFont(boldFont);
-            cursor.setBlockCharFormat(format);
-        }
-    }
+    qDebug() << ui->textEditShared->toHtml();
 
 }

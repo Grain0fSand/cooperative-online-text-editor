@@ -52,10 +52,12 @@ OBJECTS_DIR   = ./
 
 ####### Files
 
-SOURCES       = main.cpp \
+SOURCES       = json_comunicator.cpp \
+		main.cpp \
 		mainwindow.cpp moc_mainwindow.cpp \
 		moc_online_synchronizer.cpp
-OBJECTS       = main.o \
+OBJECTS       = json_comunicator.o \
+		main.o \
 		mainwindow.o \
 		moc_mainwindow.o \
 		moc_online_synchronizer.o
@@ -225,6 +227,7 @@ DIST          = ../../../../Qt/5.13.0/clang_64/mkspecs/features/spec_pre.prf \
 		../../../../Qt/5.13.0/clang_64/mkspecs/features/qt_config.prf \
 		../../../../Qt/5.13.0/clang_64/mkspecs/macx-clang/qmake.conf \
 		../../../../Qt/5.13.0/clang_64/mkspecs/features/spec_post.prf \
+		.qmake.stash \
 		../../../../Qt/5.13.0/clang_64/mkspecs/features/exclusive_builds.prf \
 		../../../../Qt/5.13.0/clang_64/mkspecs/features/mac/sdk.prf \
 		../../../../Qt/5.13.0/clang_64/mkspecs/features/toolchain.prf \
@@ -252,8 +255,10 @@ DIST          = ../../../../Qt/5.13.0/clang_64/mkspecs/features/spec_pre.prf \
 		../../../../Qt/5.13.0/clang_64/mkspecs/features/exceptions.prf \
 		../../../../Qt/5.13.0/clang_64/mkspecs/features/yacc.prf \
 		../../../../Qt/5.13.0/clang_64/mkspecs/features/lex.prf \
-		PdsProject.pro mainwindow.h \
-		online_synchronizer.h main.cpp \
+		PdsProject.pro json_comunicator.h \
+		mainwindow.h \
+		online_synchronizer.h json_comunicator.cpp \
+		main.cpp \
 		mainwindow.cpp
 QMAKE_TARGET  = PdsProject
 DESTDIR       = 
@@ -443,6 +448,7 @@ Makefile: PdsProject.pro ../../../../Qt/5.13.0/clang_64/mkspecs/macx-clang/qmake
 		../../../../Qt/5.13.0/clang_64/mkspecs/features/qt_config.prf \
 		../../../../Qt/5.13.0/clang_64/mkspecs/macx-clang/qmake.conf \
 		../../../../Qt/5.13.0/clang_64/mkspecs/features/spec_post.prf \
+		.qmake.stash \
 		../../../../Qt/5.13.0/clang_64/mkspecs/features/exclusive_builds.prf \
 		../../../../Qt/5.13.0/clang_64/mkspecs/features/mac/sdk.prf \
 		../../../../Qt/5.13.0/clang_64/mkspecs/features/toolchain.prf \
@@ -642,6 +648,7 @@ Makefile: PdsProject.pro ../../../../Qt/5.13.0/clang_64/mkspecs/macx-clang/qmake
 ../../../../Qt/5.13.0/clang_64/mkspecs/features/qt_config.prf:
 ../../../../Qt/5.13.0/clang_64/mkspecs/macx-clang/qmake.conf:
 ../../../../Qt/5.13.0/clang_64/mkspecs/features/spec_post.prf:
+.qmake.stash:
 ../../../../Qt/5.13.0/clang_64/mkspecs/features/exclusive_builds.prf:
 ../../../../Qt/5.13.0/clang_64/mkspecs/features/mac/sdk.prf:
 ../../../../Qt/5.13.0/clang_64/mkspecs/features/toolchain.prf:
@@ -704,8 +711,8 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents ../../../../Qt/5.13.0/clang_64/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents mainwindow.h online_synchronizer.h $(DISTDIR)/
-	$(COPY_FILE) --parents main.cpp mainwindow.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents json_comunicator.h mainwindow.h online_synchronizer.h $(DISTDIR)/
+	$(COPY_FILE) --parents json_comunicator.cpp main.cpp mainwindow.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents mainwindow.ui $(DISTDIR)/
 
 
@@ -716,6 +723,7 @@ clean: compiler_clean
 
 distclean: clean 
 	-$(DEL_FILE) -r PdsProject.app
+	-$(DEL_FILE) .qmake.stash
 	-$(DEL_FILE) Makefile
 
 
@@ -790,6 +798,17 @@ compiler_lex_clean:
 compiler_clean: compiler_moc_predefs_clean compiler_moc_header_clean compiler_uic_clean 
 
 ####### Compile
+
+json_comunicator.o: json_comunicator.cpp json_comunicator.h \
+		../../../../Qt/5.13.0/clang_64/lib/QtCore.framework/Headers/QObject \
+		../../../../Qt/5.13.0/clang_64/lib/QtCore.framework/Headers/qobject.h \
+		../../../../Qt/5.13.0/clang_64/lib/QtCore.framework/Headers/QJsonDocument \
+		../../../../Qt/5.13.0/clang_64/lib/QtCore.framework/Headers/qjsondocument.h \
+		../../../../Qt/5.13.0/clang_64/lib/QtCore.framework/Headers/QJsonArray \
+		../../../../Qt/5.13.0/clang_64/lib/QtCore.framework/Headers/qjsonarray.h \
+		../../../../Qt/5.13.0/clang_64/lib/QtCore.framework/Headers/QJsonObject \
+		../../../../Qt/5.13.0/clang_64/lib/QtCore.framework/Headers/qjsonobject.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o json_comunicator.o json_comunicator.cpp
 
 main.o: main.cpp mainwindow.h \
 		../../../../Qt/5.13.0/clang_64/lib/QtWidgets.framework/Headers/QMainWindow \
