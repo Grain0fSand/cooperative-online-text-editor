@@ -257,7 +257,8 @@ DIST          = ../../../../Qt/5.13.0/clang_64/mkspecs/features/spec_pre.prf \
 		../../../../Qt/5.13.0/clang_64/mkspecs/features/lex.prf \
 		PdsProject.pro json_comunicator.h \
 		mainwindow.h \
-		online_synchronizer.h json_comunicator.cpp \
+		online_synchronizer.h \
+		shared_editor.h json_comunicator.cpp \
 		main.cpp \
 		mainwindow.cpp
 QMAKE_TARGET  = PdsProject
@@ -711,7 +712,7 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents ../../../../Qt/5.13.0/clang_64/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents json_comunicator.h mainwindow.h online_synchronizer.h $(DISTDIR)/
+	$(COPY_FILE) --parents json_comunicator.h mainwindow.h online_synchronizer.h shared_editor.h $(DISTDIR)/
 	$(COPY_FILE) --parents json_comunicator.cpp main.cpp mainwindow.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents mainwindow.ui $(DISTDIR)/
 

@@ -33,7 +33,8 @@ SOURCES += \
 HEADERS += \
         json_comunicator.h \
         mainwindow.h \
-        online_synchronizer.h
+        online_synchronizer.h \
+        shared_editor.h
 
 FORMS += \
         mainwindow.ui

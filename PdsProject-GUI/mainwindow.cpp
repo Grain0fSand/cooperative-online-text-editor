@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "online_synchronizer.h"
+#include "shared_editor.h"
 #include <QDebug>
 #include <QFontDialog>
 #include <QErrorMessage>
@@ -10,6 +11,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow),
     background_task(200)
 {
+    this->toDelete = 0;
     ui->setupUi(this);
     ui->textEditShared->setAcceptRichText(true);
 
@@ -23,7 +25,11 @@ MainWindow::MainWindow(QWidget *parent) :
     // setting up the cursor position to understand if text was inserted or deleted
     this->last_cursor_position = ui->textEditShared->textCursor().position();
 
+    ui->textEditShared->installEventFilter(this);
+    Shared_editor::getInstance().initString(ui->textEditShared->toHtml());
+
     // setting up my connect event
+    connect(ui->textEditShared,SIGNAL(selectionChanged()),this,SLOT(memorizeSelection()));
     connect(ui->pushButtonAlignLeft,SIGNAL(clicked()),this,SLOT(alignLeft()));
     connect(ui->pushButtonAlignCenter,SIGNAL(clicked()),this,SLOT(alignCenter()));
     connect(ui->pushButtonAlignRight,SIGNAL(clicked()),this,SLOT(alignRight()));
@@ -39,6 +45,31 @@ MainWindow::~MainWindow()
     background_task.cancel();
     background_task.wait();
     delete ui;
+}
+
+bool MainWindow::eventFilter(QObject *obj, QEvent *event)
+{
+
+    if (event->type() == QEvent::KeyPress) {
+        QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+
+        // filter to remove undo and redo
+
+        if (keyEvent->matches(QKeySequence::Undo))
+        {
+            qDebug() << "Undo pressed" << keyEvent->key();
+            return true;
+        }
+        if (keyEvent->matches(QKeySequence::Redo))
+        {
+            qDebug() << "Redo pressed" << keyEvent->key();
+            return true;
+        }
+        return false;
+    } else {
+        return false;
+    }
+
 }
 
 void MainWindow::exportPDF() {
@@ -58,7 +89,18 @@ void MainWindow::alignLeft()
 
     if (cursor.selectionStart() != cursor.selectionEnd()){
         auto text = cursor.selectedText();
-        cursor.insertHtml("<p align=\"left\">" + text + "</p>");
+        QString pre = "<p align=\"left\">";
+        QString post = "</p>";
+
+        Shared_editor::getInstance().addString(cursor.selectionStart(),pre);
+        Shared_editor::getInstance().addString(cursor.selectionEnd(),post);
+
+        auto rendered = Shared_editor::getInstance().toString();
+        qDebug() << rendered;
+
+
+        //cursor.insertHtml(pre + text + post);
+        ui->textEditShared->setHtml(rendered);
     }
 }
 
@@ -75,7 +117,14 @@ void MainWindow::alignCenter()
 
     if (cursor.selectionStart() != cursor.selectionEnd()){
         auto text = cursor.selectedText();
-        cursor.insertHtml("<p align=\"center\">" + text + "</p>");
+
+        QString pre = "<p align=\"center\">";
+        QString post = "</p>";
+
+        Shared_editor::getInstance().addString(cursor.selectionStart(),pre);
+        Shared_editor::getInstance().addString(cursor.selectionEnd(),post);
+
+        cursor.insertHtml(pre + text + post);
     }
 }
 
@@ -92,8 +141,20 @@ void MainWindow::alignRight()
 
     if (cursor.selectionStart() != cursor.selectionEnd()){
         auto text = cursor.selectedText();
-        cursor.insertHtml("<p align=\"right\">" + text + "</p>");
+        QString pre = "<p align=\"right\">";
+        QString post = "</p>";
+
+        Shared_editor::getInstance().addString(cursor.selectionStart(),pre);
+        Shared_editor::getInstance().addString(cursor.selectionEnd(),post);
+
+        cursor.insertHtml(pre + text + post);
     }
+}
+
+void MainWindow::memorizeSelection()
+{
+    auto cursor = ui->textEditShared->textCursor();
+    this->toDelete = cursor.selectionStart() - cursor.selectionEnd();
 }
 
 void MainWindow::makeBold()
@@ -108,23 +169,28 @@ void MainWindow::makeBold()
     auto is_bold = !font.bold();
 
     if (cursor.selectionStart() != cursor.selectionEnd()){
-        font.setBold(is_bold);
 
-        format.setFont(font);
 
-        cursor.setCharFormat(format);
-        int pos = cursor.selectionEnd();
-        cursor.setPosition(pos);
 
-        format.setFont(initial_font);
-        cursor.setCharFormat(format);
-        textEdit->setTextCursor(cursor);
+        //font.setBold(is_bold);
+
+        //format.setFont(font);
+
+        //cursor.setCharFormat(format);
+        //int pos = cursor.selectionEnd();
+        //cursor.setPosition(pos);
+
+        //format.setFont(initial_font);
+        //cursor.setCharFormat(format);
+        //textEdit->setTextCursor(cursor);
     } else {
         initial_font.setBold(is_bold);
         format.setFont(initial_font);
         cursor.setCharFormat(format);
         textEdit->setTextCursor(cursor);
     }
+
+    qDebug() << ui->textEditShared->toHtml();
 }
 
 void MainWindow::redrawBlinkingImage() {
@@ -200,23 +266,16 @@ void MainWindow::textChanged() {
     bool is_text_deleted = (this->last_cursor_position-previus_position) < 0;
 
     if (is_text_deleted){
+        Shared_editor::getInstance().removeString(this->last_cursor_position,toDelete);
         qDebug() << "the text was deleted";
     } else {
+        int pos = this->last_cursor_position-1;
+        auto charapter = ui->textEditShared->toPlainText().at(pos);
+        Shared_editor::getInstance().addCharapter(pos,charapter);
         qDebug() << "the text was inserted";
     }
 
-
-    int pos = this->last_cursor_position-1;
-
-    if (pos >= 0){
-        auto charapter = ui->textEditShared->toPlainText().at(pos);
-
-        qDebug() << "the previus char of the deleted is: " << charapter;
-        //auto text = ui->textEditShared;
-    } else {
-        qDebug() << "all the text is deleted";
-    }
-
+    qDebug() << Shared_editor::getInstance().toString();
 
 }
 

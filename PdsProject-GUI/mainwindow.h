@@ -2,6 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QShortcut>
+#include <QKeyEvent>
 #include <thread>
 #include <chrono>
 #include <qthread.h>
@@ -51,6 +53,8 @@ public:
 
     void collaborativeURI_Copied();
     void collaborativeURI_Pasted();
+    bool eventFilter(QObject *obj,QEvent* event);
+
 
 public slots:
     void exportPDF();
@@ -62,14 +66,20 @@ public slots:
     void alignLeft();
     void alignCenter();
     void alignRight();
+    void memorizeSelection();
+
 
 
 protected slots:
     void textChanged();
+
 private:
     Ui::MainWindow *ui;
     Periodic_task background_task;
     int last_cursor_position;
+    int toDelete;
+    QShortcut *shortcutUndo;
+    QShortcut *shortcutRedo;
 };
 
 #endif // MAINWINDOW_H
