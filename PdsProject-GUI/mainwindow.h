@@ -55,31 +55,37 @@ public:
     void collaborativeURI_Pasted();
     bool eventFilter(QObject *obj,QEvent* event);
 
-
 public slots:
     void exportPDF();
-    void makeBold();
-    void selectFont();
+    void selectFont(int);
+    void selectSize(int);
     void redrawBlinkingImage();
+    void makeBold();
     void makeItalic();
     void makeUnderline();
     void alignLeft();
     void alignCenter();
     void alignRight();
+    void alignJustify();
     void memorizeSelection();
-
-
+    void checkFontProperty();
 
 protected slots:
     void textChanged();
+
+signals:
+    void setComboSize(int);
+    void setComboFont(QFont);
 
 private:
     Ui::MainWindow *ui;
     Periodic_task background_task;
     int last_cursor_position;
     int toDelete;
+    QStringList fontSizes;
     QShortcut *shortcutUndo;
     QShortcut *shortcutRedo;
+    QClipboard *clipboard;
 };
 
 #endif // MAINWINDOW_H
