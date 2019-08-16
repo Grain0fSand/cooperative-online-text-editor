@@ -1,0 +1,18 @@
+<RCC>
+    <qresource prefix="/">
+        <file>PdsProject.app/Contents/Resources/img/ic_content_copy_36pt_2x.png</file>
+        <file>PdsProject.app/Contents/Resources/img/ic_content_cut_36pt_2x.png</file>
+        <file>PdsProject.app/Contents/Resources/img/ic_content_paste_36pt_2x.png</file>
+        <file>PdsProject.app/Contents/Resources/img/ic_format_align_center_36pt_2x.png</file>
+        <file>PdsProject.app/Contents/Resources/img/ic_format_align_justify_36pt_2x.png</file>
+        <file>PdsProject.app/Contents/Resources/img/ic_format_align_left_36pt_2x.png</file>
+        <file>PdsProject.app/Contents/Resources/img/ic_format_align_right_36pt_2x.png</file>
+        <file>PdsProject.app/Contents/Resources/img/ic_format_bold_36pt_2x.png</file>
+        <file>PdsProject.app/Contents/Resources/img/ic_format_italic_36pt_2x.png</file>
+        <file>PdsProject.app/Contents/Resources/img/ic_format_underlined_36pt_2x.png</file>
+        <file>PdsProject.app/Contents/Resources/img/ic_redo_36pt_2x.png</file>
+        <file>PdsProject.app/Contents/Resources/img/ic_undo_36pt_2x.png</file>
+        <file>PdsProject.app/Contents/Resources/img/greenLed.png</file>
+        <file>PdsProject.app/Contents/Resources/img/redLed.png</file>
+    </qresource>
+</RCC>
