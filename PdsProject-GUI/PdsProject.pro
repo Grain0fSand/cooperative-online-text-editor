@@ -31,6 +31,7 @@ SOURCES += \
         mainwindow.cpp
 
 HEADERS += \
+        image_utility.h \
         json_comunicator.h \
         mainwindow.h \
         online_synchronizer.h \
@@ -43,3 +44,6 @@ FORMS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+RESOURCES += \
+    resources.qrc

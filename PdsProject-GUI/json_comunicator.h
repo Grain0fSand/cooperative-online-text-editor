@@ -14,9 +14,6 @@ public:
 
 
 private:
-    QJsonDocument  json;
-    QJsonArray recordsArray;
-    QJsonObject  recordObject;
 };
 
 #endif // JSON_COMUNICATOR_H
