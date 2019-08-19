@@ -14,5 +14,6 @@
         <file>PdsProject.app/Contents/Resources/img/ic_undo_36pt_2x.png</file>
         <file>PdsProject.app/Contents/Resources/img/greenLed.png</file>
         <file>PdsProject.app/Contents/Resources/img/redLed.png</file>
+        <file>PdsProject.app/Contents/Resources/img/cursor.svg</file>
     </qresource>
 </RCC>
