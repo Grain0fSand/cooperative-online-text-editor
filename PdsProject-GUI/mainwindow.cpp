@@ -24,10 +24,12 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     ui->textEditShared->setAcceptRichText(true);
 
+    /*
     UserTag testTag;
     auto widget = testTag.createTag();
     testTag.chooseUserLogo();
     widget->setParent(ui->usersAreaWidgetContents);
+    */
 
     // for blinking images
     //connect(&background_task,SIGNAL(tick_clock()),this,SLOT(redrawBlinkingImage()));
@@ -60,26 +62,26 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->mainToolBar->insertWidget(ui->mainToolBar->actions()[8], comboSize);
 
     // setting up my connect event
-    connect(ui->textEditShared,SIGNAL(selectionChanged()),this,SLOT(memorizeSelection()));
+    connect(ui->textEditShared,&QTextEdit::selectionChanged,this,&MainWindow::memorizeSelection);
 
-    connect(ui->actionCopy,SIGNAL(triggered()),ui->textEditShared,SLOT(copy()));
-    connect(ui->actionCut,SIGNAL(triggered()),ui->textEditShared,SLOT(cut()));
-    connect(ui->actionPaste,SIGNAL(triggered()),ui->textEditShared,SLOT(paste()));
+    connect(ui->actionCopy,&QAction::triggered,ui->textEditShared,&QTextEdit::copy);
+    connect(ui->actionCut,&QAction::triggered,ui->textEditShared,&QTextEdit::cut);
+    connect(ui->actionPaste,&QAction::triggered,ui->textEditShared,&QTextEdit::paste);
     connect(comboFont,SIGNAL(activated(int)),this,SLOT(selectFont(int)));
     connect(comboSize,SIGNAL(activated(int)),this,SLOT(selectSize(int)));
-    connect(ui->actionBold,SIGNAL(triggered()),this,SLOT(makeBold()));
-    connect(ui->actionItalic,SIGNAL(triggered()),this,SLOT(makeItalic()));
-    connect(ui->actionUnderlined,SIGNAL(triggered()),this,SLOT(makeUnderline()));
-    connect(ui->actionAlignLeft,SIGNAL(triggered()),this,SLOT(alignLeft()));
-    connect(ui->actionAlignCenter,SIGNAL(triggered()),this,SLOT(alignCenter()));
-    connect(ui->actionAlignRight,SIGNAL(triggered()),this,SLOT(alignRight()));
-    connect(ui->actionAlignJustify,SIGNAL(triggered()),this,SLOT(alignJustify()));
+    connect(ui->actionBold,&QAction::triggered,this,&MainWindow::makeBold);
+    connect(ui->actionItalic,&QAction::triggered,this,&MainWindow::makeItalic);
+    connect(ui->actionUnderlined,&QAction::triggered,this,&MainWindow::makeUnderline);
+    connect(ui->actionAlignLeft,&QAction::triggered,this,&MainWindow::alignLeft);
+    connect(ui->actionAlignCenter,&QAction::triggered,this,&MainWindow::alignCenter);
+    connect(ui->actionAlignRight,&QAction::triggered,this,&MainWindow::alignRight);
+    connect(ui->actionAlignJustify,&QAction::triggered,this,&MainWindow::alignJustify);
 
     //connect(ui->textEditShared,&QTextEdit::textChanged,this,&MainWindow::textChanged);
-    connect(ui->textEditShared,SIGNAL(cursorPositionChanged()),this,SLOT(checkTextProperty()));
-    connect(this,SIGNAL(setComboSize(int)),comboSize,SLOT(setCurrentIndex(int)));
-    connect(this,SIGNAL(setComboFont(QFont)),comboFont,SLOT(setCurrentFont(QFont)));
-    connect(ui->actionExport_to_PDF,SIGNAL(triggered()),this,SLOT(exportPDF()));
+    connect(ui->textEditShared,&QTextEdit::cursorPositionChanged,this,&MainWindow::checkTextProperty);
+    connect(this,&MainWindow::setComboSize,comboSize,&QComboBox::setCurrentIndex);
+    connect(this,&MainWindow::setComboFont,comboFont,&QFontComboBox::setCurrentFont);
+    connect(ui->actionExport_to_PDF,&QAction::triggered,this,&MainWindow::exportPDF);
 }
 
 MainWindow::~MainWindow()
