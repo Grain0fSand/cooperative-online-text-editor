@@ -68,7 +68,7 @@ public slots:
     void alignRight();
     void alignJustify();
     void memorizeSelection();
-    void checkFontProperty();
+    void checkTextProperty();
 
 protected slots:
     void textChanged();

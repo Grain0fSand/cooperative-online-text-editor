@@ -6,6 +6,7 @@
 
 QT       += core gui
 QT       += network
+QT       += printsupport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -28,14 +29,15 @@ CONFIG += c++11
 SOURCES += \
         json_comunicator.cpp \
         main.cpp \
-        mainwindow.cpp
+        mainwindow.cpp \
+        usertag.cpp
 
 HEADERS += \
-        image_utility.h \
         json_comunicator.h \
         mainwindow.h \
         online_synchronizer.h \
-        shared_editor.h
+        shared_editor.h \
+        usertag.h
 
 FORMS += \
         mainwindow.ui

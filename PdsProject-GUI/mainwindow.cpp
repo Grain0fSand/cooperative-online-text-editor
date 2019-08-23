@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include "online_synchronizer.h"
 #include "shared_editor.h"
+#include "usertag.h"
 #include <QDebug>
 #include <QFontDialog>
 #include <QErrorMessage>
@@ -10,6 +11,9 @@
 #include <QLabel>
 #include <QUndoStack>
 #include <QClipboard>
+#include <QPrinter>
+#include <QFileDialog>
+#include <QMessageBox>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -19,6 +23,11 @@ MainWindow::MainWindow(QWidget *parent) :
     this->toDelete = 0;
     ui->setupUi(this);
     ui->textEditShared->setAcceptRichText(true);
+
+    UserTag testTag;
+    auto widget = testTag.createTag();
+    testTag.chooseUserLogo();
+    widget->setParent(ui->usersAreaWidgetContents);
 
     // for blinking images
     //connect(&background_task,SIGNAL(tick_clock()),this,SLOT(redrawBlinkingImage()));
@@ -32,16 +41,20 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->textEditShared->installEventFilter(this);
     Shared_editor::getInstance().initString(ui->textEditShared->toHtml());
+    ui->textEditShared->setCurrentFont(QFont("Calibri",11,-1,false));
+
+    this->clipboard = QApplication::clipboard();
 
     // adding comboboxes for font type and size
     auto comboFont = new QFontComboBox(ui->mainToolBar);
     auto comboSize = new QComboBox(ui->mainToolBar);
 
-    this->clipboard = QApplication::clipboard();
-
-    QStringList tmp({"8","9","10","11","12","14","16","18","20","22","24","26","28","36","48","72"});
-    this->fontSizes = tmp;
+    this->fontSizes << "8" << "9" << "10" << "11" << "12" <<
+                       "14" << "16" << "18" << "20" << "22" <<
+                       "24" << "26" << "28" << "36" << "48" << "72";
     comboSize->addItems(fontSizes);
+    comboSize->setCurrentText(QString::number(ui->textEditShared->currentFont().pointSize()));
+    comboFont->setCurrentFont(ui->textEditShared->currentFont());
     comboFont->setEditable(false);
     ui->mainToolBar->insertWidget(ui->mainToolBar->actions()[7], comboFont);
     ui->mainToolBar->insertWidget(ui->mainToolBar->actions()[8], comboSize);
@@ -62,10 +75,11 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionAlignRight,SIGNAL(triggered()),this,SLOT(alignRight()));
     connect(ui->actionAlignJustify,SIGNAL(triggered()),this,SLOT(alignJustify()));
 
-    connect(ui->textEditShared,&QTextEdit::textChanged,this,&MainWindow::textChanged);
-    connect(ui->textEditShared,SIGNAL(cursorPositionChanged()),this,SLOT(checkFontProperty()));
+    //connect(ui->textEditShared,&QTextEdit::textChanged,this,&MainWindow::textChanged);
+    connect(ui->textEditShared,SIGNAL(cursorPositionChanged()),this,SLOT(checkTextProperty()));
     connect(this,SIGNAL(setComboSize(int)),comboSize,SLOT(setCurrentIndex(int)));
     connect(this,SIGNAL(setComboFont(QFont)),comboFont,SLOT(setCurrentFont(QFont)));
+    connect(ui->actionExport_to_PDF,SIGNAL(triggered()),this,SLOT(exportPDF()));
 }
 
 MainWindow::~MainWindow()
@@ -75,8 +89,24 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::exportPDF() {
-    qDebug() << "exported pdf button pressed";
+void MainWindow::exportPDF()
+{
+    QString file_path = QFileDialog::getSaveFileName(this,"Export to PDF..","","Pdf file (*.pdf);;All Files (*)");
+
+    if(file_path!="") {
+        QPrinter* printer = new QPrinter(QPrinter::PrinterResolution);
+        printer->setOutputFormat(QPrinter::PdfFormat);
+        printer->setOutputFileName(file_path);
+        printer->setPaperSize(QPrinter::A4);
+        ui->textEditShared->print(printer);
+        QString file_name = file_path.split("/").last();
+        if (printer->printerState()<2) {
+            QMessageBox::information(this,"Export to PDF","File "+file_name+" exported successfully.");
+        }
+        else {
+            QMessageBox::information(this,"Error","Error exporting "+file_name+".");
+        }
+    }
 }
 
 void MainWindow::alignLeft()
@@ -86,6 +116,7 @@ void MainWindow::alignLeft()
     auto textBlockFormat = cursor.blockFormat();
 
     textBlockFormat.setAlignment(Qt::AlignLeft);
+    ui->actionAlignLeft->setChecked(true);
     ui->actionAlignCenter->setChecked(false);
     ui->actionAlignRight->setChecked(false);
     ui->actionAlignJustify->setChecked(false);
@@ -102,6 +133,7 @@ void MainWindow::alignCenter()
 
     textBlockFormat.setAlignment(Qt::AlignCenter);
     ui->actionAlignLeft->setChecked(false);
+    ui->actionAlignCenter->setChecked(true);
     ui->actionAlignRight->setChecked(false);
     ui->actionAlignJustify->setChecked(false);
 
@@ -119,6 +151,7 @@ void MainWindow::alignRight()
     textBlockFormat.setAlignment(Qt::AlignRight);
     ui->actionAlignLeft->setChecked(false);
     ui->actionAlignCenter->setChecked(false);
+    ui->actionAlignRight->setChecked(true);
     ui->actionAlignJustify->setChecked(false);
 
     cursor.mergeBlockFormat(textBlockFormat);
@@ -135,6 +168,7 @@ void MainWindow::alignJustify()
     ui->actionAlignLeft->setChecked(false);
     ui->actionAlignCenter->setChecked(false);
     ui->actionAlignRight->setChecked(false);
+    ui->actionAlignJustify->setChecked(true);
 
     cursor.mergeBlockFormat(textBlockFormat);
     textEdit->setTextCursor(cursor);
@@ -290,7 +324,7 @@ void MainWindow::selectSize(int sizeIndex)
     textEdit->setTextCursor(cursor);
 }
 
-void MainWindow::checkFontProperty()
+void MainWindow::checkTextProperty()
 {
     auto text_cursor = ui->textEditShared->textCursor();
 

@@ -117,11 +117,13 @@ public:
         actionAlignRight->setIcon(icon8);
         actionUndo = new QAction(MainWindow);
         actionUndo->setObjectName(QString::fromUtf8("actionUndo"));
+        actionUndo->setEnabled(false);
         QIcon icon9;
         icon9.addFile(QString::fromUtf8(":/PdsProject.app/Contents/Resources/img/ic_undo_36pt_2x.png"), QSize(), QIcon::Normal, QIcon::Off);
         actionUndo->setIcon(icon9);
         actionRedo = new QAction(MainWindow);
         actionRedo->setObjectName(QString::fromUtf8("actionRedo"));
+        actionRedo->setEnabled(false);
         QIcon icon10;
         icon10.addFile(QString::fromUtf8(":/PdsProject.app/Contents/Resources/img/ic_redo_36pt_2x.png"), QSize(), QIcon::Normal, QIcon::Off);
         actionRedo->setIcon(icon10);
@@ -156,8 +158,8 @@ public:
         sizePolicy1.setHeightForWidth(textEditShared->sizePolicy().hasHeightForWidth());
         textEditShared->setSizePolicy(sizePolicy1);
         QFont font;
-        font.setFamily(QString::fromUtf8("Helvetica"));
-        font.setPointSize(16);
+        font.setFamily(QString::fromUtf8("Calibri"));
+        font.setPointSize(11);
         font.setBold(false);
         font.setItalic(false);
         font.setUnderline(false);
@@ -169,12 +171,15 @@ public:
 
         usersArea = new QScrollArea(centralWidget);
         usersArea->setObjectName(QString::fromUtf8("usersArea"));
-        sizePolicy1.setHeightForWidth(usersArea->sizePolicy().hasHeightForWidth());
-        usersArea->setSizePolicy(sizePolicy1);
+        QSizePolicy sizePolicy2(QSizePolicy::Fixed, QSizePolicy::Expanding);
+        sizePolicy2.setHorizontalStretch(0);
+        sizePolicy2.setVerticalStretch(0);
+        sizePolicy2.setHeightForWidth(usersArea->sizePolicy().hasHeightForWidth());
+        usersArea->setSizePolicy(sizePolicy2);
         usersArea->setWidgetResizable(true);
         usersAreaWidgetContents = new QWidget();
         usersAreaWidgetContents->setObjectName(QString::fromUtf8("usersAreaWidgetContents"));
-        usersAreaWidgetContents->setGeometry(QRect(0, 0, 481, 580));
+        usersAreaWidgetContents->setGeometry(QRect(0, 0, 69, 580));
         usersArea->setWidget(usersAreaWidgetContents);
 
         horizontalLayout_3->addWidget(usersArea);
@@ -182,11 +187,11 @@ public:
         MainWindow->setCentralWidget(centralWidget);
         mainToolBar = new QToolBar(MainWindow);
         mainToolBar->setObjectName(QString::fromUtf8("mainToolBar"));
-        QSizePolicy sizePolicy2(QSizePolicy::Preferred, QSizePolicy::Expanding);
-        sizePolicy2.setHorizontalStretch(0);
-        sizePolicy2.setVerticalStretch(0);
-        sizePolicy2.setHeightForWidth(mainToolBar->sizePolicy().hasHeightForWidth());
-        mainToolBar->setSizePolicy(sizePolicy2);
+        QSizePolicy sizePolicy3(QSizePolicy::Preferred, QSizePolicy::Expanding);
+        sizePolicy3.setHorizontalStretch(0);
+        sizePolicy3.setVerticalStretch(0);
+        sizePolicy3.setHeightForWidth(mainToolBar->sizePolicy().hasHeightForWidth());
+        mainToolBar->setSizePolicy(sizePolicy3);
         mainToolBar->setIconSize(QSize(40, 40));
         MainWindow->addToolBar(Qt::TopToolBarArea, mainToolBar);
         statusBar = new QStatusBar(MainWindow);
@@ -251,8 +256,8 @@ public:
         textEditShared->setHtml(QCoreApplication::translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:'Helvetica'; font-size:16pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Bangla MN';\"><br /></p></body></html>", nullptr));
+"</style></head><body style=\" font-family:'Calibri'; font-size:11pt; font-weight:400; font-style:normal;\">\n"
+"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Bangla MN'; font-size:16pt;\"><br /></p></body></html>", nullptr));
         textEditShared->setPlaceholderText(QCoreApplication::translate("MainWindow", "inizia ad editare qui!", nullptr));
         mainToolBar->setWindowTitle(QCoreApplication::translate("MainWindow", "SynkEditor", nullptr));
         menuMain->setTitle(QCoreApplication::translate("MainWindow", "Main", nullptr));
