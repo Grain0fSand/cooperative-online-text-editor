@@ -494,7 +494,7 @@ background-color: white;</string>
     <property name="geometry">
      <rect>
       <x>70</x>
-      <y>320</y>
+      <y>280</y>
       <width>181</width>
       <height>42</height>
      </rect>
@@ -538,7 +538,7 @@ QPushButton:hover {
     <property name="geometry">
      <rect>
       <x>70</x>
-      <y>360</y>
+      <y>320</y>
       <width>191</width>
       <height>42</height>
      </rect>
@@ -626,7 +626,7 @@ QPushButton:hover {
     <property name="geometry">
      <rect>
       <x>245</x>
-      <y>210</y>
+      <y>190</y>
       <width>36</width>
       <height>21</height>
      </rect>
@@ -658,7 +658,7 @@ QPushButton:hover {
     <property name="geometry">
      <rect>
       <x>110</x>
-      <y>210</y>
+      <y>190</y>
       <width>71</width>
       <height>21</height>
      </rect>
@@ -677,7 +677,7 @@ QPushButton:hover {
     <property name="geometry">
      <rect>
       <x>40</x>
-      <y>210</y>
+      <y>190</y>
       <width>60</width>
       <height>60</height>
      </rect>
@@ -708,7 +708,7 @@ QPushButton:hover {
     <property name="geometry">
      <rect>
       <x>110</x>
-      <y>230</y>
+      <y>210</y>
       <width>151</width>
       <height>41</height>
      </rect>
@@ -721,6 +721,50 @@ QPushButton:hover {
     </property>
     <property name="text">
      <string>dario.patti90</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="loggedURIButton">
+    <property name="geometry">
+     <rect>
+      <x>70</x>
+      <y>360</y>
+      <width>186</width>
+      <height>42</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Verdana</family>
+      <pointsize>11</pointsize>
+     </font>
+    </property>
+    <property name="cursor">
+     <cursorShape>PointingHandCursor</cursorShape>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton {
+	text-align: left;
+}
+QPushButton:hover {
+	text-align: left;
+	font-size: 16px;
+}</string>
+    </property>
+    <property name="text">
+     <string> Open From URI</string>
+    </property>
+    <property name="icon">
+     <iconset resource="resources.qrc">
+      <normaloff>:/PdsProject.app/Contents/Resources/img/195008_terre_256x256.png</normaloff>:/PdsProject.app/Contents/Resources/img/195008_terre_256x256.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>40</width>
+      <height>40</height>
+     </size>
+    </property>
+    <property name="flat">
+     <bool>true</bool>
     </property>
    </widget>
    <zorder>loginUsernameLabel</zorder>
@@ -745,6 +789,7 @@ QPushButton:hover {
    <zorder>loggedWelcomeLabel</zorder>
    <zorder>loggedAvatar</zorder>
    <zorder>loggedUsernameLabel</zorder>
+   <zorder>loggedURIButton</zorder>
   </widget>
   <widget class="QFrame" name="titleBar">
    <property name="geometry">

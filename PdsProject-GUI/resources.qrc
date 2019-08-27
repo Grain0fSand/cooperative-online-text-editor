@@ -27,5 +27,6 @@
         <file>PdsProject.app/Contents/Resources/img/newDoc.png</file>
         <file>PdsProject.app/Contents/Resources/img/openDoc.png</file>
         <file>PdsProject.app/Contents/Resources/avatars/avatar.png</file>
+        <file>PdsProject.app/Contents/Resources/img/openURI.png</file>
     </qresource>
 </RCC>

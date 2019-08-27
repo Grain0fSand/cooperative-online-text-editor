@@ -8,7 +8,6 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     LoginWindow l;
-    l.show();
     l.exec();
     if(l.isLoginCorrect()) {
         MainWindow w;

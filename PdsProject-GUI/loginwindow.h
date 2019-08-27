@@ -25,6 +25,7 @@ public slots:
     void changeYourUsername();
     void changeYourAvatar();
     void openEditor();
+    void requestURI();
 
 private:
     Ui::LoginWindow *ui;

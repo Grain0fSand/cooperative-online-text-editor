@@ -30,6 +30,7 @@ LoginWindow::LoginWindow(QWidget *parent) :
     connect(ui->actionChangeUsername,&QAction::triggered,this,&LoginWindow::changeYourUsername);
     connect(ui->actionChangeAvatar,&QAction::triggered,this,&LoginWindow::changeYourAvatar);
     connect(ui->loggedNewButton,&QPushButton::clicked,this,&LoginWindow::openEditor);
+    connect(ui->loggedURIButton,&QPushButton::clicked,this,&LoginWindow::requestURI);
 }
 
 LoginWindow::~LoginWindow()
@@ -83,10 +84,7 @@ void LoginWindow::changeYourUsername()
     dialog->setTextValue(ui->loggedUsernameLabel->text());
     dialog->setModal(true);
     while(true) {
-        dialog->show();
-        dialog->exec();
-
-        if(dialog->textValue()=="") {
+        if(dialog->exec()==QDialog::Accepted && dialog->textValue()=="") {
             QMessageBox* advice = new QMessageBox(this);
             advice->setText("Username field empty!\nEnter a valid username");
             advice->setIcon(QMessageBox::Critical);
@@ -115,6 +113,25 @@ void LoginWindow::openEditor()
 {
     this->loginCorrect=true;
     close();
+}
+
+void LoginWindow::requestURI()
+{
+    QInputDialog* dialog = new QInputDialog(this);
+    dialog->setLabelText("Paste the URI here:");
+    dialog->setModal(true);
+    while(true) {
+        if(dialog->exec()==QDialog::Accepted && dialog->textValue()=="") {
+            QMessageBox* advice = new QMessageBox(this);
+            advice->setText("URI field empty!\nEnter a valid URI");
+            advice->setIcon(QMessageBox::Critical);
+            advice->exec();
+        }
+        else {
+            qDebug() << "open document from URI";
+            break;
+        }
+    }
 }
 
 void LoginWindow::tryLogin()
