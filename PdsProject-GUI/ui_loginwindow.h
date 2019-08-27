@@ -11,11 +11,13 @@
 
 #include <QtCore/QVariant>
 #include <QtGui/QIcon>
+#include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QFrame>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QPushButton>
+#include <QtWidgets/QToolButton>
 #include <QtWidgets/QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -23,6 +25,8 @@ QT_BEGIN_NAMESPACE
 class Ui_LoginWindow
 {
 public:
+    QAction *actionChangeUsername;
+    QAction *actionChangeAvatar;
     QLabel *banner;
     QFrame *formFrame;
     QLabel *loginUsernameLabel;
@@ -40,10 +44,18 @@ public:
     QLabel *registerUsernameLabel;
     QLineEdit *registerEmailInput;
     QLabel *registerPasswordLabel;
+    QPushButton *loggedNewButton;
+    QPushButton *loggedOpenButton;
+    QPushButton *loggedLogoutButton;
+    QToolButton *loggedSettingsButton;
+    QLabel *loggedWelcomeLabel;
+    QLabel *loggedAvatar;
+    QLabel *loggedUsernameLabel;
     QFrame *titleBar;
     QPushButton *closeButton;
     QPushButton *minimizeButton;
-    QLabel *loginLogo;
+    QLabel *formLogo;
+    QFrame *verticalSeparator;
 
     void setupUi(QWidget *LoginWindow)
     {
@@ -53,6 +65,11 @@ public:
         QIcon icon;
         icon.addFile(QString::fromUtf8(":/PdsProject.app/Contents/Resources/img/logoIcon.png"), QSize(), QIcon::Normal, QIcon::Off);
         LoginWindow->setWindowIcon(icon);
+        LoginWindow->setAutoFillBackground(false);
+        actionChangeUsername = new QAction(LoginWindow);
+        actionChangeUsername->setObjectName(QString::fromUtf8("actionChangeUsername"));
+        actionChangeAvatar = new QAction(LoginWindow);
+        actionChangeAvatar->setObjectName(QString::fromUtf8("actionChangeAvatar"));
         banner = new QLabel(LoginWindow);
         banner->setObjectName(QString::fromUtf8("banner"));
         banner->setGeometry(QRect(0, 0, 320, 480));
@@ -60,12 +77,10 @@ public:
         banner->setScaledContents(true);
         formFrame = new QFrame(LoginWindow);
         formFrame->setObjectName(QString::fromUtf8("formFrame"));
-        formFrame->setGeometry(QRect(320, 0, 320, 480));
-        formFrame->setFrameShape(QFrame::StyledPanel);
-        formFrame->setFrameShadow(QFrame::Raised);
+        formFrame->setGeometry(QRect(0, 0, 640, 480));
         loginUsernameLabel = new QLabel(formFrame);
         loginUsernameLabel->setObjectName(QString::fromUtf8("loginUsernameLabel"));
-        loginUsernameLabel->setGeometry(QRect(60, 198, 151, 21));
+        loginUsernameLabel->setGeometry(QRect(380, 198, 151, 21));
         QFont font;
         font.setFamily(QString::fromUtf8("Verdana"));
         font.setPointSize(9);
@@ -73,7 +88,7 @@ public:
         loginUsernameLabel->setStyleSheet(QString::fromUtf8("padding-left: 7px;"));
         loginUsernameInput = new QLineEdit(formFrame);
         loginUsernameInput->setObjectName(QString::fromUtf8("loginUsernameInput"));
-        loginUsernameInput->setGeometry(QRect(60, 220, 201, 31));
+        loginUsernameInput->setGeometry(QRect(380, 220, 201, 31));
         QFont font1;
         font1.setFamily(QString::fromUtf8("Arial"));
         font1.setPointSize(11);
@@ -85,7 +100,7 @@ public:
         loginUsernameInput->setCursorPosition(0);
         loginPasswordInput = new QLineEdit(formFrame);
         loginPasswordInput->setObjectName(QString::fromUtf8("loginPasswordInput"));
-        loginPasswordInput->setGeometry(QRect(60, 280, 201, 31));
+        loginPasswordInput->setGeometry(QRect(380, 280, 201, 31));
         loginPasswordInput->setFont(font1);
         loginPasswordInput->setStyleSheet(QString::fromUtf8("border-radius: 8px;\n"
 "padding-left: 8px;\n"
@@ -94,18 +109,39 @@ public:
         loginPasswordInput->setCursorPosition(0);
         loginPasswordLabel = new QLabel(formFrame);
         loginPasswordLabel->setObjectName(QString::fromUtf8("loginPasswordLabel"));
-        loginPasswordLabel->setGeometry(QRect(60, 258, 151, 21));
+        loginPasswordLabel->setGeometry(QRect(380, 258, 151, 21));
         loginPasswordLabel->setFont(font);
         loginPasswordLabel->setStyleSheet(QString::fromUtf8("padding-left: 7px;"));
         loginButton = new QPushButton(formFrame);
         loginButton->setObjectName(QString::fromUtf8("loginButton"));
-        loginButton->setGeometry(QRect(110, 330, 101, 31));
+        loginButton->setGeometry(QRect(430, 330, 101, 31));
         loginButton->setFont(font);
         loginButton->setCursor(QCursor(Qt::PointingHandCursor));
-        loginButton->setAutoFillBackground(true);
+        loginButton->setAutoFillBackground(false);
+        loginButton->setStyleSheet(QString::fromUtf8("QPushButton {\n"
+"background-color: #E1E1E1;\n"
+"border-radius: 8;\n"
+"padding: 3px;\n"
+"padding-left: 5px;\n"
+"padding-right: 5px;\n"
+"border-width: 1px;\n"
+"border-color: #ADADAD;\n"
+"border-style: solid;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"widget-animation-duration: 100;\n"
+"background-color: #E4EFF9;\n"
+"border-color: #0C7BD4;\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"background-color: #CDE4F7;\n"
+"border-color: #00559B;\n"
+"}"));
         loginErrorLabel = new QLabel(formFrame);
         loginErrorLabel->setObjectName(QString::fromUtf8("loginErrorLabel"));
-        loginErrorLabel->setGeometry(QRect(60, 380, 201, 41));
+        loginErrorLabel->setGeometry(QRect(380, 380, 201, 41));
         QFont font2;
         font2.setFamily(QString::fromUtf8("Myanmar Text"));
         font2.setPointSize(9);
@@ -114,7 +150,7 @@ public:
         loginErrorLabel->setAlignment(Qt::AlignCenter);
         loginText = new QPushButton(formFrame);
         loginText->setObjectName(QString::fromUtf8("loginText"));
-        loginText->setGeometry(QRect(65, 436, 191, 24));
+        loginText->setGeometry(QRect(385, 436, 191, 24));
         QFont font3;
         font3.setFamily(QString::fromUtf8("Myanmar Text"));
         font3.setPointSize(11);
@@ -126,7 +162,7 @@ public:
         loginText->setFlat(true);
         registerText = new QPushButton(formFrame);
         registerText->setObjectName(QString::fromUtf8("registerText"));
-        registerText->setGeometry(QRect(400, 436, 161, 24));
+        registerText->setGeometry(QRect(720, 436, 161, 24));
         registerText->setFont(font3);
         registerText->setCursor(QCursor(Qt::PointingHandCursor));
         registerText->setFocusPolicy(Qt::NoFocus);
@@ -134,12 +170,12 @@ public:
         registerText->setFlat(true);
         registerEmailLabel = new QLabel(formFrame);
         registerEmailLabel->setObjectName(QString::fromUtf8("registerEmailLabel"));
-        registerEmailLabel->setGeometry(QRect(380, 180, 151, 21));
+        registerEmailLabel->setGeometry(QRect(700, 180, 151, 21));
         registerEmailLabel->setFont(font);
         registerEmailLabel->setStyleSheet(QString::fromUtf8("padding-left: 7px;"));
         registerPasswordInput = new QLineEdit(formFrame);
         registerPasswordInput->setObjectName(QString::fromUtf8("registerPasswordInput"));
-        registerPasswordInput->setGeometry(QRect(380, 320, 201, 31));
+        registerPasswordInput->setGeometry(QRect(700, 320, 201, 31));
         registerPasswordInput->setFont(font1);
         registerPasswordInput->setStyleSheet(QString::fromUtf8("border-radius: 8px;\n"
 "padding-left: 8px;\n"
@@ -148,7 +184,7 @@ public:
         registerPasswordInput->setCursorPosition(0);
         registerUsernameInput = new QLineEdit(formFrame);
         registerUsernameInput->setObjectName(QString::fromUtf8("registerUsernameInput"));
-        registerUsernameInput->setGeometry(QRect(380, 260, 201, 31));
+        registerUsernameInput->setGeometry(QRect(700, 260, 201, 31));
         registerUsernameInput->setFont(font1);
         registerUsernameInput->setStyleSheet(QString::fromUtf8("border-radius: 8px;\n"
 "padding-left: 8px;\n"
@@ -157,18 +193,39 @@ public:
         registerUsernameInput->setCursorPosition(0);
         registerButton = new QPushButton(formFrame);
         registerButton->setObjectName(QString::fromUtf8("registerButton"));
-        registerButton->setGeometry(QRect(430, 370, 101, 31));
+        registerButton->setGeometry(QRect(750, 370, 101, 31));
         registerButton->setFont(font);
         registerButton->setCursor(QCursor(Qt::PointingHandCursor));
-        registerButton->setAutoFillBackground(true);
+        registerButton->setAutoFillBackground(false);
+        registerButton->setStyleSheet(QString::fromUtf8("QPushButton {\n"
+"background-color: #E1E1E1;\n"
+"border-radius: 8;\n"
+"padding: 3px;\n"
+"padding-left: 5px;\n"
+"padding-right: 5px;\n"
+"border-width: 1px;\n"
+"border-color: #ADADAD;\n"
+"border-style: solid;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"widget-animation-duration: 100;\n"
+"background-color: #E4EFF9;\n"
+"border-color: #0C7BD4;\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"background-color: #CDE4F7;\n"
+"border-color: #00559B;\n"
+"}"));
         registerUsernameLabel = new QLabel(formFrame);
         registerUsernameLabel->setObjectName(QString::fromUtf8("registerUsernameLabel"));
-        registerUsernameLabel->setGeometry(QRect(380, 238, 151, 21));
+        registerUsernameLabel->setGeometry(QRect(700, 238, 151, 21));
         registerUsernameLabel->setFont(font);
         registerUsernameLabel->setStyleSheet(QString::fromUtf8("padding-left: 7px;"));
         registerEmailInput = new QLineEdit(formFrame);
         registerEmailInput->setObjectName(QString::fromUtf8("registerEmailInput"));
-        registerEmailInput->setGeometry(QRect(380, 202, 201, 31));
+        registerEmailInput->setGeometry(QRect(700, 202, 201, 31));
         registerEmailInput->setFont(font1);
         registerEmailInput->setStyleSheet(QString::fromUtf8("border-radius: 8px;\n"
 "padding-left: 8px;\n"
@@ -177,9 +234,93 @@ public:
         registerEmailInput->setCursorPosition(0);
         registerPasswordLabel = new QLabel(formFrame);
         registerPasswordLabel->setObjectName(QString::fromUtf8("registerPasswordLabel"));
-        registerPasswordLabel->setGeometry(QRect(380, 298, 151, 21));
+        registerPasswordLabel->setGeometry(QRect(700, 298, 151, 21));
         registerPasswordLabel->setFont(font);
         registerPasswordLabel->setStyleSheet(QString::fromUtf8("padding-left: 7px;"));
+        loggedNewButton = new QPushButton(formFrame);
+        loggedNewButton->setObjectName(QString::fromUtf8("loggedNewButton"));
+        loggedNewButton->setGeometry(QRect(70, 320, 181, 42));
+        QFont font4;
+        font4.setFamily(QString::fromUtf8("Verdana"));
+        font4.setPointSize(11);
+        loggedNewButton->setFont(font4);
+        loggedNewButton->setCursor(QCursor(Qt::PointingHandCursor));
+        loggedNewButton->setStyleSheet(QString::fromUtf8("QPushButton {\n"
+"	text-align: left;\n"
+"}\n"
+"QPushButton:hover {\n"
+"	text-align: left;\n"
+"	font-size: 16px;\n"
+"}"));
+        QIcon icon1;
+        icon1.addFile(QString::fromUtf8(":/PdsProject.app/Contents/Resources/img/newDoc.png"), QSize(), QIcon::Normal, QIcon::Off);
+        loggedNewButton->setIcon(icon1);
+        loggedNewButton->setIconSize(QSize(40, 40));
+        loggedNewButton->setFlat(true);
+        loggedOpenButton = new QPushButton(formFrame);
+        loggedOpenButton->setObjectName(QString::fromUtf8("loggedOpenButton"));
+        loggedOpenButton->setGeometry(QRect(70, 360, 191, 42));
+        loggedOpenButton->setFont(font4);
+        loggedOpenButton->setCursor(QCursor(Qt::PointingHandCursor));
+        loggedOpenButton->setStyleSheet(QString::fromUtf8("QPushButton {\n"
+"	text-align: left;\n"
+"}\n"
+"QPushButton:hover {\n"
+"	text-align: left;\n"
+"	font-size: 16px;\n"
+"}"));
+        QIcon icon2;
+        icon2.addFile(QString::fromUtf8(":/PdsProject.app/Contents/Resources/img/openDoc.png"), QSize(), QIcon::Normal, QIcon::Off);
+        loggedOpenButton->setIcon(icon2);
+        loggedOpenButton->setIconSize(QSize(40, 40));
+        loggedOpenButton->setFlat(true);
+        loggedLogoutButton = new QPushButton(formFrame);
+        loggedLogoutButton->setObjectName(QString::fromUtf8("loggedLogoutButton"));
+        loggedLogoutButton->setGeometry(QRect(76, 400, 111, 42));
+        loggedLogoutButton->setFont(font4);
+        loggedLogoutButton->setCursor(QCursor(Qt::PointingHandCursor));
+        loggedLogoutButton->setStyleSheet(QString::fromUtf8("QPushButton {\n"
+"	text-align: left;\n"
+"}\n"
+"QPushButton:hover {\n"
+"	text-align: left;\n"
+"	font-size: 16px;\n"
+"}"));
+        QIcon icon3;
+        icon3.addFile(QString::fromUtf8(":/PdsProject.app/Contents/Resources/img/logOut.png"), QSize(), QIcon::Normal, QIcon::Off);
+        loggedLogoutButton->setIcon(icon3);
+        loggedLogoutButton->setIconSize(QSize(40, 40));
+        loggedLogoutButton->setFlat(true);
+        loggedSettingsButton = new QToolButton(formFrame);
+        loggedSettingsButton->setObjectName(QString::fromUtf8("loggedSettingsButton"));
+        loggedSettingsButton->setGeometry(QRect(245, 210, 36, 21));
+        loggedSettingsButton->setStyleSheet(QString::fromUtf8("color: #707070;"));
+        QIcon icon4;
+        icon4.addFile(QString::fromUtf8(":/PdsProject.app/Contents/Resources/img/ic_settings_18pt_2x.png"), QSize(), QIcon::Normal, QIcon::Off);
+        loggedSettingsButton->setIcon(icon4);
+        loggedSettingsButton->setIconSize(QSize(20, 20));
+        loggedSettingsButton->setPopupMode(QToolButton::InstantPopup);
+        loggedSettingsButton->setAutoRaise(true);
+        loggedWelcomeLabel = new QLabel(formFrame);
+        loggedWelcomeLabel->setObjectName(QString::fromUtf8("loggedWelcomeLabel"));
+        loggedWelcomeLabel->setGeometry(QRect(110, 210, 71, 21));
+        loggedWelcomeLabel->setFont(font4);
+        loggedAvatar = new QLabel(formFrame);
+        loggedAvatar->setObjectName(QString::fromUtf8("loggedAvatar"));
+        loggedAvatar->setGeometry(QRect(40, 210, 60, 60));
+        loggedAvatar->setStyleSheet(QString::fromUtf8(""));
+        loggedAvatar->setFrameShape(QFrame::Panel);
+        loggedAvatar->setFrameShadow(QFrame::Raised);
+        loggedAvatar->setLineWidth(1);
+        loggedAvatar->setPixmap(QPixmap(QString::fromUtf8("PdsProject.app/Contents/Resources/.profiles/avatar.png")));
+        loggedAvatar->setScaledContents(true);
+        loggedUsernameLabel = new QLabel(formFrame);
+        loggedUsernameLabel->setObjectName(QString::fromUtf8("loggedUsernameLabel"));
+        loggedUsernameLabel->setGeometry(QRect(110, 230, 151, 41));
+        QFont font5;
+        font5.setFamily(QString::fromUtf8("Verdana"));
+        font5.setPointSize(14);
+        loggedUsernameLabel->setFont(font5);
         loginUsernameLabel->raise();
         loginUsernameInput->raise();
         loginPasswordInput->raise();
@@ -195,6 +336,13 @@ public:
         registerUsernameLabel->raise();
         registerEmailInput->raise();
         registerPasswordLabel->raise();
+        loggedNewButton->raise();
+        loggedOpenButton->raise();
+        loggedLogoutButton->raise();
+        loggedSettingsButton->raise();
+        loggedWelcomeLabel->raise();
+        loggedAvatar->raise();
+        loggedUsernameLabel->raise();
         titleBar = new QFrame(LoginWindow);
         titleBar->setObjectName(QString::fromUtf8("titleBar"));
         titleBar->setGeometry(QRect(0, 0, 640, 30));
@@ -204,27 +352,38 @@ public:
         closeButton->setObjectName(QString::fromUtf8("closeButton"));
         closeButton->setGeometry(QRect(610, 5, 21, 23));
         closeButton->setCursor(QCursor(Qt::PointingHandCursor));
-        QIcon icon1;
-        icon1.addFile(QString::fromUtf8(":/PdsProject.app/Contents/Resources/img/closeButton.png"), QSize(), QIcon::Normal, QIcon::Off);
-        closeButton->setIcon(icon1);
+        QIcon icon5;
+        icon5.addFile(QString::fromUtf8(":/PdsProject.app/Contents/Resources/img/closeButton.png"), QSize(), QIcon::Normal, QIcon::Off);
+        closeButton->setIcon(icon5);
         closeButton->setFlat(true);
         minimizeButton = new QPushButton(titleBar);
         minimizeButton->setObjectName(QString::fromUtf8("minimizeButton"));
         minimizeButton->setGeometry(QRect(589, 5, 21, 23));
         minimizeButton->setCursor(QCursor(Qt::PointingHandCursor));
-        QIcon icon2;
-        icon2.addFile(QString::fromUtf8(":/PdsProject.app/Contents/Resources/img/minimizeButton.png"), QSize(), QIcon::Normal, QIcon::Off);
-        minimizeButton->setIcon(icon2);
+        QIcon icon6;
+        icon6.addFile(QString::fromUtf8(":/PdsProject.app/Contents/Resources/img/minimizeButton.png"), QSize(), QIcon::Normal, QIcon::Off);
+        minimizeButton->setIcon(icon6);
         minimizeButton->setFlat(true);
-        loginLogo = new QLabel(LoginWindow);
-        loginLogo->setObjectName(QString::fromUtf8("loginLogo"));
-        loginLogo->setGeometry(QRect(420, 45, 120, 120));
-        loginLogo->setPixmap(QPixmap(QString::fromUtf8(":/PdsProject.app/Contents/Resources/img/logoApp.png")));
-        loginLogo->setScaledContents(true);
+        formLogo = new QLabel(LoginWindow);
+        formLogo->setObjectName(QString::fromUtf8("formLogo"));
+        formLogo->setGeometry(QRect(420, 45, 120, 120));
+        formLogo->setPixmap(QPixmap(QString::fromUtf8(":/PdsProject.app/Contents/Resources/img/logoApp.png")));
+        formLogo->setScaledContents(true);
+        verticalSeparator = new QFrame(LoginWindow);
+        verticalSeparator->setObjectName(QString::fromUtf8("verticalSeparator"));
+        verticalSeparator->setGeometry(QRect(320, -1, 1, 482));
+        QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        sizePolicy.setHorizontalStretch(0);
+        sizePolicy.setVerticalStretch(0);
+        sizePolicy.setHeightForWidth(verticalSeparator->sizePolicy().hasHeightForWidth());
+        verticalSeparator->setSizePolicy(sizePolicy);
+        verticalSeparator->setFrameShadow(QFrame::Raised);
+        verticalSeparator->setFrameShape(QFrame::VLine);
         formFrame->raise();
-        banner->raise();
         titleBar->raise();
-        loginLogo->raise();
+        formLogo->raise();
+        banner->raise();
+        verticalSeparator->raise();
 
         retranslateUi(LoginWindow);
 
@@ -233,7 +392,8 @@ public:
 
     void retranslateUi(QWidget *LoginWindow)
     {
-        LoginWindow->setWindowTitle(QCoreApplication::translate("LoginWindow", "Login", nullptr));
+        actionChangeUsername->setText(QCoreApplication::translate("LoginWindow", "Change your username", nullptr));
+        actionChangeAvatar->setText(QCoreApplication::translate("LoginWindow", "Change your avatar", nullptr));
         banner->setText(QString());
         loginUsernameLabel->setText(QCoreApplication::translate("LoginWindow", "Username", nullptr));
         loginUsernameInput->setText(QString());
@@ -250,9 +410,17 @@ public:
         registerUsernameLabel->setText(QCoreApplication::translate("LoginWindow", "Username", nullptr));
         registerEmailInput->setText(QString());
         registerPasswordLabel->setText(QCoreApplication::translate("LoginWindow", "Password", nullptr));
+        loggedNewButton->setText(QCoreApplication::translate("LoginWindow", " New Document", nullptr));
+        loggedOpenButton->setText(QCoreApplication::translate("LoginWindow", " Open Document", nullptr));
+        loggedLogoutButton->setText(QCoreApplication::translate("LoginWindow", "Logout", nullptr));
+        loggedSettingsButton->setText(QString());
+        loggedWelcomeLabel->setText(QCoreApplication::translate("LoginWindow", "Welcome", nullptr));
+        loggedAvatar->setText(QString());
+        loggedUsernameLabel->setText(QCoreApplication::translate("LoginWindow", "dario.patti90", nullptr));
         closeButton->setText(QString());
         minimizeButton->setText(QString());
-        loginLogo->setText(QString());
+        formLogo->setText(QString());
+        Q_UNUSED(LoginWindow);
     } // retranslateUi
 
 };

@@ -21,7 +21,10 @@ public:
 public slots:
     void tryLogin();
     void slowClose();
-    void switchFrame();
+    void switchFrame(int direction=0);
+    void changeYourUsername();
+    void changeYourAvatar();
+    void openEditor();
 
 private:
     Ui::LoginWindow *ui;

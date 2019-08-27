@@ -23,5 +23,9 @@
         <file>PdsProject.app/Contents/Resources/img/bannerApp.png</file>
         <file>PdsProject.app/Contents/Resources/img/logoApp.png</file>
         <file>PdsProject.app/Contents/Resources/img/logoIcon.png</file>
+        <file>PdsProject.app/Contents/Resources/img/logOut.png</file>
+        <file>PdsProject.app/Contents/Resources/img/newDoc.png</file>
+        <file>PdsProject.app/Contents/Resources/img/openDoc.png</file>
+        <file>PdsProject.app/Contents/Resources/avatars/avatar.png</file>
     </qresource>
 </RCC>
