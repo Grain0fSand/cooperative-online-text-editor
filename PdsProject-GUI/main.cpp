@@ -25,5 +25,4 @@ int main(int argc, char *argv[])
     create_svg(c,120);
 
 */
-    return a.exec();
 }
