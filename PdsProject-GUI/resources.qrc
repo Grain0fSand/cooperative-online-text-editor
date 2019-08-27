@@ -14,6 +14,14 @@
         <file>PdsProject.app/Contents/Resources/img/ic_undo_36pt_2x.png</file>
         <file>PdsProject.app/Contents/Resources/img/greenLed.png</file>
         <file>PdsProject.app/Contents/Resources/img/redLed.png</file>
-        <file>PdsProject.app/Contents/Resources/img/cursor.svg</file>
+        <file>PdsProject.app/Contents/Resources/img/logo_poli.png</file>
+        <file>PdsProject.app/Contents/Resources/img/closeButton.png</file>
+        <file>PdsProject.app/Contents/Resources/img/minimizeButton.png</file>
+        <file>PdsProject.app/Contents/Resources/img/ic_settings_18pt_2x.png</file>
+        <file>PdsProject.app/Contents/Resources/img/18972.png</file>
+        <file>PdsProject.app/Contents/Resources/img/19813.jpg</file>
+        <file>PdsProject.app/Contents/Resources/img/bannerApp.png</file>
+        <file>PdsProject.app/Contents/Resources/img/logoApp.png</file>
+        <file>PdsProject.app/Contents/Resources/img/logoIcon.png</file>
     </qresource>
 </RCC>

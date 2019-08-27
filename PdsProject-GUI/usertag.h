@@ -3,21 +3,24 @@
 
 #include <QObject>
 #include <QWidget>
+#include <QFrame>
+#include "mainwindow.h"
 
-class UserTag : public QObject
+class UserTag : public QFrame
 {
     Q_OBJECT
+
 public:
-    explicit UserTag(QObject *parent = nullptr);
+    explicit UserTag(QWidget *parent = nullptr);
     ~UserTag() = default;
 
-    QWidget* createTag();
     void setUserName(QString);
     void chooseUserLogo();
     void setUserStatus(bool);
     QString getUserName();
     QString getUserLogoPath();
     bool getUserStatus();
+
 signals:
 
 public slots:

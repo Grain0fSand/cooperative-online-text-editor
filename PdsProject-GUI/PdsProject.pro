@@ -28,18 +28,21 @@ CONFIG += c++11
 
 SOURCES += \
         json_comunicator.cpp \
+        loginwindow.cpp \
         main.cpp \
         mainwindow.cpp \
         usertag.cpp
 
 HEADERS += \
         json_comunicator.h \
+        loginwindow.h \
         mainwindow.h \
         online_synchronizer.h \
         shared_editor.h \
         usertag.h
 
 FORMS += \
+        loginwindow.ui \
         mainwindow.ui
 
 # Default rules for deployment.

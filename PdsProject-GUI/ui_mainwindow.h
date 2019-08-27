@@ -10,13 +10,14 @@
 #define UI_MAINWINDOW_H
 
 #include <QtCore/QVariant>
+#include <QtGui/QIcon>
 #include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
+#include <QtWidgets/QGridLayout>
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QMenuBar>
-#include <QtWidgets/QScrollArea>
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QTextEdit>
 #include <QtWidgets/QToolBar>
@@ -44,10 +45,10 @@ public:
     QAction *actionExit;
     QAction *actionAlignJustify;
     QWidget *centralWidget;
-    QHBoxLayout *horizontalLayout_3;
+    QHBoxLayout *horizontalLayout;
+    QWidget *docFrame;
+    QGridLayout *docFrameLayout;
     QTextEdit *textEditShared;
-    QScrollArea *usersArea;
-    QWidget *usersAreaWidgetContents;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
     QMenuBar *menuBar;
@@ -58,75 +59,78 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
-        MainWindow->resize(991, 689);
+        MainWindow->resize(1004, 1082);
         QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
         sizePolicy.setHeightForWidth(MainWindow->sizePolicy().hasHeightForWidth());
         MainWindow->setSizePolicy(sizePolicy);
+        QIcon icon;
+        icon.addFile(QString::fromUtf8(":/PdsProject.app/Contents/Resources/img/logoIcon.png"), QSize(), QIcon::Normal, QIcon::Off);
+        MainWindow->setWindowIcon(icon);
         actionCopy = new QAction(MainWindow);
         actionCopy->setObjectName(QString::fromUtf8("actionCopy"));
-        QIcon icon;
-        icon.addFile(QString::fromUtf8(":/PdsProject.app/Contents/Resources/img/ic_content_copy_36pt_2x.png"), QSize(), QIcon::Normal, QIcon::Off);
-        actionCopy->setIcon(icon);
+        QIcon icon1;
+        icon1.addFile(QString::fromUtf8(":/PdsProject.app/Contents/Resources/img/ic_content_copy_36pt_2x.png"), QSize(), QIcon::Normal, QIcon::Off);
+        actionCopy->setIcon(icon1);
         actionCut = new QAction(MainWindow);
         actionCut->setObjectName(QString::fromUtf8("actionCut"));
-        QIcon icon1;
-        icon1.addFile(QString::fromUtf8(":/PdsProject.app/Contents/Resources/img/ic_content_cut_36pt_2x.png"), QSize(), QIcon::Normal, QIcon::Off);
-        actionCut->setIcon(icon1);
+        QIcon icon2;
+        icon2.addFile(QString::fromUtf8(":/PdsProject.app/Contents/Resources/img/ic_content_cut_36pt_2x.png"), QSize(), QIcon::Normal, QIcon::Off);
+        actionCut->setIcon(icon2);
         actionPaste = new QAction(MainWindow);
         actionPaste->setObjectName(QString::fromUtf8("actionPaste"));
-        QIcon icon2;
-        icon2.addFile(QString::fromUtf8(":/PdsProject.app/Contents/Resources/img/ic_content_paste_36pt_2x.png"), QSize(), QIcon::Normal, QIcon::Off);
-        actionPaste->setIcon(icon2);
+        QIcon icon3;
+        icon3.addFile(QString::fromUtf8(":/PdsProject.app/Contents/Resources/img/ic_content_paste_36pt_2x.png"), QSize(), QIcon::Normal, QIcon::Off);
+        actionPaste->setIcon(icon3);
         actionBold = new QAction(MainWindow);
         actionBold->setObjectName(QString::fromUtf8("actionBold"));
         actionBold->setCheckable(true);
-        QIcon icon3;
-        icon3.addFile(QString::fromUtf8(":/PdsProject.app/Contents/Resources/img/ic_format_bold_36pt_2x.png"), QSize(), QIcon::Normal, QIcon::Off);
-        actionBold->setIcon(icon3);
+        QIcon icon4;
+        icon4.addFile(QString::fromUtf8(":/PdsProject.app/Contents/Resources/img/ic_format_bold_36pt_2x.png"), QSize(), QIcon::Normal, QIcon::Off);
+        actionBold->setIcon(icon4);
         actionItalic = new QAction(MainWindow);
         actionItalic->setObjectName(QString::fromUtf8("actionItalic"));
         actionItalic->setCheckable(true);
-        QIcon icon4;
-        icon4.addFile(QString::fromUtf8(":/PdsProject.app/Contents/Resources/img/ic_format_italic_36pt_2x.png"), QSize(), QIcon::Normal, QIcon::Off);
-        actionItalic->setIcon(icon4);
+        QIcon icon5;
+        icon5.addFile(QString::fromUtf8(":/PdsProject.app/Contents/Resources/img/ic_format_italic_36pt_2x.png"), QSize(), QIcon::Normal, QIcon::Off);
+        actionItalic->setIcon(icon5);
         actionUnderlined = new QAction(MainWindow);
         actionUnderlined->setObjectName(QString::fromUtf8("actionUnderlined"));
         actionUnderlined->setCheckable(true);
-        QIcon icon5;
-        icon5.addFile(QString::fromUtf8(":/PdsProject.app/Contents/Resources/img/ic_format_underlined_36pt_2x.png"), QSize(), QIcon::Normal, QIcon::Off);
-        actionUnderlined->setIcon(icon5);
+        QIcon icon6;
+        icon6.addFile(QString::fromUtf8(":/PdsProject.app/Contents/Resources/img/ic_format_underlined_36pt_2x.png"), QSize(), QIcon::Normal, QIcon::Off);
+        actionUnderlined->setIcon(icon6);
         actionAlignLeft = new QAction(MainWindow);
         actionAlignLeft->setObjectName(QString::fromUtf8("actionAlignLeft"));
         actionAlignLeft->setCheckable(true);
-        QIcon icon6;
-        icon6.addFile(QString::fromUtf8(":/PdsProject.app/Contents/Resources/img/ic_format_align_left_36pt_2x.png"), QSize(), QIcon::Normal, QIcon::Off);
-        actionAlignLeft->setIcon(icon6);
+        QIcon icon7;
+        icon7.addFile(QString::fromUtf8(":/PdsProject.app/Contents/Resources/img/ic_format_align_left_36pt_2x.png"), QSize(), QIcon::Normal, QIcon::Off);
+        actionAlignLeft->setIcon(icon7);
         actionAlignCenter = new QAction(MainWindow);
         actionAlignCenter->setObjectName(QString::fromUtf8("actionAlignCenter"));
         actionAlignCenter->setCheckable(true);
-        QIcon icon7;
-        icon7.addFile(QString::fromUtf8(":/PdsProject.app/Contents/Resources/img/ic_format_align_center_36pt_2x.png"), QSize(), QIcon::Normal, QIcon::Off);
-        actionAlignCenter->setIcon(icon7);
+        QIcon icon8;
+        icon8.addFile(QString::fromUtf8(":/PdsProject.app/Contents/Resources/img/ic_format_align_center_36pt_2x.png"), QSize(), QIcon::Normal, QIcon::Off);
+        actionAlignCenter->setIcon(icon8);
         actionAlignRight = new QAction(MainWindow);
         actionAlignRight->setObjectName(QString::fromUtf8("actionAlignRight"));
         actionAlignRight->setCheckable(true);
-        QIcon icon8;
-        icon8.addFile(QString::fromUtf8(":/PdsProject.app/Contents/Resources/img/ic_format_align_right_36pt_2x.png"), QSize(), QIcon::Normal, QIcon::Off);
-        actionAlignRight->setIcon(icon8);
+        QIcon icon9;
+        icon9.addFile(QString::fromUtf8(":/PdsProject.app/Contents/Resources/img/ic_format_align_right_36pt_2x.png"), QSize(), QIcon::Normal, QIcon::Off);
+        actionAlignRight->setIcon(icon9);
         actionUndo = new QAction(MainWindow);
         actionUndo->setObjectName(QString::fromUtf8("actionUndo"));
         actionUndo->setEnabled(false);
-        QIcon icon9;
-        icon9.addFile(QString::fromUtf8(":/PdsProject.app/Contents/Resources/img/ic_undo_36pt_2x.png"), QSize(), QIcon::Normal, QIcon::Off);
-        actionUndo->setIcon(icon9);
+        QIcon icon10;
+        icon10.addFile(QString::fromUtf8(":/PdsProject.app/Contents/Resources/img/ic_undo_36pt_2x.png"), QSize(), QIcon::Normal, QIcon::Off);
+        actionUndo->setIcon(icon10);
         actionRedo = new QAction(MainWindow);
         actionRedo->setObjectName(QString::fromUtf8("actionRedo"));
         actionRedo->setEnabled(false);
-        QIcon icon10;
-        icon10.addFile(QString::fromUtf8(":/PdsProject.app/Contents/Resources/img/ic_redo_36pt_2x.png"), QSize(), QIcon::Normal, QIcon::Off);
-        actionRedo->setIcon(icon10);
+        QIcon icon11;
+        icon11.addFile(QString::fromUtf8(":/PdsProject.app/Contents/Resources/img/ic_redo_36pt_2x.png"), QSize(), QIcon::Normal, QIcon::Off);
+        actionRedo->setIcon(icon11);
         actionConnect = new QAction(MainWindow);
         actionConnect->setObjectName(QString::fromUtf8("actionConnect"));
         actionAccount_Settings = new QAction(MainWindow);
@@ -138,25 +142,40 @@ public:
         actionAlignJustify = new QAction(MainWindow);
         actionAlignJustify->setObjectName(QString::fromUtf8("actionAlignJustify"));
         actionAlignJustify->setCheckable(true);
-        QIcon icon11;
-        icon11.addFile(QString::fromUtf8(":/PdsProject.app/Contents/Resources/img/ic_format_align_justify_36pt_2x.png"), QSize(), QIcon::Normal, QIcon::Off);
-        actionAlignJustify->setIcon(icon11);
+        QIcon icon12;
+        icon12.addFile(QString::fromUtf8(":/PdsProject.app/Contents/Resources/img/ic_format_align_justify_36pt_2x.png"), QSize(), QIcon::Normal, QIcon::Off);
+        actionAlignJustify->setIcon(icon12);
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QString::fromUtf8("centralWidget"));
         sizePolicy.setHeightForWidth(centralWidget->sizePolicy().hasHeightForWidth());
         centralWidget->setSizePolicy(sizePolicy);
-        centralWidget->setMinimumSize(QSize(900, 600));
-        horizontalLayout_3 = new QHBoxLayout(centralWidget);
-        horizontalLayout_3->setSpacing(6);
-        horizontalLayout_3->setContentsMargins(11, 11, 11, 11);
-        horizontalLayout_3->setObjectName(QString::fromUtf8("horizontalLayout_3"));
-        textEditShared = new QTextEdit(centralWidget);
-        textEditShared->setObjectName(QString::fromUtf8("textEditShared"));
-        QSizePolicy sizePolicy1(QSizePolicy::Minimum, QSizePolicy::Minimum);
+        centralWidget->setMinimumSize(QSize(1000, 600));
+        horizontalLayout = new QHBoxLayout(centralWidget);
+        horizontalLayout->setSpacing(6);
+        horizontalLayout->setContentsMargins(11, 11, 11, 11);
+        horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
+        horizontalLayout->setContentsMargins(-1, 0, -1, -1);
+        docFrame = new QWidget(centralWidget);
+        docFrame->setObjectName(QString::fromUtf8("docFrame"));
+        QSizePolicy sizePolicy1(QSizePolicy::Expanding, QSizePolicy::Expanding);
         sizePolicy1.setHorizontalStretch(0);
         sizePolicy1.setVerticalStretch(0);
-        sizePolicy1.setHeightForWidth(textEditShared->sizePolicy().hasHeightForWidth());
-        textEditShared->setSizePolicy(sizePolicy1);
+        sizePolicy1.setHeightForWidth(docFrame->sizePolicy().hasHeightForWidth());
+        docFrame->setSizePolicy(sizePolicy1);
+        docFrame->setMinimumSize(QSize(750, 550));
+        docFrameLayout = new QGridLayout(docFrame);
+        docFrameLayout->setSpacing(6);
+        docFrameLayout->setContentsMargins(11, 11, 11, 11);
+        docFrameLayout->setObjectName(QString::fromUtf8("docFrameLayout"));
+        docFrameLayout->setContentsMargins(0, 0, 0, 0);
+        textEditShared = new QTextEdit(docFrame);
+        textEditShared->setObjectName(QString::fromUtf8("textEditShared"));
+        QSizePolicy sizePolicy2(QSizePolicy::Fixed, QSizePolicy::Expanding);
+        sizePolicy2.setHorizontalStretch(0);
+        sizePolicy2.setVerticalStretch(0);
+        sizePolicy2.setHeightForWidth(textEditShared->sizePolicy().hasHeightForWidth());
+        textEditShared->setSizePolicy(sizePolicy2);
+        textEditShared->setMinimumSize(QSize(750, 550));
         QFont font;
         font.setFamily(QString::fromUtf8("Calibri"));
         font.setPointSize(11);
@@ -167,22 +186,10 @@ public:
         font.setStrikeOut(false);
         textEditShared->setFont(font);
 
-        horizontalLayout_3->addWidget(textEditShared);
+        docFrameLayout->addWidget(textEditShared, 1, 1, 1, 1);
 
-        usersArea = new QScrollArea(centralWidget);
-        usersArea->setObjectName(QString::fromUtf8("usersArea"));
-        QSizePolicy sizePolicy2(QSizePolicy::Fixed, QSizePolicy::Expanding);
-        sizePolicy2.setHorizontalStretch(0);
-        sizePolicy2.setVerticalStretch(0);
-        sizePolicy2.setHeightForWidth(usersArea->sizePolicy().hasHeightForWidth());
-        usersArea->setSizePolicy(sizePolicy2);
-        usersArea->setWidgetResizable(true);
-        usersAreaWidgetContents = new QWidget();
-        usersAreaWidgetContents->setObjectName(QString::fromUtf8("usersAreaWidgetContents"));
-        usersAreaWidgetContents->setGeometry(QRect(0, 0, 69, 580));
-        usersArea->setWidget(usersAreaWidgetContents);
 
-        horizontalLayout_3->addWidget(usersArea);
+        horizontalLayout->addWidget(docFrame, 0, Qt::AlignHCenter);
 
         MainWindow->setCentralWidget(centralWidget);
         mainToolBar = new QToolBar(MainWindow);
@@ -199,7 +206,7 @@ public:
         MainWindow->setStatusBar(statusBar);
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName(QString::fromUtf8("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 991, 21));
+        menuBar->setGeometry(QRect(0, 0, 1004, 21));
         menuMain = new QMenu(menuBar);
         menuMain->setObjectName(QString::fromUtf8("menuMain"));
         menuAbout = new QMenu(menuBar);
@@ -236,7 +243,7 @@ public:
 
     void retranslateUi(QMainWindow *MainWindow)
     {
-        MainWindow->setWindowTitle(QCoreApplication::translate("MainWindow", "MainWindow", nullptr));
+        MainWindow->setWindowTitle(QCoreApplication::translate("MainWindow", "SimulPad", nullptr));
         actionCopy->setText(QCoreApplication::translate("MainWindow", "Copy", nullptr));
         actionCut->setText(QCoreApplication::translate("MainWindow", "Cut", nullptr));
         actionPaste->setText(QCoreApplication::translate("MainWindow", "Paste", nullptr));

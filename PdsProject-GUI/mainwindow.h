@@ -69,6 +69,7 @@ public slots:
     void alignJustify();
     void memorizeSelection();
     void checkTextProperty();
+    void openSettings();
 
 protected slots:
     void textChanged();

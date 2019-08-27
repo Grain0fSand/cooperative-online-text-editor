@@ -14,6 +14,7 @@
 #include <QPrinter>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QGroupBox>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -24,12 +25,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     ui->textEditShared->setAcceptRichText(true);
 
-    /*
-    UserTag testTag;
-    auto widget = testTag.createTag();
-    testTag.chooseUserLogo();
-    widget->setParent(ui->usersAreaWidgetContents);
-    */
 
     // for blinking images
     //connect(&background_task,SIGNAL(tick_clock()),this,SLOT(redrawBlinkingImage()));
@@ -48,7 +43,13 @@ MainWindow::MainWindow(QWidget *parent) :
     this->clipboard = QApplication::clipboard();
 
     // adding comboboxes for font type and size
+    int id = QFontDatabase::addApplicationFont("C:/Users/Dario/Desktop/PdsProject/PdsProject-GUI/PdsProject.app/Contents/Resources/.fonts/Lato-Regular.ttf");
     auto comboFont = new QFontComboBox(ui->mainToolBar);
+    /*QFontDatabase db;
+    qDebug() << id;
+    qDebug() << db.families();
+   */ //fontDb.addApplicationFont(":/PdsProject.app/Contents/Resources/.fonts/AlexBrush-Regular.ttf");
+
     auto comboSize = new QComboBox(ui->mainToolBar);
 
     this->fontSizes << "8" << "9" << "10" << "11" << "12" <<
@@ -82,6 +83,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this,&MainWindow::setComboSize,comboSize,&QComboBox::setCurrentIndex);
     connect(this,&MainWindow::setComboFont,comboFont,&QFontComboBox::setCurrentFont);
     connect(ui->actionExport_to_PDF,&QAction::triggered,this,&MainWindow::exportPDF);
+    connect(ui->actionAccount_Settings,&QAction::triggered,this,&MainWindow::openSettings);
+
+
 }
 
 MainWindow::~MainWindow()
@@ -353,6 +357,11 @@ void MainWindow::checkTextProperty()
     ui->actionCopy->setEnabled(ui->textEditShared->textCursor().hasSelection());
     ui->actionCut->setEnabled(ui->textEditShared->textCursor().hasSelection());
 
+}
+
+void MainWindow::openSettings()
+{
+    qDebug() << "account settings pressed";
 }
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *event)

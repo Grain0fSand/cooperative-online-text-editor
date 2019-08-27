@@ -3,46 +3,41 @@
 #include <QFileDialog>
 #include <QDebug>
 
-#define IMG_PATH "C:/Users/Dario/Desktop/PdsProject/PdsProject-GUI/PdsProject.app/Contents/Resources/img/"
+#define IMG_PATH "C:/Users/Dario/Desktop/PdsProject/PdsProject-GUI/PdsProject.app/Contents/Resources/.profiles/"
 
-UserTag::UserTag(QObject *parent) : QObject(parent)
+UserTag::UserTag(QWidget *parent) : QFrame(parent)
 {
+    this->setGeometry(25,0,210,71);
+    this->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    this->setFrameShape(QFrame::Panel);
+    this->setFrameShadow(QFrame::Raised);
 
-}
-
-QWidget* UserTag::createTag() {
-    auto userWidget = new QWidget();
-    userWidget->setGeometry(450,10,251,91);
-    userWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-
-    auto userLogo = new QLabel(userWidget);
-    userLogo->setGeometry(10,10,71,71);
+    auto userLogo = new QLabel(this);
+    userLogo->setGeometry(10,10,51,51);
     QPixmap logoPng(":/PdsProject.app/Contents/Resources/img/redLed.png");
     userLogo->setPixmap(logoPng);
     userLogo->setScaledContents(true);
 
-    auto userName = new QLabel(userWidget);
-    userName->setText("Dario Patti");
-    userName->setGeometry(90,10,151,41);
-    QFont nameFont("Tahoma",20,-1,false);
+    auto userName = new QLabel(this);
+    userName->setText("Nome del collega");
+    userName->setGeometry(70,14,141,21);
+    QFont nameFont("Gill Sans MT",13,-1,false);
     userName->setFont(nameFont);
 
-    auto userStatus = new QLabel(userWidget);
+    auto userStatus = new QLabel(this);
     userStatus->setText("Online");
-    userStatus->setGeometry(130,55,111,31);
+    userStatus->setGeometry(93,44,81,16);
     QFont statusFont("Tahoma",12,-1,false);
     userStatus->setFont(statusFont);
 
-    auto userLed = new QLabel(userWidget);
-    userLed->setGeometry(90,60,20,20);
+    auto userLed = new QLabel(this);
+    userLed->setGeometry(77,44,16,16);
     QPixmap ledPng(":/PdsProject.app/Contents/Resources/img/greenLed");
     userLed->setPixmap(ledPng);
     userLed->setScaledContents(true);
 
     //auto separator = new QLine(90,50,241,66);
 
-    return userWidget;
-    //da continuare
 }
 
 void UserTag::setUserName(QString newName)

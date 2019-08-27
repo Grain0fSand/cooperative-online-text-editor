@@ -1,3 +1,4 @@
+#include "loginwindow.h"
 #include "mainwindow.h"
 #include "image_utility.h"
 #include <QApplication>
@@ -6,16 +7,23 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    //a.setStyle(QStyleFactory::create("Fusion")); // for uniform style
-    MainWindow w;
-    w.show();
+    LoginWindow l;
+    l.show();
+    l.exec();
+    if(l.isLoginCorrect()) {
+        MainWindow w;
+        w.show();
 
-    QColor c;
+        return a.exec();
+    }
+    //a.setStyle(QStyleFactory::create("Fusion")); // for uniform style
+
+    /*QColor c;
     c.red();
     c.setRgb(10,12,15);
 
     create_svg(c,120);
 
-
+*/
     return a.exec();
 }
