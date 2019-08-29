@@ -49,7 +49,7 @@ void LoginWindow::slowClose()
     a->setDuration(500);
     a->setStartValue(this->windowOpacity());
     a->setEndValue(0.0);
-    a->start();
+    a->start(QAbstractAnimation::DeleteWhenStopped);
 
     connect(a,&QPropertyAnimation::finished,this,&LoginWindow::close);
 }
@@ -74,24 +74,24 @@ void LoginWindow::switchFrame(int direction)
     switchAnimation->setStartValue(ui->formFrame->geometry());
     switchAnimation->setEndValue(frameGeometry);
 
-    switchAnimation->start();
+    switchAnimation->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
 void LoginWindow::changeYourUsername()
 {
-    QInputDialog* dialog = new QInputDialog(this);
-    dialog->setLabelText("Change your username:");
-    dialog->setTextValue(ui->loggedUsernameLabel->text());
-    dialog->setModal(true);
+    QInputDialog dialog(this);
+    dialog.setLabelText("Change your username:");
+    dialog.setTextValue(ui->loggedUsernameLabel->text());
+    dialog.setModal(true);
     while(true) {
-        if(dialog->exec()==QDialog::Accepted && dialog->textValue()=="") {
-            QMessageBox* advice = new QMessageBox(this);
-            advice->setText("Username field empty!\nEnter a valid username");
-            advice->setIcon(QMessageBox::Critical);
-            advice->exec();
+        if(dialog.exec()==QDialog::Accepted && dialog.textValue()=="") {
+            QMessageBox advice(this);
+            advice.setText("Username field empty!\nEnter a valid username");
+            advice.setIcon(QMessageBox::Critical);
+            advice.exec();
         }
         else {
-            ui->loggedUsernameLabel->setText(dialog->textValue());
+            ui->loggedUsernameLabel->setText(dialog.textValue());
             break;
         }
     }
@@ -117,15 +117,15 @@ void LoginWindow::openEditor()
 
 void LoginWindow::requestURI()
 {
-    QInputDialog* dialog = new QInputDialog(this);
-    dialog->setLabelText("Paste the URI here:");
-    dialog->setModal(true);
+    QInputDialog dialog(this);
+    dialog.setLabelText("Paste the URI here:");
+    dialog.setModal(true);
     while(true) {
-        if(dialog->exec()==QDialog::Accepted && dialog->textValue()=="") {
-            QMessageBox* advice = new QMessageBox(this);
-            advice->setText("URI field empty!\nEnter a valid URI");
-            advice->setIcon(QMessageBox::Critical);
-            advice->exec();
+        if(dialog.exec()==QDialog::Accepted && dialog.textValue()=="") {
+            QMessageBox advice(this);
+            advice.setText("URI field empty!\nEnter a valid URI");
+            advice.setIcon(QMessageBox::Critical);
+            advice.exec();
         }
         else {
             qDebug() << "open document from URI";

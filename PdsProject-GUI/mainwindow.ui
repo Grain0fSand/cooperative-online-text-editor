@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1004</width>
+    <width>1030</width>
     <height>1082</height>
    </rect>
   </property>
@@ -153,7 +153,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1004</width>
+     <width>1030</width>
      <height>21</height>
     </rect>
    </property>
@@ -164,6 +164,7 @@ p, li { white-space: pre-wrap; }
     <addaction name="actionConnect"/>
     <addaction name="actionAccount_Settings"/>
     <addaction name="actionExport_to_PDF"/>
+    <addaction name="actionInvite"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
@@ -328,6 +329,11 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>AlignJustify</string>
+   </property>
+  </action>
+  <action name="actionInvite">
+   <property name="text">
+    <string>Invite to Collaborate</string>
    </property>
   </action>
  </widget>

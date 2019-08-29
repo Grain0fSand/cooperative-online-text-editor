@@ -31,6 +31,7 @@ SOURCES += \
         loginwindow.cpp \
         main.cpp \
         mainwindow.cpp \
+        smtpclient.cpp \
         usertag.cpp
 
 HEADERS += \
@@ -39,6 +40,7 @@ HEADERS += \
         mainwindow.h \
         online_synchronizer.h \
         shared_editor.h \
+        smtpclient.h \
         usertag.h
 
 FORMS += \

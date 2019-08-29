@@ -3,6 +3,7 @@
 #include "online_synchronizer.h"
 #include "shared_editor.h"
 #include "usertag.h"
+#include "smtpclient.h"
 #include <QDebug>
 #include <QFontDialog>
 #include <QErrorMessage>
@@ -15,6 +16,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QGroupBox>
+#include <QInputDialog>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -43,7 +45,6 @@ MainWindow::MainWindow(QWidget *parent) :
     this->clipboard = QApplication::clipboard();
 
     // adding comboboxes for font type and size
-    int id = QFontDatabase::addApplicationFont("C:/Users/Dario/Desktop/PdsProject/PdsProject-GUI/PdsProject.app/Contents/Resources/.fonts/Lato-Regular.ttf");
     auto comboFont = new QFontComboBox(ui->mainToolBar);
     /*QFontDatabase db;
     qDebug() << id;
@@ -84,8 +85,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this,&MainWindow::setComboFont,comboFont,&QFontComboBox::setCurrentFont);
     connect(ui->actionExport_to_PDF,&QAction::triggered,this,&MainWindow::exportPDF);
     connect(ui->actionAccount_Settings,&QAction::triggered,this,&MainWindow::openSettings);
-
-
+    connect(ui->actionInvite,&QAction::triggered,this,&MainWindow::reqInvitationEmailAddress);
 }
 
 MainWindow::~MainWindow()
@@ -100,13 +100,13 @@ void MainWindow::exportPDF()
     QString file_path = QFileDialog::getSaveFileName(this,"Export to PDF..","","Pdf file (*.pdf);;All Files (*)");
 
     if(file_path!="") {
-        QPrinter* printer = new QPrinter(QPrinter::PrinterResolution);
-        printer->setOutputFormat(QPrinter::PdfFormat);
-        printer->setOutputFileName(file_path);
-        printer->setPaperSize(QPrinter::A4);
-        ui->textEditShared->print(printer);
+        QPrinter printer(QPrinter::PrinterResolution);
+        printer.setOutputFormat(QPrinter::PdfFormat);
+        printer.setOutputFileName(file_path);
+        printer.setPaperSize(QPrinter::A4);
+        ui->textEditShared->print(&printer);
         QString file_name = file_path.split("/").last();
-        if (printer->printerState()<2) {
+        if (printer.printerState()<2) {
             QMessageBox::information(this,"Export to PDF","File "+file_name+" exported successfully.");
         }
         else {
@@ -271,7 +271,6 @@ void MainWindow::makeUnderline()
     }
     */
 
-
     ui->actionUnderlined->setChecked(is_underlined);
     format.setFontUnderline(is_underlined);
     cursor.mergeCharFormat(format);
@@ -362,6 +361,65 @@ void MainWindow::checkTextProperty()
 void MainWindow::openSettings()
 {
     qDebug() << "account settings pressed";
+}
+
+void MainWindow::reqInvitationEmailAddress()
+{
+    QString message = "";
+    QInputDialog dialog(this);
+    dialog.setLabelText("Insert destination Email address:");
+    dialog.setModal(true);
+    while(true) {
+        bool error = false;
+        if(dialog.exec()==QDialog::Accepted) {
+            if(dialog.textValue()=="") {
+                error=true;
+                message = "You left the field empty!\nEnter a valid Email address";
+            }
+            else {
+                QRegExp mailRegex("\\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}\\b");
+                mailRegex.setCaseSensitivity(Qt::CaseInsensitive);
+                //mailRegex.setPatternSyntax(QRegExp::RegExp);
+                if(!mailRegex.exactMatch(dialog.textValue())) {
+                    error=true;
+                    message = "Email address not valid\n"
+                              "Insert a valid one";
+                }
+            }
+
+            if(error) {
+                QMessageBox advice(this);
+                advice.setText(message);
+                advice.setIcon(QMessageBox::Critical);
+                advice.exec();
+            }
+            else {
+                sendInvitationEmail(dialog.textValue());
+                break;
+            }
+        }
+        else break;
+    }
+}
+
+void MainWindow::sendInvitationEmail(QString destEmailAddress)
+{
+    SmtpClient smtp;
+    smtp.setUser("simulpad.texteditor@gmail.com");
+    smtp.setPassword("progettomalnati");
+    smtp.setMailSender("simulpad.texteditor@gmail.com","SimulPad");
+    smtp.setMailDestination(destEmailAddress,"no_name");
+    smtp.setMailSubject("Someone invites to collaborate on SimulPad");
+    smtp.prepareMailText("Here goes the URI");
+
+    if(smtp.connectToHost()) {
+        if(smtp.login()) {
+            if(smtp.sendMail()) {
+                QMessageBox::information(this,"Succeed","Your invitation was sent to "+destEmailAddress);
+            }
+        }
+    }
+    smtp.quit();
 }
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *event)

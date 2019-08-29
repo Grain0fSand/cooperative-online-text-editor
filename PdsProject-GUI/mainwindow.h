@@ -54,6 +54,7 @@ public:
     void collaborativeURI_Copied();
     void collaborativeURI_Pasted();
     bool eventFilter(QObject *obj,QEvent* event);
+    void sendInvitationEmail(QString destEmailAddress);
 
 public slots:
     void exportPDF();
@@ -70,6 +71,7 @@ public slots:
     void memorizeSelection();
     void checkTextProperty();
     void openSettings();
+    void reqInvitationEmailAddress();
 
 protected slots:
     void textChanged();

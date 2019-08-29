@@ -44,6 +44,7 @@ public:
     QAction *actionExport_to_PDF;
     QAction *actionExit;
     QAction *actionAlignJustify;
+    QAction *actionInvite;
     QWidget *centralWidget;
     QHBoxLayout *horizontalLayout;
     QWidget *docFrame;
@@ -59,7 +60,7 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
-        MainWindow->resize(1004, 1082);
+        MainWindow->resize(1030, 1082);
         QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
@@ -145,6 +146,8 @@ public:
         QIcon icon12;
         icon12.addFile(QString::fromUtf8(":/PdsProject.app/Contents/Resources/img/ic_format_align_justify_36pt_2x.png"), QSize(), QIcon::Normal, QIcon::Off);
         actionAlignJustify->setIcon(icon12);
+        actionInvite = new QAction(MainWindow);
+        actionInvite->setObjectName(QString::fromUtf8("actionInvite"));
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QString::fromUtf8("centralWidget"));
         sizePolicy.setHeightForWidth(centralWidget->sizePolicy().hasHeightForWidth());
@@ -206,7 +209,7 @@ public:
         MainWindow->setStatusBar(statusBar);
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName(QString::fromUtf8("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 1004, 21));
+        menuBar->setGeometry(QRect(0, 0, 1030, 21));
         menuMain = new QMenu(menuBar);
         menuMain->setObjectName(QString::fromUtf8("menuMain"));
         menuAbout = new QMenu(menuBar);
@@ -233,6 +236,7 @@ public:
         menuMain->addAction(actionConnect);
         menuMain->addAction(actionAccount_Settings);
         menuMain->addAction(actionExport_to_PDF);
+        menuMain->addAction(actionInvite);
         menuMain->addSeparator();
         menuMain->addAction(actionExit);
 
@@ -260,6 +264,7 @@ public:
         actionExport_to_PDF->setText(QCoreApplication::translate("MainWindow", "Export to PDF", nullptr));
         actionExit->setText(QCoreApplication::translate("MainWindow", "Exit", nullptr));
         actionAlignJustify->setText(QCoreApplication::translate("MainWindow", "AlignJustify", nullptr));
+        actionInvite->setText(QCoreApplication::translate("MainWindow", "Invite to Collaborate", nullptr));
         textEditShared->setHtml(QCoreApplication::translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"

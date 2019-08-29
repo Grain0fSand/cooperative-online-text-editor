@@ -335,7 +335,7 @@ public:
 "	font-size: 16px;\n"
 "}"));
         QIcon icon5;
-        icon5.addFile(QString::fromUtf8(":/PdsProject.app/Contents/Resources/img/195008_terre_256x256.png"), QSize(), QIcon::Normal, QIcon::Off);
+        icon5.addFile(QString::fromUtf8(":/PdsProject.app/Contents/Resources/img/openURI.png"), QSize(), QIcon::Normal, QIcon::Off);
         loggedURIButton->setIcon(icon5);
         loggedURIButton->setIconSize(QSize(40, 40));
         loggedURIButton->setFlat(true);
