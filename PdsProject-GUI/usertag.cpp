@@ -3,57 +3,82 @@
 #include <QFileDialog>
 #include <QDebug>
 
-#define IMG_PATH "C:/Users/Dario/Desktop/PdsProject/PdsProject-GUI/PdsProject.app/Contents/Resources/.profiles/"
-
-UserTag::UserTag(QWidget *parent) : QFrame(parent)
+UserTag::UserTag(QWidget *parent)
 {
-    this->setGeometry(25,0,210,71);
-    this->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    this->setFrameShape(QFrame::Panel);
-    this->setFrameShadow(QFrame::Raised);
-
-    auto userLogo = new QLabel(this);
-    userLogo->setGeometry(10,10,51,51);
-    QPixmap logoPng(":/PdsProject.app/Contents/Resources/img/redLed.png");
-    userLogo->setPixmap(logoPng);
-    userLogo->setScaledContents(true);
-
-    auto userName = new QLabel(this);
-    userName->setText("Nome del collega");
-    userName->setGeometry(70,14,141,21);
-    QFont nameFont("Gill Sans MT",13,-1,false);
-    userName->setFont(nameFont);
-
-    auto userStatus = new QLabel(this);
-    userStatus->setText("Online");
-    userStatus->setGeometry(93,44,81,16);
-    QFont statusFont("Tahoma",12,-1,false);
-    userStatus->setFont(statusFont);
-
-    auto userLed = new QLabel(this);
-    userLed->setGeometry(77,44,16,16);
-    QPixmap ledPng(":/PdsProject.app/Contents/Resources/img/greenLed");
-    userLed->setPixmap(ledPng);
-    userLed->setScaledContents(true);
-
-    //auto separator = new QLine(90,50,241,66);
-
 }
 
-void UserTag::setUserName(QString newName)
-{
-    this->userName = newName;
+void UserTag::paint ( QPainter * painter, const QStyleOptionViewItem & option, const QModelIndex & index ) const{
+    painter->setRenderHint(QPainter::Antialiasing);
+
+    QRect r = option.rect;
+
+    //Color: #C4C4C4
+    QPen linePen(QColor::fromRgb(211,211,211), 1, Qt::SolidLine);
+
+    //Color: #333
+    QPen fontPen(QColor::fromRgb(51,51,51), 1, Qt::SolidLine);
+
+    //background
+    //alternating colors
+    painter->setBrush( (index.row() % 2) ? Qt::white : QColor(252,252,252) );
+    painter->drawRect(r);
+
+    //border
+    painter->setPen(linePen);
+    painter->drawLine(r.topLeft(),r.topRight());
+    painter->drawLine(r.topRight(),r.bottomRight());
+    painter->drawLine(r.bottomLeft(),r.bottomRight());
+    painter->drawLine(r.topLeft(),r.bottomLeft());
+
+    painter->setPen(fontPen);
+
+    //username, status, avatar, led and color
+    QString title = index.data(Qt::UserRole + 1).toString();
+    QString description = index.data(Qt::UserRole + 2).toString();
+    QIcon avatar = QIcon(qvariant_cast<QPixmap>(index.data(Qt::UserRole + 3)));
+    QIcon led = QIcon(qvariant_cast<QPixmap>(index.data(Qt::UserRole + 4)));
+    QColor color = QColor(qvariant_cast<QColor>(index.data(Qt::UserRole + 5)));
+
+    //username
+    r = option.rect.adjusted(70, 0, -10, -30);
+    painter->setFont( QFont( "Gill Sans MT", 14, QFont::Normal ) );
+    painter->drawText(r.left(), r.top(), r.width(), r.height(), Qt::AlignBottom|Qt::AlignLeft, title, &r);
+
+    //status
+    r = option.rect.adjusted(88, 30, -10, 0);
+    painter->setFont( QFont( "Tahoma", 11, QFont::Normal ) );
+    painter->drawText(r.left(), r.top(), r.width(), r.height(), Qt::AlignLeft, description, &r);
+
+    //logo
+    r = option.rect.adjusted(10, 10, -10, -10);
+    avatar.paint(painter, r, Qt::AlignVCenter|Qt::AlignLeft);
+
+    //led
+    r = option.rect.adjusted(70, 34, -15, -15);
+    led.paint(painter, r, Qt::AlignVCenter|Qt::AlignLeft);
+
+    //color
+    QPainterPath path;
+    path.addRoundedRect(option.rect.adjusted(200, 34, -10, -15), 5, 5);
+    painter->drawPath(path);
+    painter->fillPath(path, QBrush(color));
+
+    QPen pen(Qt::black, 1);
+    painter->setPen(pen);
 }
 
-void UserTag::chooseUserLogo()
+QSize UserTag::sizeHint (const QStyleOptionViewItem &option, const QModelIndex &index ) const{
+    return QSize(200, 60); // very dumb value
+}
+
+void UserTag::setUsername(QString newName)
 {
-    QString file_path = QFileDialog::getOpenFileName(nullptr,"Choose your own avatar..");
-    if(file_path!="") {
-        QString file_name = file_path.split("/").last();
-        QString new_file_path = IMG_PATH+file_name;
-        QFile::copy(file_path,new_file_path);
-        this->userLogoPath = new_file_path;
-    }
+    this->userUsername = newName;
+}
+
+void UserTag::chooseAvatar()
+{
+    //to implement?
 }
 
 void UserTag::setUserStatus(bool newStatus)
@@ -61,17 +86,17 @@ void UserTag::setUserStatus(bool newStatus)
     this->userStatus = newStatus;
 }
 
-QString UserTag::getUserName()
+QString UserTag::getUsername()
 {
-    return this->userName;
+    return this->userUsername;
 }
 
-QString UserTag::getUserLogoPath()
+QPixmap UserTag::getAvatar()
 {
-    return this->userLogoPath;
+    return this->userAvatar;
 }
 
-bool UserTag::getUserStatus()
+bool UserTag::getStatus()
 {
     return this->userStatus;
 }

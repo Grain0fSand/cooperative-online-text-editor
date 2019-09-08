@@ -27,18 +27,24 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 SOURCES += \
+        action.cpp \
         json_comunicator.cpp \
         loginwindow.cpp \
         main.cpp \
         mainwindow.cpp \
+        mytextedit.cpp \
+        remotecursor.cpp \
         smtpclient.cpp \
         usertag.cpp
 
 HEADERS += \
+        action.h \
         json_comunicator.h \
         loginwindow.h \
         mainwindow.h \
+        mytextedit.h \
         online_synchronizer.h \
+        remotecursor.h \
         shared_editor.h \
         smtpclient.h \
         usertag.h

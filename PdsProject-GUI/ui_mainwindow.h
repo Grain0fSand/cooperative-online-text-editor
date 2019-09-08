@@ -13,15 +13,20 @@
 #include <QtGui/QIcon>
 #include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
+#include <QtWidgets/QFrame>
 #include <QtWidgets/QGridLayout>
 #include <QtWidgets/QHBoxLayout>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QListWidget>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QMenuBar>
+#include <QtWidgets/QPushButton>
 #include <QtWidgets/QStatusBar>
-#include <QtWidgets/QTextEdit>
 #include <QtWidgets/QToolBar>
+#include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
+#include "mytextedit.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -37,19 +42,30 @@ public:
     QAction *actionAlignLeft;
     QAction *actionAlignCenter;
     QAction *actionAlignRight;
-    QAction *actionUndo;
-    QAction *actionRedo;
     QAction *actionConnect;
-    QAction *actionAccount_Settings;
     QAction *actionExport_to_PDF;
     QAction *actionExit;
     QAction *actionAlignJustify;
     QAction *actionInvite;
+    QAction *actionTestCursor;
+    QAction *actionTestTag;
+    QAction *actionTestDisconnect;
     QWidget *centralWidget;
     QHBoxLayout *horizontalLayout;
     QWidget *docFrame;
     QGridLayout *docFrameLayout;
-    QTextEdit *textEditShared;
+    myTextEdit *textEditShared;
+    QFrame *verticalLine;
+    QVBoxLayout *sideLayout;
+    QFrame *myTag;
+    QLabel *myUsername;
+    QLabel *myStatus;
+    QLabel *myAvatar;
+    QLabel *myLed;
+    QPushButton *onlineRollButton;
+    QListWidget *listOnlineUsers;
+    QPushButton *offlineRollButton;
+    QListWidget *listOfflineUsers;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
     QMenuBar *menuBar;
@@ -60,12 +76,13 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
-        MainWindow->resize(1030, 1082);
+        MainWindow->resize(1034, 691);
         QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
         sizePolicy.setHeightForWidth(MainWindow->sizePolicy().hasHeightForWidth());
         MainWindow->setSizePolicy(sizePolicy);
+        MainWindow->setMinimumSize(QSize(1034, 0));
         QIcon icon;
         icon.addFile(QString::fromUtf8(":/PdsProject.app/Contents/Resources/img/logoIcon.png"), QSize(), QIcon::Normal, QIcon::Off);
         MainWindow->setWindowIcon(icon);
@@ -120,22 +137,8 @@ public:
         QIcon icon9;
         icon9.addFile(QString::fromUtf8(":/PdsProject.app/Contents/Resources/img/ic_format_align_right_36pt_2x.png"), QSize(), QIcon::Normal, QIcon::Off);
         actionAlignRight->setIcon(icon9);
-        actionUndo = new QAction(MainWindow);
-        actionUndo->setObjectName(QString::fromUtf8("actionUndo"));
-        actionUndo->setEnabled(false);
-        QIcon icon10;
-        icon10.addFile(QString::fromUtf8(":/PdsProject.app/Contents/Resources/img/ic_undo_36pt_2x.png"), QSize(), QIcon::Normal, QIcon::Off);
-        actionUndo->setIcon(icon10);
-        actionRedo = new QAction(MainWindow);
-        actionRedo->setObjectName(QString::fromUtf8("actionRedo"));
-        actionRedo->setEnabled(false);
-        QIcon icon11;
-        icon11.addFile(QString::fromUtf8(":/PdsProject.app/Contents/Resources/img/ic_redo_36pt_2x.png"), QSize(), QIcon::Normal, QIcon::Off);
-        actionRedo->setIcon(icon11);
         actionConnect = new QAction(MainWindow);
         actionConnect->setObjectName(QString::fromUtf8("actionConnect"));
-        actionAccount_Settings = new QAction(MainWindow);
-        actionAccount_Settings->setObjectName(QString::fromUtf8("actionAccount_Settings"));
         actionExport_to_PDF = new QAction(MainWindow);
         actionExport_to_PDF->setObjectName(QString::fromUtf8("actionExport_to_PDF"));
         actionExit = new QAction(MainWindow);
@@ -143,11 +146,17 @@ public:
         actionAlignJustify = new QAction(MainWindow);
         actionAlignJustify->setObjectName(QString::fromUtf8("actionAlignJustify"));
         actionAlignJustify->setCheckable(true);
-        QIcon icon12;
-        icon12.addFile(QString::fromUtf8(":/PdsProject.app/Contents/Resources/img/ic_format_align_justify_36pt_2x.png"), QSize(), QIcon::Normal, QIcon::Off);
-        actionAlignJustify->setIcon(icon12);
+        QIcon icon10;
+        icon10.addFile(QString::fromUtf8(":/PdsProject.app/Contents/Resources/img/ic_format_align_justify_36pt_2x.png"), QSize(), QIcon::Normal, QIcon::Off);
+        actionAlignJustify->setIcon(icon10);
         actionInvite = new QAction(MainWindow);
         actionInvite->setObjectName(QString::fromUtf8("actionInvite"));
+        actionTestCursor = new QAction(MainWindow);
+        actionTestCursor->setObjectName(QString::fromUtf8("actionTestCursor"));
+        actionTestTag = new QAction(MainWindow);
+        actionTestTag->setObjectName(QString::fromUtf8("actionTestTag"));
+        actionTestDisconnect = new QAction(MainWindow);
+        actionTestDisconnect->setObjectName(QString::fromUtf8("actionTestDisconnect"));
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QString::fromUtf8("centralWidget"));
         sizePolicy.setHeightForWidth(centralWidget->sizePolicy().hasHeightForWidth());
@@ -171,7 +180,7 @@ public:
         docFrameLayout->setContentsMargins(11, 11, 11, 11);
         docFrameLayout->setObjectName(QString::fromUtf8("docFrameLayout"));
         docFrameLayout->setContentsMargins(0, 0, 0, 0);
-        textEditShared = new QTextEdit(docFrame);
+        textEditShared = new myTextEdit(docFrame);
         textEditShared->setObjectName(QString::fromUtf8("textEditShared"));
         QSizePolicy sizePolicy2(QSizePolicy::Fixed, QSizePolicy::Expanding);
         sizePolicy2.setHorizontalStretch(0);
@@ -189,10 +198,107 @@ public:
         font.setStrikeOut(false);
         textEditShared->setFont(font);
 
-        docFrameLayout->addWidget(textEditShared, 1, 1, 1, 1);
+        docFrameLayout->addWidget(textEditShared, 0, 1, 1, 1);
 
 
         horizontalLayout->addWidget(docFrame, 0, Qt::AlignHCenter);
+
+        verticalLine = new QFrame(centralWidget);
+        verticalLine->setObjectName(QString::fromUtf8("verticalLine"));
+        verticalLine->setFrameShadow(QFrame::Raised);
+        verticalLine->setFrameShape(QFrame::VLine);
+
+        horizontalLayout->addWidget(verticalLine);
+
+        sideLayout = new QVBoxLayout();
+        sideLayout->setSpacing(6);
+        sideLayout->setObjectName(QString::fromUtf8("sideLayout"));
+        myTag = new QFrame(centralWidget);
+        myTag->setObjectName(QString::fromUtf8("myTag"));
+        sizePolicy.setHeightForWidth(myTag->sizePolicy().hasHeightForWidth());
+        myTag->setSizePolicy(sizePolicy);
+        myTag->setMinimumSize(QSize(258, 92));
+        myTag->setMaximumSize(QSize(258, 92));
+        QFont font1;
+        font1.setPointSize(8);
+        myTag->setFont(font1);
+        myTag->setFrameShape(QFrame::WinPanel);
+        myTag->setFrameShadow(QFrame::Raised);
+        myUsername = new QLabel(myTag);
+        myUsername->setObjectName(QString::fromUtf8("myUsername"));
+        myUsername->setGeometry(QRect(90, 10, 161, 41));
+        QFont font2;
+        font2.setFamily(QString::fromUtf8("Gill Sans MT"));
+        font2.setPointSize(17);
+        myUsername->setFont(font2);
+        myStatus = new QLabel(myTag);
+        myStatus->setObjectName(QString::fromUtf8("myStatus"));
+        myStatus->setGeometry(QRect(120, 60, 101, 21));
+        QFont font3;
+        font3.setFamily(QString::fromUtf8("Verdana"));
+        font3.setPointSize(11);
+        myStatus->setFont(font3);
+        myAvatar = new QLabel(myTag);
+        myAvatar->setObjectName(QString::fromUtf8("myAvatar"));
+        myAvatar->setGeometry(QRect(10, 10, 71, 71));
+        myAvatar->setPixmap(QPixmap(QString::fromUtf8(":/PdsProject.app/Contents/Resources/avatars/avatar.png")));
+        myAvatar->setScaledContents(true);
+        myLed = new QLabel(myTag);
+        myLed->setObjectName(QString::fromUtf8("myLed"));
+        myLed->setGeometry(QRect(90, 60, 21, 21));
+        myLed->setPixmap(QPixmap(QString::fromUtf8(":/PdsProject.app/Contents/Resources/img/greenLed.png")));
+        myLed->setScaledContents(true);
+
+        sideLayout->addWidget(myTag);
+
+        onlineRollButton = new QPushButton(centralWidget);
+        onlineRollButton->setObjectName(QString::fromUtf8("onlineRollButton"));
+        sizePolicy.setHeightForWidth(onlineRollButton->sizePolicy().hasHeightForWidth());
+        onlineRollButton->setSizePolicy(sizePolicy);
+        onlineRollButton->setMinimumSize(QSize(258, 0));
+        onlineRollButton->setMaximumSize(QSize(258, 16777215));
+        onlineRollButton->setLayoutDirection(Qt::RightToLeft);
+        onlineRollButton->setStyleSheet(QString::fromUtf8("text-align:left;"));
+        QIcon icon11;
+        icon11.addFile(QString::fromUtf8(":/PdsProject.app/Contents/Resources/img/arrow_up.png"), QSize(), QIcon::Normal, QIcon::Off);
+        onlineRollButton->setIcon(icon11);
+        onlineRollButton->setIconSize(QSize(10, 10));
+
+        sideLayout->addWidget(onlineRollButton);
+
+        listOnlineUsers = new QListWidget(centralWidget);
+        listOnlineUsers->setObjectName(QString::fromUtf8("listOnlineUsers"));
+        sizePolicy2.setHeightForWidth(listOnlineUsers->sizePolicy().hasHeightForWidth());
+        listOnlineUsers->setSizePolicy(sizePolicy2);
+        listOnlineUsers->setMinimumSize(QSize(258, 0));
+        listOnlineUsers->setMaximumSize(QSize(258, 16777215));
+
+        sideLayout->addWidget(listOnlineUsers);
+
+        offlineRollButton = new QPushButton(centralWidget);
+        offlineRollButton->setObjectName(QString::fromUtf8("offlineRollButton"));
+        sizePolicy.setHeightForWidth(offlineRollButton->sizePolicy().hasHeightForWidth());
+        offlineRollButton->setSizePolicy(sizePolicy);
+        offlineRollButton->setMinimumSize(QSize(258, 0));
+        offlineRollButton->setMaximumSize(QSize(258, 16777215));
+        offlineRollButton->setLayoutDirection(Qt::RightToLeft);
+        offlineRollButton->setStyleSheet(QString::fromUtf8("text-align:left;"));
+        offlineRollButton->setIcon(icon11);
+        offlineRollButton->setIconSize(QSize(10, 10));
+
+        sideLayout->addWidget(offlineRollButton);
+
+        listOfflineUsers = new QListWidget(centralWidget);
+        listOfflineUsers->setObjectName(QString::fromUtf8("listOfflineUsers"));
+        sizePolicy2.setHeightForWidth(listOfflineUsers->sizePolicy().hasHeightForWidth());
+        listOfflineUsers->setSizePolicy(sizePolicy2);
+        listOfflineUsers->setMinimumSize(QSize(258, 0));
+        listOfflineUsers->setMaximumSize(QSize(258, 16777215));
+
+        sideLayout->addWidget(listOfflineUsers);
+
+
+        horizontalLayout->addLayout(sideLayout);
 
         MainWindow->setCentralWidget(centralWidget);
         mainToolBar = new QToolBar(MainWindow);
@@ -209,15 +315,13 @@ public:
         MainWindow->setStatusBar(statusBar);
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName(QString::fromUtf8("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 1030, 21));
+        menuBar->setGeometry(QRect(0, 0, 1034, 21));
         menuMain = new QMenu(menuBar);
         menuMain->setObjectName(QString::fromUtf8("menuMain"));
         menuAbout = new QMenu(menuBar);
         menuAbout->setObjectName(QString::fromUtf8("menuAbout"));
         MainWindow->setMenuBar(menuBar);
 
-        mainToolBar->addAction(actionUndo);
-        mainToolBar->addAction(actionRedo);
         mainToolBar->addSeparator();
         mainToolBar->addAction(actionCopy);
         mainToolBar->addAction(actionCut);
@@ -231,10 +335,12 @@ public:
         mainToolBar->addAction(actionAlignCenter);
         mainToolBar->addAction(actionAlignRight);
         mainToolBar->addAction(actionAlignJustify);
+        mainToolBar->addAction(actionTestCursor);
+        mainToolBar->addAction(actionTestTag);
+        mainToolBar->addAction(actionTestDisconnect);
         menuBar->addAction(menuMain->menuAction());
         menuBar->addAction(menuAbout->menuAction());
         menuMain->addAction(actionConnect);
-        menuMain->addAction(actionAccount_Settings);
         menuMain->addAction(actionExport_to_PDF);
         menuMain->addAction(actionInvite);
         menuMain->addSeparator();
@@ -257,20 +363,29 @@ public:
         actionAlignLeft->setText(QCoreApplication::translate("MainWindow", "AlignLeft", nullptr));
         actionAlignCenter->setText(QCoreApplication::translate("MainWindow", "AlignCenter", nullptr));
         actionAlignRight->setText(QCoreApplication::translate("MainWindow", "AlignRight", nullptr));
-        actionUndo->setText(QCoreApplication::translate("MainWindow", "Undo", nullptr));
-        actionRedo->setText(QCoreApplication::translate("MainWindow", "Redo", nullptr));
         actionConnect->setText(QCoreApplication::translate("MainWindow", "Connect...", nullptr));
-        actionAccount_Settings->setText(QCoreApplication::translate("MainWindow", "Account Settings", nullptr));
         actionExport_to_PDF->setText(QCoreApplication::translate("MainWindow", "Export to PDF", nullptr));
         actionExit->setText(QCoreApplication::translate("MainWindow", "Exit", nullptr));
         actionAlignJustify->setText(QCoreApplication::translate("MainWindow", "AlignJustify", nullptr));
         actionInvite->setText(QCoreApplication::translate("MainWindow", "Invite to Collaborate", nullptr));
+        actionTestCursor->setText(QCoreApplication::translate("MainWindow", "TestCursor", nullptr));
+        actionTestTag->setText(QCoreApplication::translate("MainWindow", "TestTag", nullptr));
+        actionTestDisconnect->setText(QCoreApplication::translate("MainWindow", "TestDisconnect", nullptr));
+#if QT_CONFIG(tooltip)
+        actionTestDisconnect->setToolTip(QCoreApplication::translate("MainWindow", "TestDisconnect", nullptr));
+#endif // QT_CONFIG(tooltip)
         textEditShared->setHtml(QCoreApplication::translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:'Calibri'; font-size:11pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Bangla MN'; font-size:16pt;\"><br /></p></body></html>", nullptr));
+"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p></body></html>", nullptr));
         textEditShared->setPlaceholderText(QCoreApplication::translate("MainWindow", "inizia ad editare qui!", nullptr));
+        myUsername->setText(QCoreApplication::translate("MainWindow", "dario.patti90", nullptr));
+        myStatus->setText(QCoreApplication::translate("MainWindow", "Online", nullptr));
+        myAvatar->setText(QString());
+        myLed->setText(QString());
+        onlineRollButton->setText(QCoreApplication::translate("MainWindow", "Online Users", nullptr));
+        offlineRollButton->setText(QCoreApplication::translate("MainWindow", "Offline Users", nullptr));
         mainToolBar->setWindowTitle(QCoreApplication::translate("MainWindow", "SynkEditor", nullptr));
         menuMain->setTitle(QCoreApplication::translate("MainWindow", "Main", nullptr));
         menuAbout->setTitle(QCoreApplication::translate("MainWindow", "About", nullptr));

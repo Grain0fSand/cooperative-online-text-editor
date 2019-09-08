@@ -25,5 +25,10 @@
         <file>PdsProject.app/Contents/Resources/img/openDoc.png</file>
         <file>PdsProject.app/Contents/Resources/avatars/avatar.png</file>
         <file>PdsProject.app/Contents/Resources/img/openURI.png</file>
+        <file>PdsProject.app/Contents/Resources/img/cursor.svg</file>
+        <file>PdsProject.app/Contents/Resources/img/test.svg</file>
+        <file>PdsProject.app/Contents/Resources/img/arrow_down.png</file>
+        <file>PdsProject.app/Contents/Resources/img/arrow_up.png</file>
+        <file>PdsProject.app/Contents/Resources/img/font_icon.png</file>
     </qresource>
 </RCC>

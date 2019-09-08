@@ -1,33 +1,33 @@
 #ifndef USERTAG_H
 #define USERTAG_H
 
-#include <QObject>
-#include <QWidget>
-#include <QFrame>
-#include "mainwindow.h"
+#include <QAbstractItemDelegate>
+#include <QPainter>
 
-class UserTag : public QFrame
+class UserTag : public QAbstractItemDelegate
 {
-    Q_OBJECT
 
 public:
     explicit UserTag(QWidget *parent = nullptr);
     ~UserTag() = default;
 
-    void setUserName(QString);
-    void chooseUserLogo();
+    void paint ( QPainter * painter, const QStyleOptionViewItem & option, const QModelIndex & index ) const;
+    QSize sizeHint ( const QStyleOptionViewItem & option, const QModelIndex & index ) const;
+
+    void setUsername(QString);
+    void chooseAvatar();
     void setUserStatus(bool);
-    QString getUserName();
-    QString getUserLogoPath();
-    bool getUserStatus();
+    QString getUsername();
+    QPixmap getAvatar();
+    bool getStatus();
 
 signals:
 
 public slots:
 
 private:
-    QString userName;
-    QString userLogoPath;
+    QString userUsername;
+    QPixmap userAvatar;
     bool userStatus;
 };
 

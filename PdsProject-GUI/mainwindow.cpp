@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include "online_synchronizer.h"
 #include "shared_editor.h"
+#include "mytextedit.h"
 #include "usertag.h"
 #include "smtpclient.h"
 #include <QDebug>
@@ -17,6 +18,9 @@
 #include <QMessageBox>
 #include <QGroupBox>
 #include <QInputDialog>
+#include <QPainter>
+#include <QPushButton>
+#include <QStringListModel>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -25,51 +29,27 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     this->toDelete = 0;
     ui->setupUi(this);
-    ui->textEditShared->setAcceptRichText(true);
-
-
-    // for blinking images
-    //connect(&background_task,SIGNAL(tick_clock()),this,SLOT(redrawBlinkingImage()));
-    //background_task.start();
+    ui->textEditShared->setAcceptRichText(false); //this needs to be false to avoid pasting formatted text with CTRL+V
 
     // for web request
     //OnlineSynchronizer* synk = new OnlineSynchronizer{};
 
-    // setting up the cursor position to understand if text was inserted or deleted
-    this->last_cursor_position = ui->textEditShared->textCursor().position();
-
     ui->textEditShared->installEventFilter(this);
     Shared_editor::getInstance().initString(ui->textEditShared->toHtml());
-    ui->textEditShared->setCurrentFont(QFont("Calibri",11,-1,false));
 
     this->clipboard = QApplication::clipboard();
 
-    // adding comboboxes for font type and size
-    auto comboFont = new QFontComboBox(ui->mainToolBar);
-    /*QFontDatabase db;
-    qDebug() << id;
-    qDebug() << db.families();
-   */ //fontDb.addApplicationFont(":/PdsProject.app/Contents/Resources/.fonts/AlexBrush-Regular.ttf");
+    ui->sideLayout->layout()->setAlignment(Qt::AlignTop);
 
     auto comboSize = new QComboBox(ui->mainToolBar);
-
-    this->fontSizes << "8" << "9" << "10" << "11" << "12" <<
-                       "14" << "16" << "18" << "20" << "22" <<
-                       "24" << "26" << "28" << "36" << "48" << "72";
-    comboSize->addItems(fontSizes);
-    comboSize->setCurrentText(QString::number(ui->textEditShared->currentFont().pointSize()));
-    comboFont->setCurrentFont(ui->textEditShared->currentFont());
-    comboFont->setEditable(false);
-    ui->mainToolBar->insertWidget(ui->mainToolBar->actions()[7], comboFont);
-    ui->mainToolBar->insertWidget(ui->mainToolBar->actions()[8], comboSize);
+    auto comboFamily = new QComboBox(ui->mainToolBar);
+    setupFontComboBoxes(comboSize, comboFamily);
 
     // setting up my connect event
-    connect(ui->textEditShared,&QTextEdit::selectionChanged,this,&MainWindow::memorizeSelection);
-
     connect(ui->actionCopy,&QAction::triggered,ui->textEditShared,&QTextEdit::copy);
     connect(ui->actionCut,&QAction::triggered,ui->textEditShared,&QTextEdit::cut);
     connect(ui->actionPaste,&QAction::triggered,ui->textEditShared,&QTextEdit::paste);
-    connect(comboFont,SIGNAL(activated(int)),this,SLOT(selectFont(int)));
+    connect(comboFamily,SIGNAL(activated(int)),this,SLOT(selectFont(int)));
     connect(comboSize,SIGNAL(activated(int)),this,SLOT(selectSize(int)));
     connect(ui->actionBold,&QAction::triggered,this,&MainWindow::makeBold);
     connect(ui->actionItalic,&QAction::triggered,this,&MainWindow::makeItalic);
@@ -79,13 +59,15 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionAlignRight,&QAction::triggered,this,&MainWindow::alignRight);
     connect(ui->actionAlignJustify,&QAction::triggered,this,&MainWindow::alignJustify);
 
-    //connect(ui->textEditShared,&QTextEdit::textChanged,this,&MainWindow::textChanged);
+    connect(ui->textEditShared->document(),&QTextDocument::contentsChange,this,&MainWindow::textChanged);
     connect(ui->textEditShared,&QTextEdit::cursorPositionChanged,this,&MainWindow::checkTextProperty);
     connect(this,&MainWindow::setComboSize,comboSize,&QComboBox::setCurrentIndex);
-    connect(this,&MainWindow::setComboFont,comboFont,&QFontComboBox::setCurrentFont);
+    connect(this,&MainWindow::setComboFont,comboFamily,&QComboBox::setCurrentIndex);
     connect(ui->actionExport_to_PDF,&QAction::triggered,this,&MainWindow::exportPDF);
-    connect(ui->actionAccount_Settings,&QAction::triggered,this,&MainWindow::openSettings);
     connect(ui->actionInvite,&QAction::triggered,this,&MainWindow::reqInvitationEmailAddress);
+    connect(ui->actionTestCursor,&QAction::triggered,this,&MainWindow::insertRemoteCursor); //only for test
+    connect(ui->actionTestTag,&QAction::triggered,this,&MainWindow::addUserTag);    //only for test
+    connect(ui->actionTestDisconnect,&QAction::triggered,this,&MainWindow::disableEditor);
 }
 
 MainWindow::~MainWindow()
@@ -129,6 +111,8 @@ void MainWindow::alignLeft()
 
     cursor.mergeBlockFormat(textBlockFormat);
     textEdit->setTextCursor(cursor);
+
+    ui->textEditShared->addAction(cursor.selectionStart(),cursor.selectedText().length(),AlignLeft);
 }
 
 void MainWindow::alignCenter()
@@ -146,6 +130,7 @@ void MainWindow::alignCenter()
     cursor.mergeBlockFormat(textBlockFormat);
     textEdit->setTextCursor(cursor);
 
+    ui->textEditShared->addAction(cursor.selectionStart(),cursor.selectedText().length(),AlignCenter);
 }
 
 void MainWindow::alignRight()
@@ -162,6 +147,8 @@ void MainWindow::alignRight()
 
     cursor.mergeBlockFormat(textBlockFormat);
     textEdit->setTextCursor(cursor);
+
+    ui->textEditShared->addAction(cursor.selectionStart(),cursor.selectedText().length(),AlignRight);
 }
 
 void MainWindow::alignJustify()
@@ -178,155 +165,99 @@ void MainWindow::alignJustify()
 
     cursor.mergeBlockFormat(textBlockFormat);
     textEdit->setTextCursor(cursor);
+
+    ui->textEditShared->addAction(cursor.selectionStart(),cursor.selectedText().length(),AlignJustify);
 }
 
-void MainWindow::memorizeSelection()
-{
-    auto cursor = ui->textEditShared->textCursor();
-    this->toDelete = cursor.selectionStart() - cursor.selectionEnd();
-}
-
-void MainWindow::redrawBlinkingImage() {
-    qDebug() << "now it must redraw (show/hide) the images for blinking effect";
-}
-
-// TODO: refactory for shared_editor.h
 void MainWindow::makeBold()
 {
     auto textEdit = ui->textEditShared;
     auto cursor = textEdit->textCursor();
-    auto format = cursor.charFormat();
-    auto font = format.font();
 
     auto is_bold = ui->actionBold->isChecked();
-    /*
-    if(cursor.hasSelection()) {
-        auto text = cursor.selectedText();
-        cursor.insertHtml("<b>" + text + "</b>");
-    }
-    else {
-        (is_bold) ? format.setFontWeight(QFont::Bold) : format.setFontWeight(QFont::Normal);
-        cursor.mergeCharFormat(format);
-        textEdit->setTextCursor(cursor);
-    }
-    */
 
     ui->actionBold->setChecked(is_bold);
+    QTextCharFormat format;
     (is_bold) ? format.setFontWeight(QFont::Bold) : format.setFontWeight(QFont::Normal);
     cursor.mergeCharFormat(format);
     textEdit->setTextCursor(cursor);
 
-    qDebug() << textEdit->toHtml();
+    ui->textEditShared->addAction(cursor.selectionStart(),cursor.selectedText().length(),is_bold,Bold);
 }
 
-// TODO: refactory for shared_editor.h
 void MainWindow::makeItalic()
 {
     auto textEdit = ui->textEditShared;
     auto cursor = textEdit->textCursor();
-    auto format = cursor.charFormat();
-    auto font = format.font();
 
-    auto is_italic = ui->actionItalic->isChecked();
+    bool is_italic = ui->actionItalic->isChecked();
 
     ui->actionItalic->setChecked(is_italic);
-    /*
-    if(cursor.hasSelection()) {
-        auto text = cursor.selectedText();
-        cursor.insertHtml("<i>" + text + "</i>");
-    }
-    else {
-        format.setFontItalic(is_italic);
-        cursor.mergeCharFormat(format);
-        textEdit->setTextCursor(cursor);
-    }
-    */
-    ui->actionItalic->setChecked(is_italic);
+    QTextCharFormat format;
     format.setFontItalic(is_italic);
     cursor.mergeCharFormat(format);
     textEdit->setTextCursor(cursor);
 
-    qDebug() << textEdit->toHtml();
+    ui->textEditShared->addAction(cursor.selectionStart(),cursor.selectedText().length(),is_italic,Italic);
 }
 
-
-// TODO: refactory for shared_editor.h
 void MainWindow::makeUnderline()
 {
     auto textEdit = ui->textEditShared;
     auto cursor = textEdit->textCursor();
-    auto format = cursor.charFormat();
-    auto font = format.font();
 
     auto is_underlined = ui->actionUnderlined->isChecked();
-    /*
-    if(cursor.hasSelection()) {
-        auto text = cursor.selectedText();
-        cursor.insertHtml("<u>" + text + "</u>");
-    }
-    else {
-        format.setFontUnderline(is_underlined);
-        cursor.mergeCharFormat(format);
-        textEdit->setTextCursor(cursor);
-    }
-    */
 
     ui->actionUnderlined->setChecked(is_underlined);
+    QTextCharFormat format;
     format.setFontUnderline(is_underlined);
     cursor.mergeCharFormat(format);
     textEdit->setTextCursor(cursor);
 
-    qDebug() << textEdit->toHtml();
+    ui->textEditShared->addAction(cursor.selectionStart(),cursor.selectedText().length(),is_underlined,Underlined);
 }
 
-// TODO: refactory delete for shared_editor.h
-void MainWindow::textChanged() {
-    int previus_position = this->last_cursor_position;
-    this->last_cursor_position = ui->textEditShared->textCursor().position();
+void MainWindow::textChanged(int pos, int nDel, int nIns) {
 
-    bool is_text_deleted = (this->last_cursor_position-previus_position) < 0;
-
-    if (is_text_deleted){
-        Shared_editor::getInstance().removeString(this->last_cursor_position,toDelete);
-        qDebug() << "the text was deleted";
+    if(nDel==0)  {  //insertion
+        QString str("");
+        for(int i=0; i<nIns; i++) {
+            str += ui->textEditShared->document()->characterAt(pos+i);
+        }
+        ui->textEditShared->addAction(pos, nIns, str);
+    } else if (nIns==0) { //deletion
+        ui->textEditShared->addAction(pos, nDel);
     } else {
-        int pos = this->last_cursor_position-1;
-        auto charapter = ui->textEditShared->toPlainText().at(pos);
-        Shared_editor::getInstance().addCharapter(pos,charapter);
-        qDebug() << "the text was inserted";
+        //nothing to do
     }
-
-    //qDebug() << Shared_editor::getInstance().toString();
-
 }
 
-
-// TODO: refactory for shared_editor.h
-void MainWindow::selectFont(int fontIndex)
+void MainWindow::selectFont(int familyIndex)
 {
     auto textEdit = ui->textEditShared;
     auto cursor = textEdit->textCursor();
-    auto format = cursor.charFormat();
 
-    QFontDatabase fontDb;
-    QString fontFamily = fontDb.families()[fontIndex];
-
-    format.setFontFamily(fontFamily);
-    cursor.setCharFormat(format);
+    QString family = this->fontFamilies[familyIndex];
+    QTextCharFormat format;
+    format.setFontFamily(family);
+    cursor.mergeCharFormat(format);
     textEdit->setTextCursor(cursor);
+
+    ui->textEditShared->addAction(cursor.selectionStart(),cursor.selectedText().length(),familyIndex,FontFamily);
 }
 
 void MainWindow::selectSize(int sizeIndex)
 {
     auto textEdit = ui->textEditShared;
     auto cursor = textEdit->textCursor();
-    auto format = cursor.charFormat();
 
     int size = this->fontSizes[sizeIndex].toInt();
-
+    QTextCharFormat format;
     format.setFontPointSize(size);
-    cursor.setCharFormat(format);
+    cursor.mergeCharFormat(format);
     textEdit->setTextCursor(cursor);
+
+    ui->textEditShared->addAction(cursor.selectionStart(),cursor.selectedText().length(),sizeIndex,FontSize);
 }
 
 void MainWindow::checkTextProperty()
@@ -345,8 +276,9 @@ void MainWindow::checkTextProperty()
 
     QString fontSize = QString::number(font.pointSize());
     int sizeIndex = fontSizes.indexOf(fontSize);
+    int familyIndex = fontFamilies.indexOf(font.family());
     setComboSize(sizeIndex);
-    setComboFont(font);
+    setComboFont(familyIndex);
 
     ui->actionAlignLeft->setChecked(text_cursor.blockFormat().alignment().testFlag(Qt::AlignLeft));
     ui->actionAlignCenter->setChecked(text_cursor.blockFormat().alignment().testFlag(Qt::AlignCenter));
@@ -358,9 +290,9 @@ void MainWindow::checkTextProperty()
 
 }
 
-void MainWindow::openSettings()
-{
-    qDebug() << "account settings pressed";
+void MainWindow::insertRemoteCursor() {
+    ui->textEditShared->createCursor(ui->textEditShared->textCursor().position(),"prova1",Qt::red);
+    ui->textEditShared->repaint();
 }
 
 void MainWindow::reqInvitationEmailAddress()
@@ -400,6 +332,72 @@ void MainWindow::reqInvitationEmailAddress()
         }
         else break;
     }
+}
+
+void MainWindow::addUserTag()
+{
+    auto tag = new UserTag();
+    this->usersList.push_back(tag);
+
+    ui->listOnlineUsers->setItemDelegate(tag);
+    QListWidgetItem *item = new QListWidgetItem();
+    item->setData(Qt::UserRole + 1, "Username");
+    item->setData(Qt::UserRole + 2, "Online");
+    item->setData(Qt::UserRole + 3, QPixmap("://PdsProject.app/Contents/Resources/avatars/avatar.png"));
+    item->setData(Qt::UserRole + 4, QPixmap("://PdsProject.app/Contents/Resources/img/greenLed.png"));
+    item->setData(Qt::UserRole + 5, QColor(Qt::red));
+    ui->listOnlineUsers->addItem(item);
+}
+
+void MainWindow::disableEditor()
+{
+    ui->textEditShared->setEnabled(!ui->textEditShared->isEnabled());
+    ui->actionCopy->setEnabled(!ui->actionCopy->isEnabled());
+    ui->actionCut->setEnabled(!ui->actionCut->isEnabled());
+    auto comboBoxes = ui->mainToolBar->findChildren<QComboBox*>();
+    comboBoxes[0]->setEnabled(!comboBoxes[0]->isEnabled());
+    comboBoxes[1]->setEnabled(!comboBoxes[1]->isEnabled());
+    ui->actionPaste->setEnabled(!ui->actionPaste->isEnabled());
+    ui->actionBold->setEnabled(!ui->actionBold->isEnabled());
+    ui->actionItalic->setEnabled(!ui->actionItalic->isEnabled());
+    ui->actionUnderlined->setEnabled(!ui->actionUnderlined->isEnabled());
+    ui->actionAlignLeft->setEnabled(!ui->actionAlignLeft->isEnabled());
+    ui->actionAlignCenter->setEnabled(!ui->actionAlignCenter->isEnabled());
+    ui->actionAlignRight->setEnabled(!ui->actionAlignRight->isEnabled());
+    ui->actionAlignJustify->setEnabled(!ui->actionAlignJustify->isEnabled());
+    ui->listOnlineUsers->setEnabled(!ui->listOnlineUsers->isEnabled());
+    ui->listOfflineUsers->setEnabled(!ui->listOfflineUsers->isEnabled());
+    ui->onlineRollButton->setEnabled(!ui->onlineRollButton->isEnabled());
+    ui->offlineRollButton->setEnabled(!ui->offlineRollButton->isEnabled());
+}
+
+void MainWindow::setupFontComboBoxes(QComboBox* comboSize, QComboBox* comboFamily)
+{
+    auto font = comboSize->font();
+    font.setPointSize(13);
+    comboSize->setFont(font);
+    comboFamily->setFont(font);
+
+    this->fontSizes << "8" << "9" << "10" << "11" << "12" <<
+                       "14" << "16" << "18" << "20" << "22" <<
+                       "24" << "26" << "28" << "36" << "48" << "72";
+    this->fontFamilies << "Arial" << "Arial Black" << "Berlin Sans FB" << "Calibri" << "Century Gothic" <<
+                          "Consolas" << "Constantia" << "Freestyle Script" << "Georgia" << "Gill Sans MT" <<
+                          "Informal Roman" << "Lucida Calligraphy" << "MS Shell Dlg 2" <<
+                          "Palatino Linotype" << "Tahoma" << "Times New Roman" << "Verdana" << "Vivaldi";
+
+    comboSize->addItems(fontSizes);
+    comboSize->setCurrentText(QString::number(ui->textEditShared->currentFont().pointSize()));
+
+    comboFamily->addItems(fontFamilies);
+    QIcon icon("://PdsProject.app/Contents/Resources/img/font_icon.png");
+    for(int i=0; i<comboFamily->count(); i++) {
+        comboFamily->setItemIcon(i, icon);
+    }
+    comboFamily->setCurrentText(ui->textEditShared->currentFont().family());
+
+    ui->mainToolBar->insertWidget(ui->mainToolBar->actions()[7], comboFamily);
+    ui->mainToolBar->insertWidget(ui->mainToolBar->actions()[8], comboSize);
 }
 
 void MainWindow::sendInvitationEmail(QString destEmailAddress)
@@ -443,5 +441,26 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
         return false;
     } else {
         return false;
+    }
+}
+
+void MainWindow::on_onlineRollButton_clicked()
+{
+    ui->listOnlineUsers->setVisible(!ui->listOnlineUsers->isVisible());
+    if(ui->listOnlineUsers->isVisible()) {
+        ui->onlineRollButton->setIcon(QIcon("://PdsProject.app/Contents/Resources/img/arrow_up.png"));
+    }
+    else {
+        ui->onlineRollButton->setIcon(QIcon("://PdsProject.app/Contents/Resources/img/arrow_down.png"));
+    }
+}
+void MainWindow::on_offlineRollButton_clicked()
+{
+    ui->listOfflineUsers->setVisible(!ui->listOfflineUsers->isVisible());
+    if(ui->listOfflineUsers->isVisible()) {
+        ui->offlineRollButton->setIcon(QIcon("://PdsProject.app/Contents/Resources/img/arrow_up.png"));
+    }
+    else {
+        ui->offlineRollButton->setIcon(QIcon("://PdsProject.app/Contents/Resources/img/arrow_down.png"));
     }
 }

@@ -2,11 +2,13 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QComboBox>
 #include <QShortcut>
 #include <QKeyEvent>
 #include <thread>
 #include <chrono>
 #include <qthread.h>
+#include "usertag.h"
 
 class Periodic_task : public QThread
 {
@@ -55,12 +57,12 @@ public:
     void collaborativeURI_Pasted();
     bool eventFilter(QObject *obj,QEvent* event);
     void sendInvitationEmail(QString destEmailAddress);
+    void setupFontComboBoxes(QComboBox *comboSize, QComboBox *comboFamily);
 
 public slots:
     void exportPDF();
     void selectFont(int);
     void selectSize(int);
-    void redrawBlinkingImage();
     void makeBold();
     void makeItalic();
     void makeUnderline();
@@ -68,17 +70,23 @@ public slots:
     void alignCenter();
     void alignRight();
     void alignJustify();
-    void memorizeSelection();
     void checkTextProperty();
-    void openSettings();
+    void insertRemoteCursor();
     void reqInvitationEmailAddress();
+    void addUserTag();
+    void disableEditor();
 
 protected slots:
-    void textChanged();
+    void textChanged(int, int, int);
 
 signals:
     void setComboSize(int);
-    void setComboFont(QFont);
+    void setComboFont(int);
+
+private slots:
+    void on_onlineRollButton_clicked();
+
+    void on_offlineRollButton_clicked();
 
 private:
     Ui::MainWindow *ui;
@@ -86,9 +94,11 @@ private:
     int last_cursor_position;
     int toDelete;
     QStringList fontSizes;
+    QStringList fontFamilies;
     QShortcut *shortcutUndo;
     QShortcut *shortcutRedo;
     QClipboard *clipboard;
+    std::list<UserTag*> usersList;
 };
 
 #endif // MAINWINDOW_H
