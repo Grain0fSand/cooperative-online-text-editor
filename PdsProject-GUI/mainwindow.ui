@@ -19,7 +19,7 @@
   <property name="minimumSize">
    <size>
     <width>1034</width>
-    <height>0</height>
+    <height>691</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -402,8 +402,13 @@ p, li { white-space: pre-wrap; }
    <addaction name="actionTestCursor"/>
    <addaction name="actionTestTag"/>
    <addaction name="actionTestDisconnect"/>
+   <addaction name="actionTestActions"/>
   </widget>
-  <widget class="QStatusBar" name="statusBar"/>
+  <widget class="QStatusBar" name="statusBar">
+   <property name="sizeGripEnabled">
+    <bool>false</bool>
+   </property>
+  </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
@@ -578,6 +583,11 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="toolTip">
     <string>TestDisconnect</string>
+   </property>
+  </action>
+  <action name="actionTestActions">
+   <property name="text">
+    <string>TestActions</string>
    </property>
   </action>
  </widget>

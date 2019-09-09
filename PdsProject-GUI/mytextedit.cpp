@@ -7,6 +7,14 @@ myTextEdit::myTextEdit(QWidget *)
 {
     this->setCurrentFont(QFont("Calibri",11,-1,false));
     this->document()->setDocumentMargin(11);
+    this->hiddenCursor = new QTextCursor(this->document());
+    this->fontSizes << "8" << "9" << "10" << "11" << "12" <<
+                       "14" << "16" << "18" << "20" << "22" <<
+                       "24" << "26" << "28" << "36" << "48" << "72";
+    this->fontFamilies << "Arial" << "Arial Black" << "Berlin Sans FB" << "Calibri" << "Century Gothic" <<
+                          "Consolas" << "Constantia" << "Freestyle Script" << "Georgia" << "Gill Sans MT" <<
+                          "Informal Roman" << "Lucida Calligraphy" << "MS Shell Dlg 2" <<
+                          "Palatino Linotype" << "Tahoma" << "Times New Roman" << "Verdana" << "Vivaldi";
 }
 
 void myTextEdit::paintEvent(QPaintEvent *e) {
@@ -45,15 +53,14 @@ void myTextEdit::addCursor(RemoteCursor *cursor)
     this->cursorsList.push_back(cursor);
 }
 
-void myTextEdit::addAction(int pos, int numChars, QString str, ActionType actionType) //insertion
+void myTextEdit::addAction(int cursorPos, int numChars, QString chars, ActionType actionType) //insertion
 {
-
     Action action;
     action.setActionType(actionType);
-    action.setCursorPos(pos);
+    action.setCursorPos(cursorPos);
     action.setNumChars(numChars);
-    action.setChars(str);
-    this->toDoList.push_front(action);
+    action.setChars(chars);
+    this->toSendList.push_front(action);
 }
 
 void myTextEdit::addAction(int cursorPos, int numChars, ActionType actionType) //deletion
@@ -63,7 +70,7 @@ void myTextEdit::addAction(int cursorPos, int numChars, ActionType actionType) /
     action.setCursorPos(cursorPos);
     action.setNumChars(numChars);
 
-    this->toDoList.push_front(action);
+    this->toSendList.push_front(action);
 }
 
 void myTextEdit::addAction(int cursorPos, int numChars, bool formatBoolean, TextFormatType formatType, ActionType actionType) //text formatting
@@ -75,10 +82,10 @@ void myTextEdit::addAction(int cursorPos, int numChars, bool formatBoolean, Text
     action.setTextFormatBoolean(formatBoolean);
     action.setTextFormatType(formatType);
 
-    this->toDoList.push_front(action);
+    this->toSendList.push_front(action);
 }
 
-void myTextEdit::addAction(int cursorPos, int numChars, int index, TextFormatType formatType, ActionType actionType) //text formatting
+void myTextEdit::addAction(int cursorPos, int numChars, int index, TextFormatType formatType, ActionType actionType) //font formatting
 {
     Action action;
     action.setActionType(actionType);
@@ -87,7 +94,7 @@ void myTextEdit::addAction(int cursorPos, int numChars, int index, TextFormatTyp
     action.setComboFontIndex(index);
     action.setTextFormatType(formatType);
 
-    this->toDoList.push_front(action);
+    this->toSendList.push_front(action);
 }
 
 void myTextEdit::addAction(int cursorPos, int numChars, BlockFormatType formatType, ActionType actionType) //block formatting
@@ -98,12 +105,94 @@ void myTextEdit::addAction(int cursorPos, int numChars, BlockFormatType formatTy
     action.setNumChars(numChars);
     action.setBlockFormatType(formatType);
 
-    this->toDoList.push_front(action);
+    this->toSendList.push_front(action);
 }
 
-void myTextEdit::removeAction()
+void myTextEdit::doReceivedActions()
 {
-    this->toDoList.pop_front();
+    this->document()->blockSignals(true);
+    while(!toDoList.empty()) {
+        auto action = toDoList.back();
+        this->hiddenCursor->setPosition(action.getCursorPos());
+        switch(action.getActionType())
+        {
+            case NoActionType:
+                qDebug() << "Invalid action to do";
+                break;
+            case Insertion:
+                this->hiddenCursor->insertText(action.getChars());
+                break;
+            case Deletion:
+                this->hiddenCursor->movePosition(QTextCursor::Right,QTextCursor::KeepAnchor,action.getNumChars());
+                this->hiddenCursor->removeSelectedText();
+                break;
+            case TextFormatting:
+            {
+                this->hiddenCursor->movePosition(QTextCursor::Right,QTextCursor::KeepAnchor,action.getNumChars());
+                QTextCharFormat format;
+                switch(action.getTextFormatType())
+                {
+                    case NoTextFormatType:
+                        qDebug()  << "Invalid text formatting to do";
+                        break;
+                    case Bold:
+                        action.getTextFormatBoolean() ? format.setFontWeight(QFont::Bold) : format.setFontWeight(QFont::Normal);
+                        break;
+                    case Italic:
+                        format.setFontItalic(action.getTextFormatBoolean());
+                        break;
+                    case Underlined:
+                        format.setFontUnderline(action.getTextFormatBoolean());
+                        break;
+                    case FontFamily:
+                        format.setFontFamily(this->fontFamilies.at(action.getComboFontIndex()));
+                        break;
+                    case FontSize:
+                        format.setFontPointSize(this->fontSizes.at(action.getComboFontIndex()).toInt());
+                        break;
+                }
+                this->hiddenCursor->mergeCharFormat(format);
+                break;
+            }
+            case BlockFormatting:
+            {
+                this->hiddenCursor->movePosition(QTextCursor::Right,QTextCursor::KeepAnchor,action.getNumChars());
+                QTextBlockFormat format;
+                switch(action.getBlockFormatType())
+                {
+                    case NoBlockFormatType:
+                        qDebug()  << "Invalid block formatting to do";
+                        break;
+                    case AlignLeft:
+                        format.setAlignment(Qt::AlignLeft);
+                        break;
+                    case AlignCenter:
+                        format.setAlignment(Qt::AlignCenter);
+                        break;
+                    case AlignRight:
+                        format.setAlignment(Qt::AlignRight);
+                        break;
+                    case AlignJustify:
+                        format.setAlignment(Qt::AlignJustify);
+                        break;
+                }
+                this->hiddenCursor->mergeBlockFormat(format);
+                break;
+            }
+        }
+        toDoList.pop_back();
+    }
+    this->document()->blockSignals(false);
+}
+
+QStringList myTextEdit::getFontSizes() const
+{
+    return fontSizes;
+}
+
+QStringList myTextEdit::getFontFamilies() const
+{
+    return fontFamilies;
 }
 
 void myTextEdit::createCursor(int pos, QString text, QColor color) {

@@ -58,6 +58,7 @@ public:
     bool eventFilter(QObject *obj,QEvent* event);
     void sendInvitationEmail(QString destEmailAddress);
     void setupFontComboBoxes(QComboBox *comboSize, QComboBox *comboFamily);
+    void setupStatusBar();
 
 public slots:
     void exportPDF();
@@ -88,15 +89,11 @@ private slots:
 
     void on_offlineRollButton_clicked();
 
+    void on_actionTestActions_triggered();
+
 private:
     Ui::MainWindow *ui;
     Periodic_task background_task;
-    int last_cursor_position;
-    int toDelete;
-    QStringList fontSizes;
-    QStringList fontFamilies;
-    QShortcut *shortcutUndo;
-    QShortcut *shortcutRedo;
     QClipboard *clipboard;
     std::list<UserTag*> usersList;
 };

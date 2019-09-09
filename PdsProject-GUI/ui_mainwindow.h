@@ -50,6 +50,7 @@ public:
     QAction *actionTestCursor;
     QAction *actionTestTag;
     QAction *actionTestDisconnect;
+    QAction *actionTestActions;
     QWidget *centralWidget;
     QHBoxLayout *horizontalLayout;
     QWidget *docFrame;
@@ -82,7 +83,7 @@ public:
         sizePolicy.setVerticalStretch(0);
         sizePolicy.setHeightForWidth(MainWindow->sizePolicy().hasHeightForWidth());
         MainWindow->setSizePolicy(sizePolicy);
-        MainWindow->setMinimumSize(QSize(1034, 0));
+        MainWindow->setMinimumSize(QSize(1034, 691));
         QIcon icon;
         icon.addFile(QString::fromUtf8(":/PdsProject.app/Contents/Resources/img/logoIcon.png"), QSize(), QIcon::Normal, QIcon::Off);
         MainWindow->setWindowIcon(icon);
@@ -157,6 +158,8 @@ public:
         actionTestTag->setObjectName(QString::fromUtf8("actionTestTag"));
         actionTestDisconnect = new QAction(MainWindow);
         actionTestDisconnect->setObjectName(QString::fromUtf8("actionTestDisconnect"));
+        actionTestActions = new QAction(MainWindow);
+        actionTestActions->setObjectName(QString::fromUtf8("actionTestActions"));
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QString::fromUtf8("centralWidget"));
         sizePolicy.setHeightForWidth(centralWidget->sizePolicy().hasHeightForWidth());
@@ -312,6 +315,7 @@ public:
         MainWindow->addToolBar(Qt::TopToolBarArea, mainToolBar);
         statusBar = new QStatusBar(MainWindow);
         statusBar->setObjectName(QString::fromUtf8("statusBar"));
+        statusBar->setSizeGripEnabled(false);
         MainWindow->setStatusBar(statusBar);
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName(QString::fromUtf8("menuBar"));
@@ -338,6 +342,7 @@ public:
         mainToolBar->addAction(actionTestCursor);
         mainToolBar->addAction(actionTestTag);
         mainToolBar->addAction(actionTestDisconnect);
+        mainToolBar->addAction(actionTestActions);
         menuBar->addAction(menuMain->menuAction());
         menuBar->addAction(menuAbout->menuAction());
         menuMain->addAction(actionConnect);
@@ -374,6 +379,7 @@ public:
 #if QT_CONFIG(tooltip)
         actionTestDisconnect->setToolTip(QCoreApplication::translate("MainWindow", "TestDisconnect", nullptr));
 #endif // QT_CONFIG(tooltip)
+        actionTestActions->setText(QCoreApplication::translate("MainWindow", "TestActions", nullptr));
         textEditShared->setHtml(QCoreApplication::translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"

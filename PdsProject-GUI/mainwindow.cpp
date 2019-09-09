@@ -21,13 +21,13 @@
 #include <QPainter>
 #include <QPushButton>
 #include <QStringListModel>
+#include <QFormLayout>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     background_task(200)
 {
-    this->toDelete = 0;
     ui->setupUi(this);
     ui->textEditShared->setAcceptRichText(false); //this needs to be false to avoid pasting formatted text with CTRL+V
 
@@ -44,6 +44,8 @@ MainWindow::MainWindow(QWidget *parent) :
     auto comboSize = new QComboBox(ui->mainToolBar);
     auto comboFamily = new QComboBox(ui->mainToolBar);
     setupFontComboBoxes(comboSize, comboFamily);
+
+    setupStatusBar();
 
     // setting up my connect event
     connect(ui->actionCopy,&QAction::triggered,ui->textEditShared,&QTextEdit::copy);
@@ -67,7 +69,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionInvite,&QAction::triggered,this,&MainWindow::reqInvitationEmailAddress);
     connect(ui->actionTestCursor,&QAction::triggered,this,&MainWindow::insertRemoteCursor); //only for test
     connect(ui->actionTestTag,&QAction::triggered,this,&MainWindow::addUserTag);    //only for test
-    connect(ui->actionTestDisconnect,&QAction::triggered,this,&MainWindow::disableEditor);
+    connect(ui->actionTestDisconnect,&QAction::triggered,this,&MainWindow::disableEditor); //only for test
 }
 
 MainWindow::~MainWindow()
@@ -237,7 +239,7 @@ void MainWindow::selectFont(int familyIndex)
     auto textEdit = ui->textEditShared;
     auto cursor = textEdit->textCursor();
 
-    QString family = this->fontFamilies[familyIndex];
+    QString family = ui->textEditShared->getFontFamilies()[familyIndex];
     QTextCharFormat format;
     format.setFontFamily(family);
     cursor.mergeCharFormat(format);
@@ -251,7 +253,7 @@ void MainWindow::selectSize(int sizeIndex)
     auto textEdit = ui->textEditShared;
     auto cursor = textEdit->textCursor();
 
-    int size = this->fontSizes[sizeIndex].toInt();
+    int size = ui->textEditShared->getFontSizes()[sizeIndex].toInt();
     QTextCharFormat format;
     format.setFontPointSize(size);
     cursor.mergeCharFormat(format);
@@ -275,8 +277,8 @@ void MainWindow::checkTextProperty()
     ui->actionUnderlined->setChecked(font.underline());
 
     QString fontSize = QString::number(font.pointSize());
-    int sizeIndex = fontSizes.indexOf(fontSize);
-    int familyIndex = fontFamilies.indexOf(font.family());
+    int sizeIndex = ui->textEditShared->getFontSizes().indexOf(fontSize);
+    int familyIndex = ui->textEditShared->getFontFamilies().indexOf(font.family());
     setComboSize(sizeIndex);
     setComboFont(familyIndex);
 
@@ -288,6 +290,11 @@ void MainWindow::checkTextProperty()
     ui->actionCopy->setEnabled(ui->textEditShared->textCursor().hasSelection());
     ui->actionCut->setEnabled(ui->textEditShared->textCursor().hasSelection());
 
+    ui->statusBar->findChild<QLabel*>("charCount")->setText("Chars: "+QString::number(ui->textEditShared->document()->characterCount()));
+    ui->statusBar->findChild<QLabel*>("lineCount")->setText("Lines: "+QString::number(ui->textEditShared->document()->lineCount()));
+    ui->statusBar->findChild<QLabel*>("cursorPos")->setText("pos: "+QString::number(ui->textEditShared->textCursor().position()));
+    ui->statusBar->findChild<QLabel*>("cursorColumn")->setText("col: "+QString::number(ui->textEditShared->textCursor().columnNumber()));
+    ui->statusBar->findChild<QLabel*>("cursorSelectionCount")->setText("sel: "+QString::number(ui->textEditShared->textCursor().selectedText().length()));
 }
 
 void MainWindow::insertRemoteCursor() {
@@ -352,6 +359,7 @@ void MainWindow::addUserTag()
 void MainWindow::disableEditor()
 {
     ui->textEditShared->setEnabled(!ui->textEditShared->isEnabled());
+    ui->statusBar->setEnabled(!ui->statusBar->isEnabled());
     ui->actionCopy->setEnabled(!ui->actionCopy->isEnabled());
     ui->actionCut->setEnabled(!ui->actionCut->isEnabled());
     auto comboBoxes = ui->mainToolBar->findChildren<QComboBox*>();
@@ -378,18 +386,10 @@ void MainWindow::setupFontComboBoxes(QComboBox* comboSize, QComboBox* comboFamil
     comboSize->setFont(font);
     comboFamily->setFont(font);
 
-    this->fontSizes << "8" << "9" << "10" << "11" << "12" <<
-                       "14" << "16" << "18" << "20" << "22" <<
-                       "24" << "26" << "28" << "36" << "48" << "72";
-    this->fontFamilies << "Arial" << "Arial Black" << "Berlin Sans FB" << "Calibri" << "Century Gothic" <<
-                          "Consolas" << "Constantia" << "Freestyle Script" << "Georgia" << "Gill Sans MT" <<
-                          "Informal Roman" << "Lucida Calligraphy" << "MS Shell Dlg 2" <<
-                          "Palatino Linotype" << "Tahoma" << "Times New Roman" << "Verdana" << "Vivaldi";
-
-    comboSize->addItems(fontSizes);
+    comboSize->addItems(ui->textEditShared->getFontSizes());
     comboSize->setCurrentText(QString::number(ui->textEditShared->currentFont().pointSize()));
 
-    comboFamily->addItems(fontFamilies);
+    comboFamily->addItems(ui->textEditShared->getFontFamilies());
     QIcon icon("://PdsProject.app/Contents/Resources/img/font_icon.png");
     for(int i=0; i<comboFamily->count(); i++) {
         comboFamily->setItemIcon(i, icon);
@@ -398,6 +398,30 @@ void MainWindow::setupFontComboBoxes(QComboBox* comboSize, QComboBox* comboFamil
 
     ui->mainToolBar->insertWidget(ui->mainToolBar->actions()[7], comboFamily);
     ui->mainToolBar->insertWidget(ui->mainToolBar->actions()[8], comboSize);
+}
+
+void MainWindow::setupStatusBar()
+{
+    ui->textEditShared->setDocumentTitle("file_name.txt");
+    QLabel *filename = new QLabel("Document: "+ui->textEditShared->documentTitle());
+    filename->setObjectName("filename");
+    QLabel *charCount = new QLabel("Chars: "+QString::number(ui->textEditShared->document()->characterCount()));
+    charCount->setObjectName("charCount");
+    QLabel *lineCount = new QLabel("Lines: "+QString::number(ui->textEditShared->document()->lineCount()));
+    lineCount->setObjectName("lineCount");
+    QLabel *cursorPos = new QLabel("pos: "+QString::number(ui->textEditShared->textCursor().position()));
+    cursorPos->setObjectName("cursorPos");
+    QLabel *cursorColumn = new QLabel("col: "+QString::number(ui->textEditShared->textCursor().columnNumber()));
+    cursorColumn->setObjectName("cursorColumn");
+    QLabel *cursorSelectionCount = new QLabel("sel: "+QString::number(ui->textEditShared->textCursor().selectedText().length()));
+    cursorSelectionCount->setObjectName("cursorSelectionCount");
+
+    ui->statusBar->addWidget(filename, 2);
+    ui->statusBar->addWidget(charCount, 0);
+    ui->statusBar->addWidget(lineCount, 1);
+    ui->statusBar->addWidget(cursorPos, 0);
+    ui->statusBar->addWidget(cursorColumn, 0);
+    ui->statusBar->addWidget(cursorSelectionCount, 2);
 }
 
 void MainWindow::sendInvitationEmail(QString destEmailAddress)
@@ -463,4 +487,36 @@ void MainWindow::on_offlineRollButton_clicked()
     else {
         ui->offlineRollButton->setIcon(QIcon("://PdsProject.app/Contents/Resources/img/arrow_down.png"));
     }
+}
+
+void MainWindow::on_actionTestActions_triggered()
+{
+    Action action;
+
+    action.setActionType(Insertion);
+    action.setCursorPos(0);
+    action.setNumChars(4);
+    action.setChars("ciao");
+
+
+/*    action.setActionType(Deletion);
+    action.setCursorPos(10);
+    action.setNumChars(6);
+*/
+
+/*    action.setActionType(TextFormatting);
+    action.setCursorPos(10);
+    action.setNumChars(6);
+    action.setTextFormatType(Bold);
+    action.setTextFormatBoolean(true);
+*/
+
+/*  action.setActionType(BlockFormatting);
+    action.setCursorPos(10);
+    action.setNumChars(30);
+    action.setBlockFormatType(AlignCenter);
+*/
+
+    ui->textEditShared->toDoList.push_front(action);
+    ui->textEditShared->doReceivedActions();
 }

@@ -19,12 +19,19 @@ public:
     void addAction(int cursorPos, int numChars, bool formatBoolean, TextFormatType, ActionType = TextFormatting);
     void addAction(int cursorPos, int numChars, int index, TextFormatType, ActionType = TextFormatting);
     void addAction(int cursorPos, int numChars, BlockFormatType, ActionType = BlockFormatting);
-    void removeAction();
-    void receiveAction(Action action);
+    void doReceivedActions();
+
+
+    std::list<Action> toDoList;
+    QStringList getFontSizes() const;
+    QStringList getFontFamilies() const;
 
 private:
     std::list<RemoteCursor*> cursorsList;
-    std::list<Action> toDoList;
+    std::list<Action> toSendList;
+    QStringList fontSizes;
+    QStringList fontFamilies;
+    QTextCursor* hiddenCursor;
 };
 
 #endif // MYTEXTEDIT_H
