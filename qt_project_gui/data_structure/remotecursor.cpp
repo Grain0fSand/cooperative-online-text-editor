@@ -1,5 +1,5 @@
 #include "remotecursor.h"
-#include "mytextedit.h"
+#include "../forms/mytextedit.h"
 
 RemoteCursor::RemoteCursor() :
     x(0),

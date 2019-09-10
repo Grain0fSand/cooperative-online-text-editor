@@ -3,8 +3,8 @@
 
 #include <QWidget>
 #include <QTextEdit>
-#include <remotecursor.h>
-#include "action.h"
+#include <../data_structure/remotecursor.h>
+#include "../data_structure/action.h"
 
 class myTextEdit : public QTextEdit
 {

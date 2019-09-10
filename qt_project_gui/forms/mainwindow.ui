@@ -27,7 +27,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="resources.qrc">
-    <normaloff>:/PdsProject.app/Contents/Resources/img/logoIcon.png</normaloff>:/PdsProject.app/Contents/Resources/img/logoIcon.png</iconset>
+    <normaloff>:/resources/logoIcon.png</normaloff>:/resources/logoIcon.png</iconset>
   </property>
   <widget class="QWidget" name="centralWidget">
    <property name="sizePolicy">
@@ -207,7 +207,7 @@ p, li { white-space: pre-wrap; }
           <string/>
          </property>
          <property name="pixmap">
-          <pixmap resource="resources.qrc">:/PdsProject.app/Contents/Resources/avatars/avatar.png</pixmap>
+          <pixmap resource="resources.qrc">:/resources/avatar.png</pixmap>
          </property>
          <property name="scaledContents">
           <bool>true</bool>
@@ -226,7 +226,7 @@ p, li { white-space: pre-wrap; }
           <string/>
          </property>
          <property name="pixmap">
-          <pixmap resource="resources.qrc">:/PdsProject.app/Contents/Resources/img/greenLed.png</pixmap>
+          <pixmap resource="resources.qrc">:/resources/greenLed.png</pixmap>
          </property>
          <property name="scaledContents">
           <bool>true</bool>
@@ -265,7 +265,7 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="icon">
          <iconset resource="resources.qrc">
-          <normaloff>:/PdsProject.app/Contents/Resources/img/arrow_up.png</normaloff>:/PdsProject.app/Contents/Resources/img/arrow_up.png</iconset>
+          <normaloff>:/resources/arrow_up.png</normaloff>:/resources/arrow_up.png</iconset>
         </property>
         <property name="iconSize">
          <size>
@@ -328,7 +328,7 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="icon">
          <iconset resource="resources.qrc">
-          <normaloff>:/PdsProject.app/Contents/Resources/img/arrow_up.png</normaloff>:/PdsProject.app/Contents/Resources/img/arrow_up.png</iconset>
+          <normaloff>:/resources/arrow_up.png</normaloff>:/resources/arrow_up.png</iconset>
         </property>
         <property name="iconSize">
          <size>
@@ -439,7 +439,7 @@ p, li { white-space: pre-wrap; }
   <action name="actionCopy">
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/PdsProject.app/Contents/Resources/img/ic_content_copy_36pt_2x.png</normaloff>:/PdsProject.app/Contents/Resources/img/ic_content_copy_36pt_2x.png</iconset>
+     <normaloff>:/resources/ic_content_copy_36pt_2x.png</normaloff>:/resources/ic_content_copy_36pt_2x.png</iconset>
    </property>
    <property name="text">
     <string>Copy</string>
@@ -448,7 +448,7 @@ p, li { white-space: pre-wrap; }
   <action name="actionCut">
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/PdsProject.app/Contents/Resources/img/ic_content_cut_36pt_2x.png</normaloff>:/PdsProject.app/Contents/Resources/img/ic_content_cut_36pt_2x.png</iconset>
+     <normaloff>:/resources/ic_content_cut_36pt_2x.png</normaloff>:/resources/ic_content_cut_36pt_2x.png</iconset>
    </property>
    <property name="text">
     <string>Cut</string>
@@ -457,7 +457,7 @@ p, li { white-space: pre-wrap; }
   <action name="actionPaste">
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/PdsProject.app/Contents/Resources/img/ic_content_paste_36pt_2x.png</normaloff>:/PdsProject.app/Contents/Resources/img/ic_content_paste_36pt_2x.png</iconset>
+     <normaloff>:/resources/ic_content_paste_36pt_2x.png</normaloff>:/resources/ic_content_paste_36pt_2x.png</iconset>
    </property>
    <property name="text">
     <string>Paste</string>
@@ -469,7 +469,7 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/PdsProject.app/Contents/Resources/img/ic_format_bold_36pt_2x.png</normaloff>:/PdsProject.app/Contents/Resources/img/ic_format_bold_36pt_2x.png</iconset>
+     <normaloff>:/resources/ic_format_bold_36pt_2x.png</normaloff>:/resources/ic_format_bold_36pt_2x.png</iconset>
    </property>
    <property name="text">
     <string>Bold</string>
@@ -481,7 +481,7 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/PdsProject.app/Contents/Resources/img/ic_format_italic_36pt_2x.png</normaloff>:/PdsProject.app/Contents/Resources/img/ic_format_italic_36pt_2x.png</iconset>
+     <normaloff>:/resources/ic_format_italic_36pt_2x.png</normaloff>:/resources/ic_format_italic_36pt_2x.png</iconset>
    </property>
    <property name="text">
     <string>Italic</string>
@@ -493,7 +493,7 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/PdsProject.app/Contents/Resources/img/ic_format_underlined_36pt_2x.png</normaloff>:/PdsProject.app/Contents/Resources/img/ic_format_underlined_36pt_2x.png</iconset>
+     <normaloff>:/resources/ic_format_underlined_36pt_2x.png</normaloff>:/resources/ic_format_underlined_36pt_2x.png</iconset>
    </property>
    <property name="text">
     <string>Underlined</string>
@@ -505,7 +505,7 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/PdsProject.app/Contents/Resources/img/ic_format_align_left_36pt_2x.png</normaloff>:/PdsProject.app/Contents/Resources/img/ic_format_align_left_36pt_2x.png</iconset>
+     <normaloff>:/resources/ic_format_align_left_36pt_2x.png</normaloff>:/resources/ic_format_align_left_36pt_2x.png</iconset>
    </property>
    <property name="text">
     <string>AlignLeft</string>
@@ -517,7 +517,7 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/PdsProject.app/Contents/Resources/img/ic_format_align_center_36pt_2x.png</normaloff>:/PdsProject.app/Contents/Resources/img/ic_format_align_center_36pt_2x.png</iconset>
+     <normaloff>:/resources/ic_format_align_center_36pt_2x.png</normaloff>:/resources/ic_format_align_center_36pt_2x.png</iconset>
    </property>
    <property name="text">
     <string>AlignCenter</string>
@@ -529,7 +529,7 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/PdsProject.app/Contents/Resources/img/ic_format_align_right_36pt_2x.png</normaloff>:/PdsProject.app/Contents/Resources/img/ic_format_align_right_36pt_2x.png</iconset>
+     <normaloff>:/resources/ic_format_align_right_36pt_2x.png</normaloff>:/resources/ic_format_align_right_36pt_2x.png</iconset>
    </property>
    <property name="text">
     <string>AlignRight</string>
@@ -556,7 +556,7 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/PdsProject.app/Contents/Resources/img/ic_format_align_justify_36pt_2x.png</normaloff>:/PdsProject.app/Contents/Resources/img/ic_format_align_justify_36pt_2x.png</iconset>
+     <normaloff>:/resources/ic_format_align_justify_36pt_2x.png</normaloff>:/resources/ic_format_align_justify_36pt_2x.png</iconset>
    </property>
    <property name="text">
     <string>AlignJustify</string>

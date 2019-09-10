@@ -1,6 +1,6 @@
-#include "loginwindow.h"
-#include "mainwindow.h"
-#include "image_utility.h"
+#include "forms/loginwindow.h"
+#include "forms/mainwindow.h"
+#include "utility/image_utility.h"
 #include <QApplication>
 #include <QStyleFactory>
 

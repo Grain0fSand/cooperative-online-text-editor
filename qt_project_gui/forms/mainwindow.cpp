@@ -1,10 +1,10 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "online_synchronizer.h"
-#include "shared_editor.h"
+#include "../web_requests/online_synchronizer.h"
+#include "../utility/shared_editor.h"
 #include "mytextedit.h"
 #include "usertag.h"
-#include "smtpclient.h"
+#include "../web_requests/smtpclient.h"
 #include <QDebug>
 #include <QFontDialog>
 #include <QErrorMessage>

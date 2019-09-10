@@ -1,0 +1,34 @@
+<RCC>
+    <qresource prefix="/">
+        <file>resources/ic_content_copy_36pt_2x.png</file>
+        <file>resources/ic_content_cut_36pt_2x.png</file>
+        <file>resources/ic_content_paste_36pt_2x.png</file>
+        <file>resources/ic_format_align_center_36pt_2x.png</file>
+        <file>resources/ic_format_align_justify_36pt_2x.png</file>
+        <file>resources/ic_format_align_left_36pt_2x.png</file>
+        <file>resources/ic_format_align_right_36pt_2x.png</file>
+        <file>resources/ic_format_bold_36pt_2x.png</file>
+        <file>resources/ic_format_italic_36pt_2x.png</file>
+        <file>resources/ic_format_underlined_36pt_2x.png</file>
+        <file>resources/ic_redo_36pt_2x.png</file>
+        <file>resources/ic_undo_36pt_2x.png</file>
+        <file>resources/greenLed.png</file>
+        <file>resources/redLed.png</file>
+        <file>resources/closeButton.png</file>
+        <file>resources/minimizeButton.png</file>
+        <file>resources/ic_settings_18pt_2x.png</file>
+        <file>resources/bannerApp.png</file>
+        <file>resources/logoApp.png</file>
+        <file>resources/logoIcon.png</file>
+        <file>resources/logOut.png</file>
+        <file>resources/newDoc.png</file>
+        <file>resources/openDoc.png</file>
+        <file>resources/avatar.png</file>
+        <file>resources/openURI.png</file>
+        <file>resources/cursor.svg</file>
+        <file>resources/test.svg</file>
+        <file>resources/arrow_down.png</file>
+        <file>resources/arrow_up.png</file>
+        <file>resources/font_icon.png</file>
+    </qresource>
+</RCC>
