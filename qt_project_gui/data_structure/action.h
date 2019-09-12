@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <QString>
+#include "symbol_id.h"
 
 enum ActionType {
     NoActionType,
@@ -33,6 +34,7 @@ class Action
 {
 public:
     Action();
+    Action(int cursorPos, int numChars, QString chars, ActionType actionType);
 
     int getCursorPos() const;
     void setCursorPos(int value);
@@ -67,6 +69,14 @@ private:
     ActionType actionType;
     TextFormatType textFormatType;
     BlockFormatType blockFormatType;
+};
+
+class ActionWrapper
+{
+public:
+    Action action;
+    SymbolId left_symbol;
+    SymbolId symbol;
 };
 
 #endif // ACTION_H

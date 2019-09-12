@@ -1,9 +1,10 @@
 #include "crdt.h"
+#include "symbol_id.h"
 #include <thread>
 
-Symbol Crdt::findRelativePosition(int left_pos) {
+SymbolId Crdt::findRelativePosition(int left_pos) {
     int cmp = 0;
-    Symbol left_sym(-1,-1);
+    SymbolId left_sym(-1,-1);
 
     //find left side symbol
     for(auto cc : list) {
@@ -13,7 +14,7 @@ Symbol Crdt::findRelativePosition(int left_pos) {
         if (!cc.is_hidden())
             ++cmp;
 
-        left_sym = cc.getSymbol();
+        left_sym = cc.getSymbolId();
     }
 
     if (cmp != left_pos)
@@ -21,14 +22,14 @@ Symbol Crdt::findRelativePosition(int left_pos) {
     return left_sym;
 }
 
-int Crdt::symbolInsertion(Symbol& left_sym, int n, Symbol& symbol) {
+int Crdt::symbolInsertion(SymbolId& left_sym, int n, SymbolId& symbol) {
     bool found = false;
     auto it = list.begin();
     int i = 0;
     //insert in relative position
     if (left_sym.getIncId() >= 0) {
         while(!found && it != list.end()) {
-            if (it->getSymbol() == left_sym.getSymbol()) {
+            if (it->getSymbolId() == left_sym.getSymbolId()) {
                 while (left_sym < *it){
                     ++it;
                     ++i;
@@ -47,7 +48,7 @@ int Crdt::symbolInsertion(Symbol& left_sym, int n, Symbol& symbol) {
 
     //insert symbols
     while (n-->0) {
-        it = list.insert(it, Symbol(symbol.getUsrId(), i++));
+        it = list.insert(it, SymbolId(symbol.getUsrId(), i++));
         ++it;
     }
     return ret;
@@ -62,9 +63,9 @@ void receiveAction(Action action, int usr_id) {
 }
 
 void Crdt:: sendActionToServer(Action& action) {
-    Symbol left_symbol = findRelativePosition(action.getCursorPos());
+    SymbolId left_symbol = findRelativePosition(action.getCursorPos());
     //std::thread thread(sendAction, usr_id, left_symbol.getIncId(), action);  //need to test if slower
-    Symbol symbol(usr_id, list.size());
+    SymbolId symbol(usr_id, list.size());
     switch (action.getActionType()) {
         case Insertion:
             symbolInsertion(left_symbol, action.getNumChars(), symbol);
@@ -79,15 +80,13 @@ void Crdt:: sendActionToServer(Action& action) {
         default:
             break;
     }
-    for (Symbol s : list)
+    for (SymbolId s : list)
         std::cout << s.getIncId() << s.getUsrId() << ' ';
     std::cout << std::endl;
     //thread.join();
 }
 
-void Crdt::receiveActionFromServer(Action& action, int usr_id, int inc_id, int left_usr_id, int left_inc_id) {
-    Symbol symbol(usr_id, inc_id);
-    Symbol left_symbol(left_usr_id, left_inc_id);
+void Crdt::receiveActionFromServer(Action& action, SymbolId left_symbol, SymbolId symbol) {
     int left_pos;
     switch (action.getActionType()) {
         case Insertion:
@@ -104,7 +103,7 @@ void Crdt::receiveActionFromServer(Action& action, int usr_id, int inc_id, int l
         default:
             break;
     }
-    for (Symbol s : list)
+    for (SymbolId s : list)
         std::cout << s.getIncId() << s.getUsrId() << ' ';
     std::cout << std::endl;
 }

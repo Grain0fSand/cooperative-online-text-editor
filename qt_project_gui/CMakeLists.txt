@@ -74,6 +74,8 @@ set(SOURCES
 		data_structure/action.h
 		data_structure/remotecursor.cpp
 		data_structure/remotecursor.h
+		data_structure/crdt.cpp
+		data_structure/crdt.h
 		forms/loginwindow.cpp
 		forms/loginwindow.h
 		forms/mainwindow.cpp

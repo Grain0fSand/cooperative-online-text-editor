@@ -12,6 +12,15 @@ Action::Action() :
 {
 }
 
+Action::Action(int cursorPos, int numChars, QString chars, ActionType actionType) :
+        cursorPos(cursorPos),
+        numChars(numChars),
+        chars(chars),
+        textFormatBoolean(false),
+        actionType(actionType)
+{
+}
+
 int Action::getCursorPos() const
 {
     return cursorPos;
