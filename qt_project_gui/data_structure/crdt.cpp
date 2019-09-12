@@ -56,7 +56,7 @@ int Crdt::symbolInsertion(SymbolId& left_sym, int n, SymbolId& symbol) {
 
 void sendAction(Action action, int usr_id, int inc_id, int left_usr_id, int left_inc_id) {
 
- 
+  
 }
 
 void receiveAction(Action action, int usr_id) {
