@@ -3,7 +3,8 @@
 #include <QDebug>
 #include <QPaintEvent>
 
-myTextEdit::myTextEdit(QWidget *)
+
+myTextEdit::myTextEdit(QWidget *,int user_id)
 {
     this->setCurrentFont(QFont("Calibri",11,-1,false));
     this->document()->setDocumentMargin(11);
@@ -15,6 +16,8 @@ myTextEdit::myTextEdit(QWidget *)
                           "Consolas" << "Constantia" << "Freestyle Script" << "Georgia" << "Gill Sans MT" <<
                           "Informal Roman" << "Lucida Calligraphy" << "MS Shell Dlg 2" <<
                           "Palatino Linotype" << "Tahoma" << "Times New Roman" << "Verdana" << "Vivaldi";
+    this->user_id = user_id;
+    Crdt::getInstance().init(user_id);
 }
 
 void myTextEdit::paintEvent(QPaintEvent *e) {
@@ -60,7 +63,9 @@ void myTextEdit::addAction(int cursorPos, int numChars, QString chars, ActionTyp
     action.setCursorPos(cursorPos);
     action.setNumChars(numChars);
     action.setChars(chars);
-    this->toSendList.push_front(action);
+
+    Crdt::getInstance().sendActionToServer(action);
+   // this->toSendList.push_front(action);
 }
 
 void myTextEdit::addAction(int cursorPos, int numChars, ActionType actionType) //deletion
@@ -70,7 +75,8 @@ void myTextEdit::addAction(int cursorPos, int numChars, ActionType actionType) /
     action.setCursorPos(cursorPos);
     action.setNumChars(numChars);
 
-    this->toSendList.push_front(action);
+    Crdt::getInstance().sendActionToServer(action);
+   // this->toSendList.push_front(action);
 }
 
 void myTextEdit::addAction(int cursorPos, int numChars, bool formatBoolean, TextFormatType formatType, ActionType actionType) //text formatting
@@ -82,7 +88,8 @@ void myTextEdit::addAction(int cursorPos, int numChars, bool formatBoolean, Text
     action.setTextFormatBoolean(formatBoolean);
     action.setTextFormatType(formatType);
 
-    this->toSendList.push_front(action);
+    Crdt::getInstance().sendActionToServer(action);
+   // this->toSendList.push_front(action);
 }
 
 void myTextEdit::addAction(int cursorPos, int numChars, int index, TextFormatType formatType, ActionType actionType) //font formatting
@@ -94,7 +101,11 @@ void myTextEdit::addAction(int cursorPos, int numChars, int index, TextFormatTyp
     action.setComboFontIndex(index);
     action.setTextFormatType(formatType);
 
-    this->toSendList.push_front(action);
+
+
+    //nb: removed because the modification is sent immediatly after elaboration of crdt
+    //and the responsability of send online is of the class crdt
+    //this->toSendList.push_front(action);
 }
 
 void myTextEdit::addAction(int cursorPos, int numChars, BlockFormatType formatType, ActionType actionType) //block formatting
@@ -105,7 +116,7 @@ void myTextEdit::addAction(int cursorPos, int numChars, BlockFormatType formatTy
     action.setNumChars(numChars);
     action.setBlockFormatType(formatType);
 
-    this->toSendList.push_front(action);
+  //  this->toSendList.push_front(action);
 }
 
 void myTextEdit::doReceivedActions()

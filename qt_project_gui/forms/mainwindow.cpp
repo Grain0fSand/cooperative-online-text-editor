@@ -114,7 +114,7 @@ void MainWindow::alignLeft()
     cursor.mergeBlockFormat(textBlockFormat);
     textEdit->setTextCursor(cursor);
 
-    ui->textEditShared->addAction(cursor.selectionStart(),cursor.selectedText().length(),AlignLeft);
+    ui->textEditShared->addAction(cursor.selectionStart() + 1,cursor.selectedText().length(),AlignLeft); //selectionStart + 1 is needed by cdrt
 }
 
 void MainWindow::alignCenter()
@@ -132,7 +132,7 @@ void MainWindow::alignCenter()
     cursor.mergeBlockFormat(textBlockFormat);
     textEdit->setTextCursor(cursor);
 
-    ui->textEditShared->addAction(cursor.selectionStart(),cursor.selectedText().length(),AlignCenter);
+    ui->textEditShared->addAction(cursor.selectionStart() + 1,cursor.selectedText().length(),AlignCenter);
 }
 
 void MainWindow::alignRight()
@@ -150,7 +150,7 @@ void MainWindow::alignRight()
     cursor.mergeBlockFormat(textBlockFormat);
     textEdit->setTextCursor(cursor);
 
-    ui->textEditShared->addAction(cursor.selectionStart(),cursor.selectedText().length(),AlignRight);
+    ui->textEditShared->addAction(cursor.selectionStart() + 1,cursor.selectedText().length(),AlignRight);
 }
 
 void MainWindow::alignJustify()
@@ -168,7 +168,7 @@ void MainWindow::alignJustify()
     cursor.mergeBlockFormat(textBlockFormat);
     textEdit->setTextCursor(cursor);
 
-    ui->textEditShared->addAction(cursor.selectionStart(),cursor.selectedText().length(),AlignJustify);
+    ui->textEditShared->addAction(cursor.selectionStart() + 1,cursor.selectedText().length(),AlignJustify);
 }
 
 void MainWindow::makeBold()
@@ -184,7 +184,7 @@ void MainWindow::makeBold()
     cursor.mergeCharFormat(format);
     textEdit->setTextCursor(cursor);
 
-    ui->textEditShared->addAction(cursor.selectionStart(),cursor.selectedText().length(),is_bold,Bold);
+    ui->textEditShared->addAction(cursor.selectionStart() + 1,cursor.selectedText().length(),is_bold,Bold);
 }
 
 void MainWindow::makeItalic()
@@ -200,7 +200,7 @@ void MainWindow::makeItalic()
     cursor.mergeCharFormat(format);
     textEdit->setTextCursor(cursor);
 
-    ui->textEditShared->addAction(cursor.selectionStart(),cursor.selectedText().length(),is_italic,Italic);
+    ui->textEditShared->addAction(cursor.selectionStart() + 1,cursor.selectedText().length(),is_italic,Italic);
 }
 
 void MainWindow::makeUnderline()
@@ -216,19 +216,21 @@ void MainWindow::makeUnderline()
     cursor.mergeCharFormat(format);
     textEdit->setTextCursor(cursor);
 
-    ui->textEditShared->addAction(cursor.selectionStart(),cursor.selectedText().length(),is_underlined,Underlined);
+    ui->textEditShared->addAction(cursor.selectionStart() + 1,cursor.selectedText().length(),is_underlined,Underlined);
 }
 
+//TODO: different methods for rich text and plain text
 void MainWindow::textChanged(int pos, int nDel, int nIns) {
 
-    if(nDel==0)  {  //insertion
-        QString str("");
-        for(int i=0; i<nIns; i++) {
-            str += ui->textEditShared->document()->characterAt(pos+i);
-        }
+    if(nDel==0) {  //insertion
+        QString str = ui->textEditShared->document()->toPlainText().mid(pos, nIns);
+//        for(int i=0; i<nIns; i++) {
+//            str += ui->textEditShared->document()->characterAt(pos+i);
+//        }
+//        qDebug() << str;
         ui->textEditShared->addAction(pos, nIns, str);
     } else if (nIns==0) { //deletion
-        ui->textEditShared->addAction(pos, nDel);
+        ui->textEditShared->addAction(pos + 1, nDel); //pos + 1 is needed by cdrt
     } else {
         //nothing to do
     }
@@ -245,7 +247,7 @@ void MainWindow::selectFont(int familyIndex)
     cursor.mergeCharFormat(format);
     textEdit->setTextCursor(cursor);
 
-    ui->textEditShared->addAction(cursor.selectionStart(),cursor.selectedText().length(),familyIndex,FontFamily);
+    ui->textEditShared->addAction(cursor.selectionStart() + 1,cursor.selectedText().length(),familyIndex,FontFamily); //selectionStart + 1 is needed by cdrt
 }
 
 void MainWindow::selectSize(int sizeIndex)
@@ -259,7 +261,7 @@ void MainWindow::selectSize(int sizeIndex)
     cursor.mergeCharFormat(format);
     textEdit->setTextCursor(cursor);
 
-    ui->textEditShared->addAction(cursor.selectionStart(),cursor.selectedText().length(),sizeIndex,FontSize);
+    ui->textEditShared->addAction(cursor.selectionStart() + 1,cursor.selectedText().length(),sizeIndex,FontSize);
 }
 
 void MainWindow::checkTextProperty()
@@ -520,3 +522,6 @@ void MainWindow::on_actionTestActions_triggered()
     ui->textEditShared->toDoList.push_front(action);
     ui->textEditShared->doReceivedActions();
 }
+
+//TODO: clicking on bold/cursive/etc. with nothing highlighted sends an action but it shouldn't
+//TODO: block formatting doesn't result in sending an action but it should

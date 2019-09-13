@@ -5,11 +5,12 @@
 #include <QTextEdit>
 #include <../data_structure/remotecursor.h>
 #include "../data_structure/action.h"
+#include <data_structure/crdt.h>
 
 class myTextEdit : public QTextEdit
 {
 public:
-    myTextEdit(QWidget *);
+    myTextEdit(QWidget *,int user_id);
 
     void paintEvent(QPaintEvent *e);
     void createCursor(int pos, QString text, QColor color);
@@ -28,10 +29,11 @@ public:
 
 private:
     std::list<RemoteCursor*> cursorsList;
-    std::list<Action> toSendList;
+  //  std::list<Action> toSendList;
     QStringList fontSizes;
     QStringList fontFamilies;
     QTextCursor* hiddenCursor;
+    int user_id;
 };
 
 #endif // MYTEXTEDIT_H

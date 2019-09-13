@@ -12,11 +12,20 @@ Action::Action() :
 {
 }
 
+//for insertion without format
 Action::Action(int cursorPos, int numChars, QString chars, ActionType actionType) :
+    cursorPos(cursorPos),
+    numChars(numChars),
+    chars(chars),
+    textFormatBoolean(false),
+    actionType(actionType)
+{
+}
+
+//for deletion
+Action::Action(int cursorPos, int numChars, ActionType actionType) :
         cursorPos(cursorPos),
         numChars(numChars),
-        chars(chars),
-        textFormatBoolean(false),
         actionType(actionType)
 {
 }
@@ -100,3 +109,5 @@ void Action::setBlockFormatType(const BlockFormatType &value)
 {
     blockFormatType = value;
 }
+
+

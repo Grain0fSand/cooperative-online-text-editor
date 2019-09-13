@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <QString>
+#include <vector>
 #include "symbol_id.h"
 
 enum ActionType {
@@ -35,6 +36,8 @@ class Action
 public:
     Action();
     Action(int cursorPos, int numChars, QString chars, ActionType actionType);
+
+    Action(int cursorPos, int numChars, ActionType ActionType);
 
     int getCursorPos() const;
     void setCursorPos(int value);
@@ -73,10 +76,22 @@ private:
 
 class ActionWrapper
 {
+
 public:
+
     Action action;
-    SymbolId left_symbol;
-    SymbolId symbol;
+    SymbolId rel_symbol;  //for insertion
+    std::vector<SymbolId> symbol;
+
+    ActionWrapper(Action action, SymbolId rel_symbol, std::vector<SymbolId> symbol):
+            action(action),
+            rel_symbol(rel_symbol),
+            symbol(std::move(symbol))
+    {}
+
+    ActionWrapper(Action action) : action(action){
+    }
+
 };
 
 #endif // ACTION_H
