@@ -67,7 +67,7 @@ private:
     int cursorPos;
     int numChars;
     QString chars;
-    bool textFormatBoolean;
+
     int comboFontIndex;
     ActionType actionType;
     TextFormatType textFormatType;

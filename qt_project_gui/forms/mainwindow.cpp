@@ -495,10 +495,10 @@ void MainWindow::on_actionTestActions_triggered()
 {
     Action action;
 
-    action.setActionType(Insertion);
-    action.setCursorPos(0);
-    action.setNumChars(4);
-    action.setChars("ciao");
+//    action.setActionType(Insertion);
+//    action.setCursorPos(0);
+//    action.setNumChars(4);
+//    action.setChars("ciao");
 
 
 /*    action.setActionType(Deletion);
@@ -506,12 +506,12 @@ void MainWindow::on_actionTestActions_triggered()
     action.setNumChars(6);
 */
 
-/*    action.setActionType(TextFormatting);
+    action.setActionType(TextFormatting);
     action.setCursorPos(10);
     action.setNumChars(6);
     action.setTextFormatType(Bold);
     action.setTextFormatBoolean(true);
-*/
+
 
 /*  action.setActionType(BlockFormatting);
     action.setCursorPos(10);
