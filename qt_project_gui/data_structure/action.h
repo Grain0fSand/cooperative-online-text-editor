@@ -19,8 +19,6 @@ enum TextFormatType {
     Bold,
     Italic,
     Underlined,
-    FontFamily,
-    FontSize
 };
 
 enum BlockFormatType {
@@ -64,11 +62,10 @@ public:
     void setBlockFormatType(const BlockFormatType &value);
 
 private:
-    int cursorPos;
-    int numChars;
-    QString chars;
 
-    int comboFontIndex;
+    QString chars;
+    int font;
+    int alignment;     // 1 -> right, 2 ->center, 3 ->
     ActionType actionType;
     TextFormatType textFormatType;
     BlockFormatType blockFormatType;
@@ -78,7 +75,6 @@ class ActionWrapper
 {
 
 public:
-
     Action action;
     SymbolId rel_symbol;  //for insertion
     std::vector<SymbolId> symbol;
