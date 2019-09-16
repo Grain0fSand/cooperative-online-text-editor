@@ -64,8 +64,10 @@ public:
 private:
 
     QString chars;
-    int font;
-    int alignment;     // 1 -> right, 2 ->center, 3 ->
+    int font_size;
+    int font_type;
+    int alignment;   // see blockFormatType
+
     ActionType actionType;
     TextFormatType textFormatType;
     BlockFormatType blockFormatType;
