@@ -14,13 +14,6 @@ enum ActionType {
     BlockFormatting
 };
 
-enum TextFormatType {
-    NoTextFormatType,
-    Bold,
-    Italic,
-    Underlined,
-};
-
 enum BlockFormatType {
     NoBlockFormatType,
     AlignLeft,
@@ -63,13 +56,10 @@ public:
 
 private:
 
-    QString chars;
-    int font_size;
-    int font_type;
-    int alignment;   // see blockFormatType
-
     ActionType actionType;
-    TextFormatType textFormatType;
+    QString chars;
+    int comboFontIndex;
+    bool is_bold, is_italic, is_underlined;
     BlockFormatType blockFormatType;
 };
 
@@ -78,8 +68,8 @@ class ActionWrapper
 
 public:
     Action action;
-    SymbolId rel_symbol;  //for insertion
-    std::vector<SymbolId> symbol;
+    SymbolId rel_symbol;    //for insertion
+    std::vector<SymbolId> symbol;     //all symbols to change for deletion and formatting
 
     ActionWrapper(Action action, SymbolId rel_symbol, std::vector<SymbolId> symbol):
             action(action),

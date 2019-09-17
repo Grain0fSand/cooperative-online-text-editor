@@ -10,7 +10,7 @@
 class Crdt {
     //Q_OBJECT
 
-    std::list<SymbolId> list;
+    std::vector<SymbolId> list;
     int usr_id;
     std::queue<ActionWrapper> action_queue;
 
