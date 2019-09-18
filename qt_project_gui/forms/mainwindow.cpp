@@ -525,3 +525,4 @@ void MainWindow::on_actionTestActions_triggered()
 
 //TODO: clicking on bold/cursive/etc. with nothing highlighted sends an action but it shouldn't
 //TODO: block formatting doesn't result in sending an action but it should
+//TODO: fix error caused by action changes

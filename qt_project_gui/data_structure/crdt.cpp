@@ -3,16 +3,14 @@
 #include <thread>
 
 void sendAction(ActionWrapper action_wrapper) {
-
 }
 
-void receiveAction(Action action, int usr_id) {
-
+void receiveAction(std::vector<SymbolId> all_pos, Action action) {
 }
 
 SymbolId Crdt::findRelativePosition(int left_pos) {
     int cmp = 0;
-    SymbolId left_sym = SymbolId(); //initialized -1 -1
+    SymbolId left_sym = list.front();   //invisible block tombstone
 
     //find left side symbol
     for(auto cc : list) {
@@ -30,34 +28,23 @@ SymbolId Crdt::findRelativePosition(int left_pos) {
     return left_sym;
 }
 
-int Crdt::symbolInsertion(const SymbolId& left_sym, int n, const SymbolId& symbol) {
-    bool found = false;
-    auto it = list.begin();
-    int i = 0;
-    //insert in relative position
-    if (left_sym.getIncId() >= 0) {
-        //find correct absolute position
-        while(!found && it != list.end()) {
-            if (it->getSymbolId() == left_sym.getSymbolId()) {
-                //for crdt synchronization
-                ++it;
-                while (symbol < *it)  {
-                    ++it;
-                    ++i;
-                }
-                --it;
-                found = true;
-            }
-            ++it;
-        }
-    }
 
-    int ret = i;
-    i = symbol.getIncId();
+//TODO: multiple block copy
+int Crdt::symbolInsertion(const SymbolId& left_sym, int n, const SymbolId& symbol, const QString chars) {
+    auto it = list.begin();
+    //insert in relative position
+    while (it != list.end()) {
+        if (left_sym == it->getSymbolId())
+            break;
+        ++it;
+    }
+    int ret = it - list.begin();
+    ++it;
 
     //insert symbols
-    while (n-->0) {
-        it = list.insert(it, SymbolId(symbol.getUsrId(), i++));
+    for (int i = 0; i < n; ++i) {
+        it = list.insert(it, SymbolId(symbol.getUsrId(), i + symbol.getIncId()));
+        if (chars[i] == '\n')  it->setBlockStart();
         ++it;
     }
     return ret;
@@ -83,81 +70,90 @@ std::vector<SymbolId> Crdt::symbolDeletion(int n, const SymbolId& first_symbol) 
     return ret;
 }
 
-//formatting done by client, doesn't change symbol id
-std::pair<SymbolId, SymbolId> Crdt::textFormatting(int n, const SymbolId& first_symbol, TextFormatType format_type) {
+//formatting done by client
+std::vector<SymbolId> Crdt::textFormatting(int n, const SymbolId& first_symbol) {
     auto it = list.begin();
+    std::vector<SymbolId> ret;
 
     while (it != list.end()) {
+
         // if first symbol found format string and break
         if (it->getSymbolId() == first_symbol) {
-            SymbolId tmp = it->getSymbolId();
+
             while (n-- > 0) {
                 //format without checking version because it's unnecessary
-                it->setTextVersion(usr_id, list.size(), format_type);
-                if (n < 1)
-
+                if (!it->is_blockStart()) {
+                    it->setVersion(usr_id, list.size());
+                    ret.push_back(it->getSymbolId());
+                }
                 ++it;
             }
-            return std::make_pair(tmp, it->getSymbolId());
+            return ret;
         }
+
         ++it;
     }
     throw "Fatal error, symbol couldn't be found";
 }
 
-//block formatting done by client, doesn't change symbol id
-std::pair<SymbolId, SymbolId> Crdt::blockFormatting(int n, const SymbolId& first_symbol, BlockFormatType format_type) {
+//block formatting done by client
+std::vector<SymbolId> Crdt::blockFormatting(int n, const SymbolId& first_symbol) {
     auto it = list.begin();
-    std::pair<SymbolId, SymbolId> ret;
+    std::vector<SymbolId> ret;
+    int last_block_starter;
 
     while (it != list.end()) {
+
+        if (it->is_blockStart())
+            last_block_starter = it - list.begin();
+
         // if first symbol found format string and break
         if (it->getSymbolId() == first_symbol) {
-            SymbolId tmp = it->getSymbolId();
-            while (n-- > 0) {
+            list[last_block_starter].setVersion(usr_id, list.size());
+            ret.push_back(list[last_block_starter]);
+            ++it;      //in case first_symbol is block_starter
+
+            while (n-- > 1) {
                 //format without checking version because it's unnecessary
-                it->setTextVersion(usr_id, list.size(), format_type);
-                if (n < 1)
-                    ret = std::make_pair(tmp, it->getSymbolId());
+                if (it->is_blockStart()) {
+                    it->setVersion(usr_id, list.size());
+                    ret.push_back(it->getSymbolId());
+                }
                 ++it;
             }
-            break;
+            return ret;
         }
+
         ++it;
     }
-    return ret;
+    throw "Fatal error, symbol couldn't be found";
 }
 
-//TODO: insertion of rich text and insertion of plain text to thr rhs of rich text
+
 //called by text editor
-void Crdt::sendActionToServer(Action& action) {
+void Crdt::sendActionToServer(Action& action, int numChars) {
     SymbolId rel_symbol = findRelativePosition(action.getCursorPos());
 
     SymbolId symbol(usr_id, list.size());
     ActionWrapper action_wrapper(action);  //to send to json serializer
-    std::pair<SymbolId,SymbolId> pr;
 
     switch (action.getActionType()) {
         case Insertion:
-            symbolInsertion(rel_symbol, action.getNumChars(), symbol);  //insert in crdt structure
+            symbolInsertion(rel_symbol, numChars, symbol, action.getChars());  //insert in crdt structure
             action_wrapper.rel_symbol = rel_symbol; //left symbol
             action_wrapper.symbol.push_back(symbol);
             break;
         case Deletion:
             action_wrapper.rel_symbol = rel_symbol; //first symbol
-            action_wrapper.symbol = symbolDeletion(action.getNumChars(), rel_symbol);
+            action_wrapper.symbol = symbolDeletion(numChars, rel_symbol);
             break;
         case TextFormatting:
-            pr = textFormatting(action.getNumChars(), rel_symbol, action.getTextFormatType());
-            action_wrapper.rel_symbol = symbol;  //for new version
-            action_wrapper.symbol.push_back(pr.first);
-            action_wrapper.symbol.push_back(pr.second);
+            action_wrapper.symbol = textFormatting(numChars, rel_symbol);
+            action_wrapper.rel_symbol = symbol;  //for setting version
             break;
         case BlockFormatting:
-            pr = blockFormatting(action.getNumChars(), rel_symbol, action.getBlockFormatType());
-            action_wrapper.rel_symbol = symbol;  //for new version
-            action_wrapper.symbol.push_back(pr.first);
-            action_wrapper.symbol.push_back(pr.second);
+            action_wrapper.symbol = blockFormatting(numChars, rel_symbol);
+            action_wrapper.rel_symbol = symbol;  //for setting version
             break;
         default:
             break;
@@ -170,65 +166,99 @@ void Crdt::sendActionToServer(Action& action) {
         receiveActionFromServer(action_queue.front());
         action_queue.pop();
     }
-
-    //for debugging
-//    for (SymbolId s : list)
-//        std::cout << s.getIncId() << s.getUsrId() << s.is_hidden() << '-' << s.getTextVersion(1) << '-' << s.getBlockVersion(1) << ' ';
-//    std::cout << std::endl;
-//    if (list.size()==2)
-//    {Action a;
-//    a = Action(1, 3, "XXX", Insertion);
-//    SymbolId left_s(0,0);
-//    SymbolId s(2,3);
-//    std::vector<SymbolId> v;
-//    v.push_back(s);
-//    ActionWrapper aw(a, left_s, v);
-//    receiveActionFromServer(aw);}
 }
 
 
+std::vector<int> Crdt::symbolInsertionExt(const SymbolId& left_sym, int n, const SymbolId& symbol, const QString chars) {
+    auto it = list.begin();
+    std::vector<int> ret;
+    int j = 0;
+    //insert in relative position
+    while (it != list.end()) {
+        if (left_sym == it->getSymbolId())
+            break;
+
+        if (!it->is_hidden())
+            ++j;
+        ++it;
+    }
+    ++it;
+    ++j;
+
+    //insert symbols
+    for (int i = 0; i < n; ++i) {
+        SymbolId s(SymbolId(symbol.getUsrId(), i + symbol.getIncId()));
+        while (it->getSymbolId() > s) {
+            ++it;
+            ++j;
+        }
+        ret.push_back(j + i);   //absolute position
+        it = list.insert(it, s);
+        if (chars[i] == '\n')  it->setBlockStart();
+        ++it;
+    }
+    return ret;
+}
 
 //delete done by server
-int Crdt::symbolDeletion(const std::vector<SymbolId>& symbol) {
+std::vector<int> Crdt::symbolDeletionExt(const std::vector<SymbolId>& symbol) {
     auto it = list.begin();
     auto del_it = symbol.begin();  //symbols to delete
-    int i = 0, ret = -1;
+    int i = 0;
+    std::vector<int> ret;
     while(it != list.end() && del_it != symbol.end()) {
         if (it->getSymbolId() == del_it->getSymbolId()) {
-            it->hide();
             ++del_it;
-            //get absolute position of first symbol
-            if(ret == -1)
-                ret = i;
+            if (!it->is_hidden()) {
+                ret.push_back(i);  //get absolute position
+                it->hide();
+            }
         }
         ++it;
-        ++i;
+        if (!it->is_hidden())
+             ++i;
     }
-    return ret;    //return only the absolute position     TODO:return position of each character in a vector
+    return ret;
 }
 
-//TODO: insertion of rich text
+std::vector<int> Crdt::formattingExt(const SymbolId& rel_symbol, const std::vector<SymbolId>& symbol) {
+    auto it = list.begin();
+    auto form_it = symbol.begin();
+    std::vector<int> ret;
+    int i = 0;
+    while (it != list.end() && form_it != symbol.end()) {
+        if (it->getSymbolId() == form_it->getSymbolId()) {
+            ++form_it;
+            if (!it->is_hidden()) {
+                ret.push_back(i);  //get absolute position
+                it->setVersion(rel_symbol.getUsrId(), rel_symbol.getIncId());
+            }
+        }
+        ++it;
+        if (!it->is_hidden())
+            ++i;
+    }
+    return ret;
+}
+
 void Crdt::receiveActionFromServer(ActionWrapper& action_wrapper) {
-    int left_pos;
     Action action = action_wrapper.action;
+    std::vector<int> all_pos;
     switch (action.getActionType()) {
         case Insertion:
-            left_pos = symbolInsertion(action_wrapper.rel_symbol, action.getNumChars(), action_wrapper.symbol.front());
-            action.setCursorPos(left_pos);
-            receiveAction(action, usr_id);
+            all_pos = symbolInsertionExt(action_wrapper.rel_symbol, action.getNumChars(), action_wrapper.symbol.front(), action.getChars());
             break;
         case Deletion:
-            symbolDeletion(action_wrapper.symbol);
+            all_pos = symbolDeletionExt(action_wrapper.symbol);
             break;
         case TextFormatting:
-            //TODO: return absolute position and modify NumChars
-            break;
         case BlockFormatting:
+            all_pos = formattingExt(action_wrapper.rel_symbol, action_wrapper.symbol);
             break;
         default:
             break;
     }
-
+    //receive_action(all_pos, action);
 
 //    for (SymbolId s : list)
 //        std::cout << s.getIncId() << s.getUsrId() << s.is_hidden() << ' ';

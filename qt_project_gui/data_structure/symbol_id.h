@@ -6,12 +6,13 @@ class SymbolId {
     int usr_id;
     int inc_id;
     bool hidden;
-    long long text_version, block_version;
+    bool block_start;
+    long long version;
 
 public:
-    SymbolId(int usr_id, int inc_id) :  usr_id(usr_id), inc_id(inc_id), hidden(false), text_version(), block_version() {}
+    SymbolId(int usr_id, int inc_id) :  usr_id(usr_id), inc_id(inc_id), hidden(), block_start(), version() {}
 
-    SymbolId() : usr_id(-1), inc_id(-1), hidden(false), text_version(), block_version() {}
+    SymbolId() : usr_id(-1), inc_id(-1), hidden(), block_start(), version() {}
 
     // you cannot cycle with < but you must use ==
     bool operator < (SymbolId second) const{
@@ -38,7 +39,6 @@ public:
         this->hidden = true;
     }
 
-
     SymbolId getSymbolId() const{
         return *this;
     }
@@ -51,27 +51,25 @@ public:
         return this->usr_id;
     }
 
-    long long getTextVersion(int enum_index) const{
-        return this->text_version[enum_index];
+    long long getVersion() const{
+        return this->version;
     }
 
-    void setTextVersion(int usr_id, int inc_id) {
-        text_version = inc_id;
-        text_version <<= 32;
-        text_version += usr_id;
+    void setVersion(int usr_id, int inc_id) {
+        version = inc_id;
+        version <<= 32;
+        version += usr_id;
     }
 
-    long long getBlockVersion() const{
-        return this->block_version;
+
+    void setBlockStart() {
+        this->block_start = true;
     }
 
-    void setBlockVersion(int usr_id, int inc_id) {
-        block_version = inc_id;
-        block_version <<= 32;
-        block_version += usr_id;
+    bool is_blockStart() const{
+        return this->block_start;
     }
 
-    // return if you need to show the char
     bool is_hidden() const{
         return this->hidden;
     }

@@ -39,8 +39,10 @@ public:
     QString getChars() const;
     void setChars(QString value);
 
-    bool getTextFormatBoolean() const;
-    void setTextFormatBoolean(bool value);
+    bool getBold() const;
+    bool getItalic() const;
+    bool getUnderlined() const;
+    void setTextFormat(bool bold, bool italic, bool underlined);
 
     int getComboFontIndex() const;
     void setComboFontIndex(int value);
@@ -48,14 +50,11 @@ public:
     ActionType getActionType() const;
     void setActionType(const ActionType &value);
 
-    TextFormatType getTextFormatType() const;
-    void setTextFormatType(const TextFormatType &value);
-
     BlockFormatType getBlockFormatType() const;
     void setBlockFormatType(const BlockFormatType &value);
 
 private:
-
+    //TODO: inserted strings must have uniform formatting
     ActionType actionType;
     QString chars;
     int comboFontIndex;

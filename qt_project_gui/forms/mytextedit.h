@@ -17,8 +17,7 @@ public:
     void addCursor(RemoteCursor *cursor);
     void addAction(int cursorPos, int numChars, QString str, ActionType = Insertion);
     void addAction(int cursorPos, int numChars, ActionType = Deletion);
-    void addAction(int cursorPos, int numChars, bool formatBoolean, TextFormatType, ActionType = TextFormatting);
-    void addAction(int cursorPos, int numChars, int index, TextFormatType, ActionType = TextFormatting);
+    void addAction(int cursorPos, int numChars, bool bold, bool italic, bool underlined, ActionType = TextFormatting);
     void addAction(int cursorPos, int numChars, BlockFormatType, ActionType = BlockFormatting);
     void doReceivedActions();
 

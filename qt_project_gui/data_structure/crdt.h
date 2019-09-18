@@ -20,6 +20,12 @@ class Crdt {
 public:
     void init(int usr_id)  {
         this->usr_id = usr_id;
+        //TODO add loading from server and insert of block starter
+        //TODO add nbsp to text editor
+        if (list.empty()) {
+            list.push_back(SymbolId());
+            list.front().setBlockStart();
+        }
     }
     static Crdt& getInstance() {
        static Crdt instance;
@@ -29,7 +35,7 @@ public:
     //TODO: verify usefulness
     // no race condition because of the single threaded application
     // nb: mainwindow and crdt always work on that object atomically
-    std::list<SymbolId>& getSymbolList(){
+    std::vector<SymbolId>& getSymbolList(){
         return this->list;
     }
 
@@ -37,16 +43,17 @@ private:
 
     SymbolId findRelativePosition(int left_pos);
 
-    int symbolInsertion(const SymbolId& left_sym, int n, const SymbolId& symbol);
+    int symbolInsertion(const SymbolId& left_sym, int n, const SymbolId& symbol, const QString chars);
 
     //client
     std::vector<SymbolId> symbolDeletion(int n, const SymbolId& first_symbol);
-    //return first and last symbol only. if only one symbol is formatted return first symbol twice
-    std::pair<SymbolId, SymbolId> textFormatting(int n, const SymbolId& first_symbol, TextFormatType format_type);
-    std::pair<SymbolId, SymbolId> blockFormatting(int n, const SymbolId& first_symbol, BlockFormatType format_type);
+    std::vector<SymbolId> textFormatting(int n, const SymbolId& first_symbol);
+    std::vector<SymbolId> blockFormatting(int n, const SymbolId& first_symbol);
 
     //server
-    int symbolDeletion(const std::vector<SymbolId>& symbol);
+    std::vector<int> symbolInsertionExt(const SymbolId& left_sym, int n, const SymbolId& symbol, const QString chars);
+    std::vector<int> symbolDeletionExt(const std::vector<SymbolId>& symbol);
+    std::vector<int> formattingExt(const SymbolId& rel_symbol, const std::vector<SymbolId>& symbol);
 
     void sendActionToClient(Action& action, SymbolId symbol);
     void receiveActionFromServer(ActionWrapper& actionWrapper);
@@ -56,7 +63,7 @@ public:
     //so the action will be coherent with the position of the cursor
     //void actionsArrived(std::list<Action> actions);   //queue non needed
 
-    void sendActionToServer(Action& action);
+    void sendActionToServer(Action& action, int numChars);
    // void pushActionQueue(ActionWrapper action_wrapper);       //push server's actions
 };
 

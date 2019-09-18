@@ -1,53 +1,14 @@
 #include "action.h"
 
 Action::Action() :
-    cursorPos(-1),
-    numChars(-1),
-    chars(""),
-    textFormatBoolean(false),
-    comboFontIndex(-1),
     actionType(NoActionType),
-    textFormatType(NoTextFormatType),
+    chars(""),
+    comboFontIndex(-1),
+    is_bold(),
+    is_italic(),
+    is_underlined(),
     blockFormatType(NoBlockFormatType)
 {
-}
-
-//for insertion without format
-Action::Action(int cursorPos, int numChars, QString chars, ActionType actionType) :
-    cursorPos(cursorPos),
-    numChars(numChars),
-    chars(chars),
-    textFormatBoolean(false),
-    actionType(actionType)
-{
-}
-
-//for deletion
-Action::Action(int cursorPos, int numChars, ActionType actionType) :
-        cursorPos(cursorPos),
-        numChars(numChars),
-        actionType(actionType)
-{
-}
-
-int Action::getCursorPos() const
-{
-    return cursorPos;
-}
-
-void Action::setCursorPos(int value)
-{
-    cursorPos = value;
-}
-
-int Action::getNumChars() const
-{
-    return numChars;
-}
-
-void Action::setNumChars(int value)
-{
-    numChars = value;
 }
 
 QString Action::getChars() const
@@ -58,16 +19,6 @@ QString Action::getChars() const
 void Action::setChars(QString value)
 {
     chars = value;
-}
-
-bool Action::getTextFormatBoolean() const
-{
-    return textFormatBoolean;
-}
-
-void Action::setTextFormatBoolean(bool value)
-{
-    textFormatBoolean = value;
 }
 
 int Action::getComboFontIndex() const
@@ -90,14 +41,26 @@ void Action::setActionType(const ActionType &value)
     actionType = value;
 }
 
-TextFormatType Action::getTextFormatType() const
+bool Action::getBold() const
 {
-    return textFormatType;
+    return is_bold;
 }
 
-void Action::setTextFormatType(const TextFormatType &value)
+bool Action::getItalic() const
 {
-    textFormatType = value;
+    return is_italic;
+}
+
+bool Action::getUnderlined() const
+{
+    return is_underlined;
+}
+
+void Action::setTextFormat(bool bold, bool italic, bool underlined)
+{
+    is_bold = bold;
+    is_italic = italic;
+    is_underlined = underlined;
 }
 
 BlockFormatType Action::getBlockFormatType() const
