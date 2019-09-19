@@ -5,6 +5,7 @@
 #include "mytextedit.h"
 #include "usertag.h"
 #include "../web_requests/smtpclient.h"
+#include "../data_structure/crdt.h"
 #include <QDebug>
 #include <QFontDialog>
 #include <QErrorMessage>
@@ -114,7 +115,8 @@ void MainWindow::alignLeft()
     cursor.mergeBlockFormat(textBlockFormat);
     textEdit->setTextCursor(cursor);
 
-    ui->textEditShared->addAction(cursor.selectionStart() + 1,cursor.selectedText().length(),AlignLeft); //selectionStart + 1 is needed by cdrt
+    Action a = Action(BlockFormatting, AlignLeft);
+    Crdt::getInstance().sendActionToServer(a, cursor.selectionStart(), cursor.selectedText().length());
 }
 
 void MainWindow::alignCenter()
@@ -132,7 +134,8 @@ void MainWindow::alignCenter()
     cursor.mergeBlockFormat(textBlockFormat);
     textEdit->setTextCursor(cursor);
 
-    ui->textEditShared->addAction(cursor.selectionStart() + 1,cursor.selectedText().length(),AlignCenter);
+    Action a = Action(BlockFormatting, AlignCenter);
+    Crdt::getInstance().sendActionToServer(a, cursor.selectionStart(), cursor.selectedText().length());
 }
 
 void MainWindow::alignRight()
@@ -150,7 +153,8 @@ void MainWindow::alignRight()
     cursor.mergeBlockFormat(textBlockFormat);
     textEdit->setTextCursor(cursor);
 
-    ui->textEditShared->addAction(cursor.selectionStart() + 1,cursor.selectedText().length(),AlignRight);
+    Action a = Action(BlockFormatting, AlignRight);
+    Crdt::getInstance().sendActionToServer(a, cursor.selectionStart(), cursor.selectedText().length());
 }
 
 void MainWindow::alignJustify()
@@ -168,7 +172,8 @@ void MainWindow::alignJustify()
     cursor.mergeBlockFormat(textBlockFormat);
     textEdit->setTextCursor(cursor);
 
-    ui->textEditShared->addAction(cursor.selectionStart() + 1,cursor.selectedText().length(),AlignJustify);
+    Action a = Action(BlockFormatting, AlignJustify);
+    Crdt::getInstance().sendActionToServer(a, cursor.selectionStart(), cursor.selectedText().length());
 }
 
 void MainWindow::makeBold()
@@ -509,8 +514,7 @@ void MainWindow::on_actionTestActions_triggered()
     action.setActionType(TextFormatting);
     action.setCursorPos(10);
     action.setNumChars(6);
-    action.setTextFormatType(Bold);
-    action.setTextFormatBoolean(true);
+    action.setTextFormat(1, 0, 0);
 
 
 /*  action.setActionType(BlockFormatting);

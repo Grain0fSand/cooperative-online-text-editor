@@ -25,10 +25,12 @@ enum BlockFormatType {
 class Action
 {
 public:
-    Action();
-    Action(int cursorPos, int numChars, QString chars, ActionType actionType);
 
-    Action(int cursorPos, int numChars, ActionType ActionType);
+    Action(QString chars, int font, bool bold, bool italic, bool underlined, BlockFormatType blockFormatType);   //for insertion
+
+    Action(); //for deletion
+
+    Action(ActionType actionType, );
 
     int getCursorPos() const;
     void setCursorPos(int value);
@@ -50,16 +52,18 @@ public:
     ActionType getActionType() const;
     void setActionType(const ActionType &value);
 
-    BlockFormatType getBlockFormatType() const;
-    void setBlockFormatType(const BlockFormatType &value);
+    BlockFormatType getBlockFormat() const;
+    void setBlockFormat(const BlockFormatType &value);
 
 private:
     //TODO: inserted strings must have uniform formatting
     ActionType actionType;
     QString chars;
     int comboFontIndex;
+    int fontSize;
     bool is_bold, is_italic, is_underlined;
     BlockFormatType blockFormatType;
+
 };
 
 class ActionWrapper
@@ -67,10 +71,10 @@ class ActionWrapper
 
 public:
     Action action;
-    SymbolId rel_symbol;    //for insertion
-    std::vector<SymbolId> symbol;     //all symbols to change for deletion and formatting
+    std::pair<int,int> rel_symbol;
+    std::vector<std::pair<int,int>> symbol;     //all symbols to change for deletion and formatting
 
-    ActionWrapper(Action action, SymbolId rel_symbol, std::vector<SymbolId> symbol):
+    ActionWrapper(Action action, std::pair<int,int> rel_symbol, std::vector<std::pair<int,int>> symbol):
             action(action),
             rel_symbol(rel_symbol),
             symbol(std::move(symbol))

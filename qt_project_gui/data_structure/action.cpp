@@ -63,12 +63,12 @@ void Action::setTextFormat(bool bold, bool italic, bool underlined)
     is_underlined = underlined;
 }
 
-BlockFormatType Action::getBlockFormatType() const
+BlockFormatType Action::getBlockFormat() const
 {
     return blockFormatType;
 }
 
-void Action::setBlockFormatType(const BlockFormatType &value)
+void Action::setBlockFormat(const BlockFormatType &value)
 {
     blockFormatType = value;
 }

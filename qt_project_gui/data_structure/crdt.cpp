@@ -29,8 +29,7 @@ SymbolId Crdt::findRelativePosition(int left_pos) {
 }
 
 
-//TODO: multiple block copy
-int Crdt::symbolInsertion(const SymbolId& left_sym, int n, const SymbolId& symbol, const QString chars) {
+void Crdt::symbolInsertion(const SymbolId& left_sym, int n, const SymbolId& symbol, const QString chars) {
     auto it = list.begin();
     //insert in relative position
     while (it != list.end()) {
@@ -38,16 +37,17 @@ int Crdt::symbolInsertion(const SymbolId& left_sym, int n, const SymbolId& symbo
             break;
         ++it;
     }
-    int ret = it - list.begin();
     ++it;
 
-    //insert symbols
+    //array with all symbols to insert in list
+    SymbolId tmp_arr[n];
     for (int i = 0; i < n; ++i) {
-        it = list.insert(it, SymbolId(symbol.getUsrId(), i + symbol.getIncId()));
-        if (chars[i] == '\n')  it->setBlockStart();
-        ++it;
+        tmp_arr[i] = SymbolId(symbol.getUsrId(), i + symbol.getIncId());
+        if (chars[i] == '\n')
+            tmp_arr[i].setBlockStart();
     }
-    return ret;
+
+    list.insert(it, tmp_arr, tmp_arr + n);
 }
 
 //delete done by client
@@ -131,8 +131,8 @@ std::vector<SymbolId> Crdt::blockFormatting(int n, const SymbolId& first_symbol)
 
 
 //called by text editor
-void Crdt::sendActionToServer(Action& action, int numChars) {
-    SymbolId rel_symbol = findRelativePosition(action.getCursorPos());
+void Crdt::sendActionToServer(Action& action, int cursorPos, int numChars) {
+    SymbolId rel_symbol = findRelativePosition(cursorPos);
 
     SymbolId symbol(usr_id, list.size());
     ActionWrapper action_wrapper(action);  //to send to json serializer
@@ -168,10 +168,9 @@ void Crdt::sendActionToServer(Action& action, int numChars) {
     }
 }
 
-
-std::vector<int> Crdt::symbolInsertionExt(const SymbolId& left_sym, int n, const SymbolId& symbol, const QString chars) {
+//TODO: implement inserting symbols with different format?
+std::vector<int> Crdt::symbolInsertionExt(const std::pair<int,int>& left_sym, int n, const std::pair<int,int>& symbol, const QString chars) {
     auto it = list.begin();
-    std::vector<int> ret;
     int j = 0;
     //insert in relative position
     while (it != list.end()) {
@@ -185,29 +184,36 @@ std::vector<int> Crdt::symbolInsertionExt(const SymbolId& left_sym, int n, const
     ++it;
     ++j;
 
-    //insert symbols
-    for (int i = 0; i < n; ++i) {
-        SymbolId s(SymbolId(symbol.getUsrId(), i + symbol.getIncId()));
-        while (it->getSymbolId() > s) {
+    //must check that doing it once is sufficient
+    {
+        SymbolId s = SymbolId(symbol.getUsrId(), symbol.getIncId());
+        while (it->getSymbolId() > s) {  //skip symbols with greater ID
             ++it;
             ++j;
         }
-        ret.push_back(j + i);   //absolute position
-        it = list.insert(it, s);
-        if (chars[i] == '\n')  it->setBlockStart();
-        ++it;
     }
-    return ret;
+
+    //insert symbols
+    SymbolId tmp_arr[n];
+    for (int i = 0; i < n; ++i) {
+        tmp_arr[i] = SymbolId(symbol.getUsrId(), i + symbol.getIncId());
+        if (chars[i] == '\n')
+            tmp_arr[i].setBlockStart();
+    }
+
+    list.insert(it, tmp_arr, tmp_arr + n);
+
+    return std::vector<int>(j);
 }
 
 //delete done by server
-std::vector<int> Crdt::symbolDeletionExt(const std::vector<SymbolId>& symbol) {
+std::vector<int> Crdt::symbolDeletionExt(const std::vector<std::pair<int,int>>& symbol) {
     auto it = list.begin();
     auto del_it = symbol.begin();  //symbols to delete
     int i = 0;
     std::vector<int> ret;
     while(it != list.end() && del_it != symbol.end()) {
-        if (it->getSymbolId() == del_it->getSymbolId()) {
+        if (it->getSymbolId() == *del_it) {
             ++del_it;
             if (!it->is_hidden()) {
                 ret.push_back(i);  //get absolute position
@@ -221,15 +227,17 @@ std::vector<int> Crdt::symbolDeletionExt(const std::vector<SymbolId>& symbol) {
     return ret;
 }
 
-std::vector<int> Crdt::formattingExt(const SymbolId& rel_symbol, const std::vector<SymbolId>& symbol) {
+std::vector<int> Crdt::formattingExt(const std::pair<int,int>& rel_symbol, const std::vector<std::pair<int,int>>& symbol) {
     auto it = list.begin();
     auto form_it = symbol.begin();
     std::vector<int> ret;
     int i = 0;
     while (it != list.end() && form_it != symbol.end()) {
-        if (it->getSymbolId() == form_it->getSymbolId()) {
+        //found symbol to format
+        if (it->getSymbolId() == *form_it) {
             ++form_it;
-            if (!it->is_hidden()) {
+            //check hidden and version
+            if (!it->is_hidden() && it->compareVersion(rel_symbol.getUsrId(), rel_symbol.getIncId())) {
                 ret.push_back(i);  //get absolute position
                 it->setVersion(rel_symbol.getUsrId(), rel_symbol.getIncId());
             }
@@ -264,3 +272,5 @@ void Crdt::receiveActionFromServer(ActionWrapper& action_wrapper) {
 //        std::cout << s.getIncId() << s.getUsrId() << s.is_hidden() << ' ';
 //    std::cout << std::endl;
 }
+
+//TODO: change vectors of symbols into vectors of pairs

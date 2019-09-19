@@ -1,6 +1,8 @@
 #ifndef TRANSLATOR_SYMBOLID_H
 #define TRANSLATOR_SYMBOLID_H
 
+
+//TODO: version for every formatting feature?
 class SymbolId {
 
     int usr_id;
@@ -39,8 +41,8 @@ public:
         this->hidden = true;
     }
 
-    SymbolId getSymbolId() const{
-        return *this;
+    std::pair<int,int> getSymbolId() const{
+        return std::make_pair(inc_id, usr_id);
     }
 
     int getIncId() const{
@@ -51,15 +53,19 @@ public:
         return this->usr_id;
     }
 
-    long long getVersion() const{
-        return this->version;
-    }
-
     void setVersion(int usr_id, int inc_id) {
         version = inc_id;
         version <<= 32;
         version += usr_id;
     }
+
+    bool compareVersion(int usr_id, int inc_id) {
+        long long version_tmp = inc_id;
+        version_tmp <<= 32;
+        version_tmp += usr_id;
+        return version_tmp > version;
+    }
+
 
 
     void setBlockStart() {

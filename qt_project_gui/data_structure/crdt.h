@@ -43,17 +43,20 @@ private:
 
     SymbolId findRelativePosition(int left_pos);
 
-    int symbolInsertion(const SymbolId& left_sym, int n, const SymbolId& symbol, const QString chars);
+    void symbolInsertion(const SymbolId& left_sym, int n, const SymbolId& symbol, const QString chars);
 
+    // TODO: check if necessary lock shared between local and server updates
     //client
     std::vector<SymbolId> symbolDeletion(int n, const SymbolId& first_symbol);
     std::vector<SymbolId> textFormatting(int n, const SymbolId& first_symbol);
     std::vector<SymbolId> blockFormatting(int n, const SymbolId& first_symbol);
 
     //server
-    std::vector<int> symbolInsertionExt(const SymbolId& left_sym, int n, const SymbolId& symbol, const QString chars);
-    std::vector<int> symbolDeletionExt(const std::vector<SymbolId>& symbol);
-    std::vector<int> formattingExt(const SymbolId& rel_symbol, const std::vector<SymbolId>& symbol);
+    // TODO: chiedere a dario se è il caso di salvare la posizione relativa del cursore e ripristinarla dopo
+    // TODO: aver applicato le azioni remote
+    std::vector<int> symbolInsertionExt(const std::pair<int,int>& left_sym, int n, const std::pair<int,int>& symbol, const QString chars);
+    std::vector<int> symbolDeletionExt(const std::vector<std::pair<int,int>>& symbol);
+    std::vector<int> formattingExt(const std::pair<int,int>& rel_symbol, const std::vector<std::pair<int,int>>& symbol);
 
     void sendActionToClient(Action& action, SymbolId symbol);
     void receiveActionFromServer(ActionWrapper& actionWrapper);
@@ -63,7 +66,7 @@ public:
     //so the action will be coherent with the position of the cursor
     //void actionsArrived(std::list<Action> actions);   //queue non needed
 
-    void sendActionToServer(Action& action, int numChars);
+    void sendActionToServer(Action& action, int cursorPos, int numChars);
    // void pushActionQueue(ActionWrapper action_wrapper);       //push server's actions
 };
 
