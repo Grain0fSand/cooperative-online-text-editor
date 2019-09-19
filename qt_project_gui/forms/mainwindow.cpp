@@ -176,6 +176,7 @@ void MainWindow::alignJustify()
     Crdt::getInstance().sendActionToServer(a, cursor.selectionStart(), cursor.selectedText().length());
 }
 
+
 void MainWindow::makeBold()
 {
     auto textEdit = ui->textEditShared;
@@ -189,7 +190,8 @@ void MainWindow::makeBold()
     cursor.mergeCharFormat(format);
     textEdit->setTextCursor(cursor);
 
-    ui->textEditShared->addAction(cursor.selectionStart() + 1,cursor.selectedText().length(),is_bold,Bold);
+    Action a = Action(TextFormatting, 0, is_bold ? 0 : 1);
+    Crdt::getInstance().sendActionToServer(a, cursor.selectionStart(), cursor.selectedText().length());
 }
 
 void MainWindow::makeItalic()
@@ -205,7 +207,8 @@ void MainWindow::makeItalic()
     cursor.mergeCharFormat(format);
     textEdit->setTextCursor(cursor);
 
-    ui->textEditShared->addAction(cursor.selectionStart() + 1,cursor.selectedText().length(),is_italic,Italic);
+    Action a = Action(TextFormatting, 1, is_italic ? 0 : 1);
+    Crdt::getInstance().sendActionToServer(a, cursor.selectionStart(), cursor.selectedText().length());
 }
 
 void MainWindow::makeUnderline()
@@ -221,10 +224,11 @@ void MainWindow::makeUnderline()
     cursor.mergeCharFormat(format);
     textEdit->setTextCursor(cursor);
 
-    ui->textEditShared->addAction(cursor.selectionStart() + 1,cursor.selectedText().length(),is_underlined,Underlined);
+    Action a = Action(TextFormatting, 2, is_underlined ? 0 : 1);
+    Crdt::getInstance().sendActionToServer(a, cursor.selectionStart(), cursor.selectedText().length());
 }
 
-//TODO: different methods for rich text and plain text
+//TODO: create multiple actions for different styles when copy pasting text
 void MainWindow::textChanged(int pos, int nDel, int nIns) {
 
     if(nDel==0) {  //insertion
@@ -233,9 +237,11 @@ void MainWindow::textChanged(int pos, int nDel, int nIns) {
 //            str += ui->textEditShared->document()->characterAt(pos+i);
 //        }
 //        qDebug() << str;
-        ui->textEditShared->addAction(pos, nIns, str);
+        Action a = Action();  //TODO: put string and all text & block formatting in action
+        Crdt::getInstance().sendActionToServer(a, pos, nIns);
     } else if (nIns==0) { //deletion
-        ui->textEditShared->addAction(pos + 1, nDel); //pos + 1 is needed by cdrt
+        Action a = Action();
+        Crdt::getInstance().sendActionToServer(a, pos, nIns);
     } else {
         //nothing to do
     }
@@ -252,7 +258,8 @@ void MainWindow::selectFont(int familyIndex)
     cursor.mergeCharFormat(format);
     textEdit->setTextCursor(cursor);
 
-    ui->textEditShared->addAction(cursor.selectionStart() + 1,cursor.selectedText().length(),familyIndex,FontFamily); //selectionStart + 1 is needed by cdrt
+    Action a = Action(TextFormatting, 3, familyIndex);
+    Crdt::getInstance().sendActionToServer(a, cursor.selectionStart(), cursor.selectedText().length());
 }
 
 void MainWindow::selectSize(int sizeIndex)
@@ -266,7 +273,8 @@ void MainWindow::selectSize(int sizeIndex)
     cursor.mergeCharFormat(format);
     textEdit->setTextCursor(cursor);
 
-    ui->textEditShared->addAction(cursor.selectionStart() + 1,cursor.selectedText().length(),sizeIndex,FontSize);
+    Action a = Action(TextFormatting, 4, sizeIndex);
+    Crdt::getInstance().sendActionToServer(a, cursor.selectionStart(), cursor.selectedText().length());
 }
 
 void MainWindow::checkTextProperty()
@@ -511,10 +519,10 @@ void MainWindow::on_actionTestActions_triggered()
     action.setNumChars(6);
 */
 
-    action.setActionType(TextFormatting);
-    action.setCursorPos(10);
-    action.setNumChars(6);
-    action.setTextFormat(1, 0, 0);
+//    action.setActionType(TextFormatting);
+//    action.setCursorPos(10);
+//    action.setNumChars(6);
+//    action.setTextFormat(1, 0, 0);
 
 
 /*  action.setActionType(BlockFormatting);
@@ -523,8 +531,8 @@ void MainWindow::on_actionTestActions_triggered()
     action.setBlockFormatType(AlignCenter);
 */
 
-    ui->textEditShared->toDoList.push_front(action);
-    ui->textEditShared->doReceivedActions();
+//    ui->textEditShared->toDoList.push_front(action);
+//    ui->textEditShared->doReceivedActions();
 }
 
 //TODO: clicking on bold/cursive/etc. with nothing highlighted sends an action but it shouldn't

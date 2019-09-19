@@ -1,7 +1,7 @@
 #include "action.h"
 
 Action::Action() :
-    actionType(NoActionType),
+    actionType(Deletion),
     chars(""),
     comboFontIndex(-1),
     is_bold(),
@@ -9,6 +9,44 @@ Action::Action() :
     is_underlined(),
     blockFormatType(NoBlockFormatType)
 {
+}
+
+Action::Action(QString chars, int fontIndex, int fontSize, bool bold, bool italic, bool underlined, BlockFormatType blockFormatType) :
+    actionType(Insertion),
+    chars(chars),
+    comboFontIndex(fontIndex),
+    fontSize(fontSize),
+    is_bold(bold),
+    is_italic(italic),
+    is_underlined(underlined),
+    blockFormatType(blockFormatType)
+{
+}
+
+Action::Action(ActionType actionType, BlockFormatType blockFormatType) :
+    actionType(BlockFormatting),
+    blockFormatType(blockFormatType)
+{
+}
+
+Action::Action(ActionType actionType, int select, int value) : actionType(actionType){
+    switch (select) {
+        case 0:
+            is_bold = value;
+            break;
+        case 1:
+            is_italic = value;
+            break;
+        case 2:
+            is_underlined = value;
+            break;
+        case 3:
+            comboFontIndex = value;
+            break;
+        case 4:
+            fontSize = value;
+            break;
+    }
 }
 
 QString Action::getChars() const

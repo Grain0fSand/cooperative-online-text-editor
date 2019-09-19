@@ -4,34 +4,34 @@
 
 //TODO: version for every formatting feature?
 class SymbolId {
-
-    int usr_id;
     int inc_id;
+    int usr_id;
+
     bool hidden;
     bool block_start;
     long long version;
 
 public:
-    SymbolId(int usr_id, int inc_id) :  usr_id(usr_id), inc_id(inc_id), hidden(), block_start(), version() {}
+    SymbolId(int inc_id, int usr_id) :  inc_id(inc_id), usr_id(usr_id), hidden(), block_start(), version() {}
 
-    SymbolId() : usr_id(-1), inc_id(-1), hidden(), block_start(), version() {}
+    SymbolId() : inc_id(-1), usr_id(-1), hidden(), block_start(), version() {}
 
-    // you cannot cycle with < but you must use ==
-    bool operator < (SymbolId second) const{
-        if (this->inc_id == second.inc_id)
-            return second.usr_id > this->usr_id;
-        return second.inc_id > this->inc_id;
-    }
-
-    // for cycle
-    bool operator == (SymbolId second)  const{
-        return second.usr_id == this->usr_id && second.inc_id == this->inc_id;
-    }
-
-    // never use for cycling and find a specific element
-    bool operator > (SymbolId second) const {
-        return second < *this;
-    }
+//    // you cannot cycle with < but you must use ==
+//    bool operator < (SymbolId second) const{
+//        if (this->inc_id == second.inc_id)
+//            return second.usr_id > this->usr_id;
+//        return second.inc_id > this->inc_id;
+//    }
+//
+//    // for cycle
+//    bool operator == (SymbolId second)  const{
+//        return second.usr_id == this->usr_id && second.inc_id == this->inc_id;
+//    }
+//
+//    // never use for cycling and find a specific element
+//    bool operator > (SymbolId second) const {
+//        return second < *this;
+//    }
 
     /*
      * hide stands for deleted, once deleted cannot be restored
@@ -53,13 +53,13 @@ public:
         return this->usr_id;
     }
 
-    void setVersion(int usr_id, int inc_id) {
+    void setVersion(int inc_id, int usr_id) {
         version = inc_id;
         version <<= 32;
         version += usr_id;
     }
 
-    bool compareVersion(int usr_id, int inc_id) {
+    bool compareVersion(int inc_id, int usr_id) {
         long long version_tmp = inc_id;
         version_tmp <<= 32;
         version_tmp += usr_id;

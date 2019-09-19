@@ -41,15 +41,14 @@ public:
 
 private:
 
-    SymbolId findRelativePosition(int left_pos);
-
-    void symbolInsertion(const SymbolId& left_sym, int n, const SymbolId& symbol, const QString chars);
+    std::pair<int,int> findRelativePosition(int left_pos);
 
     // TODO: check if necessary lock shared between local and server updates
     //client
-    std::vector<SymbolId> symbolDeletion(int n, const SymbolId& first_symbol);
-    std::vector<SymbolId> textFormatting(int n, const SymbolId& first_symbol);
-    std::vector<SymbolId> blockFormatting(int n, const SymbolId& first_symbol);
+    void symbolInsertion(const std::pair<int,int>& left_sym, int n, const std::pair<int,int>& symbol, const QString chars);
+    std::vector<std::pair<int,int>> symbolDeletion(int n, const std::pair<int,int>& first_symbol);
+    std::vector<std::pair<int,int>> textFormatting(int n, const std::pair<int,int>& first_symbol);
+    std::vector<std::pair<int,int>> blockFormatting(int n, const std::pair<int,int>& first_symbol);
 
     //server
     // TODO: chiedere a dario se è il caso di salvare la posizione relativa del cursore e ripristinarla dopo

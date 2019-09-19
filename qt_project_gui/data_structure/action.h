@@ -26,11 +26,12 @@ class Action
 {
 public:
 
-    Action(QString chars, int font, bool bold, bool italic, bool underlined, BlockFormatType blockFormatType);   //for insertion
 
+    //TODO:write contructors
+    Action(QString chars, int fontIndex, int fontSize, bool bold, bool italic, bool underlined, BlockFormatType blockFormatType);   //for insertion
     Action(); //for deletion
-
-    Action(ActionType actionType, );
+    Action(ActionType actionType, BlockFormatType blockFormatType);
+    Action(ActionType actionType, int select, int value);  //for text formatting
 
     int getCursorPos() const;
     void setCursorPos(int value);
