@@ -1,11 +1,9 @@
 #include "crdt.h"
 #include "symbol_id.h"
+#include "../forms/mytextedit.h"
 #include <thread>
 
 void sendAction(ActionWrapper action_wrapper) {
-}
-
-void receiveAction(std::vector<SymbolId> all_pos, Action action) {
 }
 
 std::pair<int,int> Crdt::findRelativePosition(int left_pos) {
@@ -264,7 +262,7 @@ void Crdt::receiveActionFromServer(ActionWrapper& action_wrapper) {
         default:
             break;
     }
-    //receive_action(all_pos, action);
+   // myTextEdit::getInstance()->doReceivedAction(action, all_pos);
 
 //    for (SymbolId s : list)
 //        std::cout << s.getIncId() << s.getUsrId() << s.is_hidden() << ' ';

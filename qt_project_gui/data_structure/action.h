@@ -31,12 +31,6 @@ public:
     Action(ActionType actionType, BlockFormatType blockFormatType);  //for block formatting
     Action(ActionType actionType, int select, int value);  //for text formatting
 
-    int getCursorPos() const;
-    void setCursorPos(int value);
-
-    int getNumChars() const;
-    void setNumChars(int value);
-
     QString getChars() const;
     void setChars(QString value);
 

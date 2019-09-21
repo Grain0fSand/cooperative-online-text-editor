@@ -10,8 +10,9 @@
 class myTextEdit : public QTextEdit
 {
 public:
-    myTextEdit(QWidget *,int user_id);
+    myTextEdit(QWidget *, int user_id);
 
+    static myTextEdit* getInstance();
     void paintEvent(QPaintEvent *e);
     void createCursor(int pos, QString text, QColor color);
     void addCursor(RemoteCursor *cursor);
@@ -19,8 +20,7 @@ public:
     void addAction(int cursorPos, int numChars, ActionType = Deletion);
     void addAction(int cursorPos, int numChars, bool bold, bool italic, bool underlined, ActionType = TextFormatting);
     void addAction(int cursorPos, int numChars, BlockFormatType, ActionType = BlockFormatting);
-    void doReceivedActions();
-
+    void doReceivedAction(Action& action, std::vector<int>& all_pos);
 
     std::list<Action> toDoList;
     QStringList getFontSizes() const;

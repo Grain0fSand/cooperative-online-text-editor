@@ -17,8 +17,11 @@ myTextEdit::myTextEdit(QWidget *,int user_id)
                           "Informal Roman" << "Lucida Calligraphy" << "MS Shell Dlg 2" <<
                           "Palatino Linotype" << "Tahoma" << "Times New Roman" << "Verdana" << "Vivaldi";
     this->user_id = user_id;
+
     Crdt::getInstance().init(user_id);
 }
+
+
 
 void myTextEdit::paintEvent(QPaintEvent *e) {
 
@@ -119,82 +122,72 @@ void myTextEdit::addCursor(RemoteCursor *cursor)
 //  //  this->toSendList.push_front(action);
 //}
 //
-//void myTextEdit::doReceivedActions()
-//{
-//    this->document()->blockSignals(true);
-//    while(!toDoList.empty()) {
-//        auto action = toDoList.back();
-//        this->hiddenCursor->setPosition(action.getCursorPos());
-//        switch(action.getActionType())
-//        {
-//            case NoActionType:
-//                qDebug() << "Invalid action to do";
-//                break;
-//            case Insertion:
-//                this->hiddenCursor->insertText(action.getChars());
-//                break;
-//            case Deletion:
-//                this->hiddenCursor->movePosition(QTextCursor::Right,QTextCursor::KeepAnchor,action.getNumChars());
-//                this->hiddenCursor->removeSelectedText();
-//                break;
-//            case TextFormatting:
-//            {
-//                this->hiddenCursor->movePosition(QTextCursor::Right,QTextCursor::KeepAnchor,action.getNumChars());
-//                QTextCharFormat format;
-//                switch(action.getTextFormatType())
-//                {
-//                    case NoTextFormatType:
-//                        qDebug()  << "Invalid text formatting to do";
-//                        break;
-//                    case Bold:
-//                        action.getTextFormatBoolean() ? format.setFontWeight(QFont::Bold) : format.setFontWeight(QFont::Normal);
-//                        break;
-//                    case Italic:
-//                        format.setFontItalic(action.getTextFormatBoolean());
-//                        break;
-//                    case Underlined:
-//                        format.setFontUnderline(action.getTextFormatBoolean());
-//                        break;
-//                    case FontFamily:
-//                        format.setFontFamily(this->fontFamilies.at(action.getComboFontIndex()));
-//                        break;
-//                    case FontSize:
-//                        format.setFontPointSize(this->fontSizes.at(action.getComboFontIndex()).toInt());
-//                        break;
-//                }
-//                this->hiddenCursor->mergeCharFormat(format);
-//                break;
-//            }
-//            case BlockFormatting:
-//            {
-//                this->hiddenCursor->movePosition(QTextCursor::Right,QTextCursor::KeepAnchor,action.getNumChars());
-//                QTextBlockFormat format;
-//                switch(action.getBlockFormatType())
-//                {
-//                    case NoBlockFormatType:
-//                        qDebug()  << "Invalid block formatting to do";
-//                        break;
-//                    case AlignLeft:
-//                        format.setAlignment(Qt::AlignLeft);
-//                        break;
-//                    case AlignCenter:
-//                        format.setAlignment(Qt::AlignCenter);
-//                        break;
-//                    case AlignRight:
-//                        format.setAlignment(Qt::AlignRight);
-//                        break;
-//                    case AlignJustify:
-//                        format.setAlignment(Qt::AlignJustify);
-//                        break;
-//                }
-//                this->hiddenCursor->mergeBlockFormat(format);
-//                break;
-//            }
-//        }
-//        toDoList.pop_back();
-//    }
-//    this->document()->blockSignals(false);
-//}
+void myTextEdit::doReceivedAction(Action& action, std::vector<int>& all_pos )
+{
+   // this->document()->blockSignals(true);
+        int ptr_start, ptr_end = 0, n = all_pos.size();    //ptr start and ptr end are for calculating ranges of subsequent positions in all_pos
+
+        while (ptr_start < n) {
+            //find range of subsequent positions and apply the action (for efficiency)
+            ptr_start = ptr_end;
+            this->hiddenCursor->setPosition(all_pos[ptr_start]);
+            while (ptr_end < n && all_pos[ptr_end] == all_pos[ptr_end + 1] - 1)
+                ++ptr_end;
+
+            switch(action.getActionType())
+            {
+                case NoActionType:
+                    qDebug() << "Invalid action to do";
+                    break;
+                case Insertion:
+                    this->hiddenCursor->insertText(action.getChars().mid(ptr_start, ptr_end + 1 - ptr_start));
+                    break;
+                case Deletion:
+                    this->hiddenCursor->movePosition(QTextCursor::Right,QTextCursor::KeepAnchor,ptr_end + 1 - ptr_start);
+                    this->hiddenCursor->removeSelectedText();
+                    break;
+                case TextFormatting:
+                {
+                    this->hiddenCursor->movePosition(QTextCursor::Right,QTextCursor::KeepAnchor, ptr_end + 1 - ptr_start);
+                    QTextCharFormat format;
+
+                    action.getBold() ? format.setFontWeight(QFont::Bold) : format.setFontWeight(QFont::Normal);
+                    format.setFontItalic(action.getItalic());
+                    format.setFontUnderline(action.getUnderlined());
+                    format.setFontFamily(this->fontFamilies.at(action.getComboFontIndex()));
+                    format.setFontPointSize(this->fontSizes.at(action.getComboFontIndex()).toInt());
+                    this->hiddenCursor->mergeCharFormat(format);
+                    break;
+                }
+                case BlockFormatting:
+                {
+                    this->hiddenCursor->movePosition(QTextCursor::Right,QTextCursor::KeepAnchor,ptr_end + 1 - ptr_start);
+                    QTextBlockFormat format;
+                    switch(action.getBlockFormat())
+                    {
+                        case NoBlockFormatType:
+                            qDebug()  << "Invalid block formatting to do";
+                            break;
+                        case AlignLeft:
+                            format.setAlignment(Qt::AlignLeft);
+                            break;
+                        case AlignCenter:
+                            format.setAlignment(Qt::AlignCenter);
+                            break;
+                        case AlignRight:
+                            format.setAlignment(Qt::AlignRight);
+                            break;
+                        case AlignJustify:
+                            format.setAlignment(Qt::AlignJustify);
+                            break;
+                    }
+                    this->hiddenCursor->mergeBlockFormat(format);
+                    break;
+                }
+            }
+            ++ptr_end;
+        }
+}
 
 QStringList myTextEdit::getFontSizes() const
 {
