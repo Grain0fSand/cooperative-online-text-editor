@@ -271,5 +271,3 @@ void Crdt::receiveActionFromServer(ActionWrapper& action_wrapper) {
 //        std::cout << s.getIncId() << s.getUsrId() << s.is_hidden() << ' ';
 //    std::cout << std::endl;
 }
-
-//TODO: change vectors of symbols into vectors of pairs

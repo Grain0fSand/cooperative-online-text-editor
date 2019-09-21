@@ -228,7 +228,7 @@ void MainWindow::makeUnderline()
     Crdt::getInstance().sendActionToServer(a, cursor.selectionStart(), cursor.selectedText().length());
 }
 
-//TODO: create multiple actions for different styles when copy pasting text
+//TODO: create multiple actions when copy pasting text with different styles
 void MainWindow::textChanged(int pos, int nDel, int nIns) {
 
     if(nDel==0) {  //insertion
@@ -237,13 +237,38 @@ void MainWindow::textChanged(int pos, int nDel, int nIns) {
 //            str += ui->textEditShared->document()->characterAt(pos+i);
 //        }
 //        qDebug() << str;
-        Action a = Action();  //TODO: put string and all text & block formatting in action
+
+        //check all properties of inserted chars
+        auto text_cursor = ui->textEditShared->textCursor();
+        auto format = text_cursor.charFormat();
+        auto font = format.font();
+
+        QString fontSize = QString::number(font.pointSize());
+        int sizeIndex = ui->textEditShared->getFontSizes().indexOf(fontSize);
+        int familyIndex = ui->textEditShared->getFontFamilies().indexOf(font.family());
+        setComboSize(sizeIndex);
+
+        bool bold = font.bold();
+        bool italic = font.italic();
+        bool underlined = font.underline();
+
+        BlockFormatType blockFormatType;
+        Qt::Alignment alignment = text_cursor.blockFormat().alignment();
+        if (alignment == Qt::AlignLeft)
+            blockFormatType = AlignLeft;
+        else if (alignment == Qt::AlignCenter)
+                blockFormatType = AlignCenter;
+        else if (alignment == Qt::AlignRight)
+             blockFormatType = AlignRight;
+        else if (alignment == Qt::AlignJustify)
+             blockFormatType = AlignJustify;
+
+        Action a = Action(str, familyIndex, sizeIndex, bold, italic, underlined, blockFormatType);
         Crdt::getInstance().sendActionToServer(a, pos, nIns);
+
     } else if (nIns==0) { //deletion
         Action a = Action();
         Crdt::getInstance().sendActionToServer(a, pos, nIns);
-    } else {
-        //nothing to do
     }
 }
 
