@@ -25,20 +25,21 @@ Action::Action(QString chars, int fontIndex, int fontSize, bool bold, bool itali
 
 Action::Action(ActionType actionType, BlockFormatType blockFormatType) :
     actionType(BlockFormatting),
+    select(0),
     blockFormatType(blockFormatType)
 {
 }
 
-Action::Action(ActionType actionType, int select, int value) : actionType(actionType){
+Action::Action(ActionType actionType, int select, int value) : actionType(actionType), select(select){
     switch (select) {
         case 0:
-            is_bold = value;
+            is_bold = (bool) value;
             break;
         case 1:
-            is_italic = value;
+            is_italic = (bool) value;
             break;
         case 2:
-            is_underlined = value;
+            is_underlined = (bool) value;
             break;
         case 3:
             comboFontIndex = value;
@@ -111,4 +112,6 @@ void Action::setBlockFormat(const BlockFormatType &value)
     blockFormatType = value;
 }
 
-
+int Action::getSelection() const {
+    return select;
+}

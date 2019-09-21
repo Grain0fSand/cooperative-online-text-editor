@@ -116,7 +116,7 @@ void MainWindow::alignLeft()
     textEdit->setTextCursor(cursor);
 
     Action a = Action(BlockFormatting, AlignLeft);
-    Crdt::getInstance().sendActionToServer(a, cursor.selectionStart(), cursor.selectedText().length());
+    Crdt::getInstance().sendActionToServer(a, cursor.selectionStart() + 1, cursor.selectedText().length());
 }
 
 void MainWindow::alignCenter()
@@ -135,7 +135,7 @@ void MainWindow::alignCenter()
     textEdit->setTextCursor(cursor);
 
     Action a = Action(BlockFormatting, AlignCenter);
-    Crdt::getInstance().sendActionToServer(a, cursor.selectionStart(), cursor.selectedText().length());
+    Crdt::getInstance().sendActionToServer(a, cursor.selectionStart() + 1, cursor.selectedText().length());
 }
 
 void MainWindow::alignRight()
@@ -154,7 +154,7 @@ void MainWindow::alignRight()
     textEdit->setTextCursor(cursor);
 
     Action a = Action(BlockFormatting, AlignRight);
-    Crdt::getInstance().sendActionToServer(a, cursor.selectionStart(), cursor.selectedText().length());
+    Crdt::getInstance().sendActionToServer(a, cursor.selectionStart() + 1, cursor.selectedText().length());
 }
 
 void MainWindow::alignJustify()
@@ -173,7 +173,7 @@ void MainWindow::alignJustify()
     textEdit->setTextCursor(cursor);
 
     Action a = Action(BlockFormatting, AlignJustify);
-    Crdt::getInstance().sendActionToServer(a, cursor.selectionStart(), cursor.selectedText().length());
+    Crdt::getInstance().sendActionToServer(a, cursor.selectionStart() + 1, cursor.selectedText().length());
 }
 
 
@@ -191,7 +191,7 @@ void MainWindow::makeBold()
     textEdit->setTextCursor(cursor);
 
     Action a = Action(TextFormatting, 0, is_bold ? 0 : 1);
-    Crdt::getInstance().sendActionToServer(a, cursor.selectionStart(), cursor.selectedText().length());
+    Crdt::getInstance().sendActionToServer(a, cursor.selectionStart() + 1, cursor.selectedText().length());
 }
 
 void MainWindow::makeItalic()
@@ -208,7 +208,7 @@ void MainWindow::makeItalic()
     textEdit->setTextCursor(cursor);
 
     Action a = Action(TextFormatting, 1, is_italic ? 0 : 1);
-    Crdt::getInstance().sendActionToServer(a, cursor.selectionStart(), cursor.selectedText().length());
+    Crdt::getInstance().sendActionToServer(a, cursor.selectionStart() + 1, cursor.selectedText().length());
 }
 
 void MainWindow::makeUnderline()
@@ -225,7 +225,7 @@ void MainWindow::makeUnderline()
     textEdit->setTextCursor(cursor);
 
     Action a = Action(TextFormatting, 2, is_underlined ? 0 : 1);
-    Crdt::getInstance().sendActionToServer(a, cursor.selectionStart(), cursor.selectedText().length());
+    Crdt::getInstance().sendActionToServer(a, cursor.selectionStart() + 1, cursor.selectedText().length());
 }
 
 //TODO: create multiple actions when copy pasting text with different styles
@@ -268,7 +268,7 @@ void MainWindow::textChanged(int pos, int nDel, int nIns) {
 
     } else if (nIns==0) { //deletion
         Action a = Action();
-        Crdt::getInstance().sendActionToServer(a, pos, nIns);
+        Crdt::getInstance().sendActionToServer(a, pos + 1, nDel);
     }
 }
 
@@ -284,7 +284,7 @@ void MainWindow::selectFont(int familyIndex)
     textEdit->setTextCursor(cursor);
 
     Action a = Action(TextFormatting, 3, familyIndex);
-    Crdt::getInstance().sendActionToServer(a, cursor.selectionStart(), cursor.selectedText().length());
+    Crdt::getInstance().sendActionToServer(a, cursor.selectionStart() + 1, cursor.selectedText().length());
 }
 
 void MainWindow::selectSize(int sizeIndex)
@@ -299,7 +299,7 @@ void MainWindow::selectSize(int sizeIndex)
     textEdit->setTextCursor(cursor);
 
     Action a = Action(TextFormatting, 4, sizeIndex);
-    Crdt::getInstance().sendActionToServer(a, cursor.selectionStart(), cursor.selectedText().length());
+    Crdt::getInstance().sendActionToServer(a, cursor.selectionStart() + 1, cursor.selectedText().length());
 }
 
 void MainWindow::checkTextProperty()
@@ -562,4 +562,3 @@ void MainWindow::on_actionTestActions_triggered()
 
 //TODO: clicking on bold/cursive/etc. with nothing highlighted sends an action but it shouldn't
 //TODO: block formatting doesn't result in sending an action but it should
-//TODO: fix error caused by action changes

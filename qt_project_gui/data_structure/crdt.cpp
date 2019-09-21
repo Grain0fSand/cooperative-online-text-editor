@@ -10,7 +10,7 @@ void receiveAction(std::vector<SymbolId> all_pos, Action action) {
 
 std::pair<int,int> Crdt::findRelativePosition(int left_pos) {
     int cmp = 0;
-    std::pair<int,int> left_sym = list.front().getSymbolId();   //invisible block tombstone
+    std::pair<int,int> left_sym = list.front().getSymbolId();   // block start tombstone
 
     //find left side symbol
     for(auto cc : list) {
@@ -71,7 +71,7 @@ std::vector<std::pair<int,int>> Crdt::symbolDeletion(int n, const std::pair<int,
 }
 
 //formatting done by client
-std::vector<std::pair<int,int>> Crdt::textFormatting(int n, const std::pair<int,int>& first_symbol) {
+std::vector<std::pair<int,int>> Crdt::textFormatting(int n, const std::pair<int,int>& first_symbol, int select) {
     auto it = list.begin();
     std::vector<std::pair<int,int>> ret;
 
@@ -83,7 +83,7 @@ std::vector<std::pair<int,int>> Crdt::textFormatting(int n, const std::pair<int,
             while (n-- > 0) {
                 //format without checking version because it's unnecessary
                 if (!it->is_blockStart()) {
-                    it->setVersion(list.size(), usr_id);
+                    it->setVersion(list.size(), usr_id, select);
                     ret.push_back(it->getSymbolId());
                 }
                 ++it;
@@ -109,14 +109,14 @@ std::vector<std::pair<int,int>> Crdt::blockFormatting(int n, const std::pair<int
 
         // if first symbol found format string and break
         if (it->getSymbolId() == first_symbol) {
-            list[last_block_starter].setVersion(list.size(), usr_id);
+            list[last_block_starter].setVersion(list.size(), usr_id, 0);
             ret.push_back(list[last_block_starter].getSymbolId());
             ++it;      //in case first_symbol is block_starter
 
             while (n-- > 1) {
                 //format without checking version because it's unnecessary
                 if (it->is_blockStart()) {
-                    it->setVersion(list.size(), usr_id);
+                    it->setVersion(list.size(), usr_id, 0);
                     ret.push_back(it->getSymbolId());
                 }
                 ++it;
@@ -148,7 +148,7 @@ void Crdt::sendActionToServer(Action& action, int cursorPos, int numChars) {
             action_wrapper.symbol = symbolDeletion(numChars, rel_symbol);
             break;
         case TextFormatting:
-            action_wrapper.symbol = textFormatting(numChars, rel_symbol);
+            action_wrapper.symbol = textFormatting(numChars, rel_symbol, action.getSelection());
             action_wrapper.rel_symbol = symbol;  //for setting version
             break;
         case BlockFormatting:
@@ -161,14 +161,13 @@ void Crdt::sendActionToServer(Action& action, int cursorPos, int numChars) {
     //send to server
     sendAction(action_wrapper);
 
-    //flush server buffer,  the documents only gets refreshed AFTER local action
-    while (!action_queue.empty()) {
-        receiveActionFromServer(action_queue.front());
-        action_queue.pop();
-    }
+//    //flush server buffer,  the documents only gets refreshed AFTER local action
+//    while (!action_queue.empty()) {
+//        receiveActionFromServer(action_queue.front());
+//        action_queue.pop();
+//    }
 }
 
-//TODO: implement inserting symbols with different format?
 std::vector<int> Crdt::symbolInsertionExt(const std::pair<int,int>& left_sym, int n, const std::pair<int,int>& symbol, const QString chars) {
     auto it = list.begin();
     int j = 0;
@@ -226,7 +225,7 @@ std::vector<int> Crdt::symbolDeletionExt(const std::vector<std::pair<int,int>>& 
     return ret;
 }
 
-std::vector<int> Crdt::formattingExt(const std::pair<int,int>& rel_symbol, const std::vector<std::pair<int,int>>& symbol) {
+std::vector<int> Crdt::formattingExt(const std::pair<int,int>& rel_symbol, const std::vector<std::pair<int,int>>& symbol, int select) {
     auto it = list.begin();
     auto form_it = symbol.begin();
     std::vector<int> ret;
@@ -236,9 +235,9 @@ std::vector<int> Crdt::formattingExt(const std::pair<int,int>& rel_symbol, const
         if (it->getSymbolId() == *form_it) {
             ++form_it;
             //check hidden and version
-            if (!it->is_hidden() && it->compareVersion(rel_symbol.first, rel_symbol.second)) {
+            if (!it->is_hidden() && it->compareVersion(rel_symbol.first, rel_symbol.second, select)) {
                 ret.push_back(i);  //get absolute position
-                it->setVersion(rel_symbol.first, rel_symbol.second);
+                it->setVersion(rel_symbol.first, rel_symbol.second, select);
             }
         }
         ++it;
@@ -260,7 +259,7 @@ void Crdt::receiveActionFromServer(ActionWrapper& action_wrapper) {
             break;
         case TextFormatting:
         case BlockFormatting:
-            all_pos = formattingExt(action_wrapper.rel_symbol, action_wrapper.symbol);
+            all_pos = formattingExt(action_wrapper.rel_symbol, action_wrapper.symbol, action.getSelection());
             break;
         default:
             break;

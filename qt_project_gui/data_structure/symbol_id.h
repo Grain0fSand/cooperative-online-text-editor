@@ -2,14 +2,14 @@
 #define TRANSLATOR_SYMBOLID_H
 
 
-//TODO: version for every formatting feature?
+//TODO: version for every style?
 class SymbolId {
     int inc_id;
     int usr_id;
 
     bool hidden;
     bool block_start;
-    long long version;
+    long long version[5];
 
 public:
     SymbolId(int inc_id, int usr_id) :  inc_id(inc_id), usr_id(usr_id), hidden(), block_start(), version() {}
@@ -53,20 +53,18 @@ public:
         return this->usr_id;
     }
 
-    void setVersion(int inc_id, int usr_id) {
-        version = inc_id;
-        version <<= 32;
-        version += usr_id;
+    void setVersion(int inc_id, int usr_id, int select) {
+        version[select] = inc_id;
+        version[select] <<= 32;
+        version[select] += usr_id;
     }
 
-    bool compareVersion(int inc_id, int usr_id) {
+    bool compareVersion(int inc_id, int usr_id, int select) {
         long long version_tmp = inc_id;
         version_tmp <<= 32;
         version_tmp += usr_id;
-        return version_tmp > version;
+        return version_tmp > version[select];
     }
-
-
 
     void setBlockStart() {
         this->block_start = true;

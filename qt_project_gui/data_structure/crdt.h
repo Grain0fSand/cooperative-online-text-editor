@@ -21,10 +21,10 @@ public:
     void init(int usr_id)  {
         this->usr_id = usr_id;
         //TODO add loading from server and insert of block starter
-        //TODO add nbsp to text editor
         if (list.empty()) {
             list.push_back(SymbolId());
             list.front().setBlockStart();
+            list.front().hide();
         }
     }
     static Crdt& getInstance() {
@@ -47,7 +47,7 @@ private:
     //client
     void symbolInsertion(const std::pair<int,int>& left_sym, int n, const std::pair<int,int>& symbol, const QString chars);
     std::vector<std::pair<int,int>> symbolDeletion(int n, const std::pair<int,int>& first_symbol);
-    std::vector<std::pair<int,int>> textFormatting(int n, const std::pair<int,int>& first_symbol);
+    std::vector<std::pair<int,int>> textFormatting(int n, const std::pair<int,int>& first_symbol, int select);
     std::vector<std::pair<int,int>> blockFormatting(int n, const std::pair<int,int>& first_symbol);
 
     //server
@@ -55,7 +55,7 @@ private:
     // TODO: aver applicato le azioni remote
     std::vector<int> symbolInsertionExt(const std::pair<int,int>& left_sym, int n, const std::pair<int,int>& symbol, const QString chars);
     std::vector<int> symbolDeletionExt(const std::vector<std::pair<int,int>>& symbol);
-    std::vector<int> formattingExt(const std::pair<int,int>& rel_symbol, const std::vector<std::pair<int,int>>& symbol);
+    std::vector<int> formattingExt(const std::pair<int,int>& rel_symbol, const std::vector<std::pair<int,int>>& symbol, int select);
 
     void sendActionToClient(Action& action, SymbolId symbol);
     void receiveActionFromServer(ActionWrapper& actionWrapper);

@@ -26,11 +26,9 @@ class Action
 {
 public:
 
-
-    //TODO:write contructors
     Action(QString chars, int fontIndex, int fontSize, bool bold, bool italic, bool underlined, BlockFormatType blockFormatType);   //for insertion
     Action(); //for deletion
-    Action(ActionType actionType, BlockFormatType blockFormatType);
+    Action(ActionType actionType, BlockFormatType blockFormatType);  //for block formatting
     Action(ActionType actionType, int select, int value);  //for text formatting
 
     int getCursorPos() const;
@@ -46,9 +44,9 @@ public:
     bool getItalic() const;
     bool getUnderlined() const;
     void setTextFormat(bool bold, bool italic, bool underlined);
-
     int getComboFontIndex() const;
     void setComboFontIndex(int value);
+    int getSelection() const;
 
     ActionType getActionType() const;
     void setActionType(const ActionType &value);
@@ -60,6 +58,7 @@ private:
     //TODO: inserted strings must have uniform formatting
     ActionType actionType;
     QString chars;
+    int select;  //indicates which style feature is being changed
     int comboFontIndex;
     int fontSize;
     bool is_bold, is_italic, is_underlined;
