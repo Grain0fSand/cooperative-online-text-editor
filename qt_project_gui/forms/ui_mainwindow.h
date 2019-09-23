@@ -183,7 +183,8 @@ public:
         docFrameLayout->setContentsMargins(11, 11, 11, 11);
         docFrameLayout->setObjectName(QString::fromUtf8("docFrameLayout"));
         docFrameLayout->setContentsMargins(0, 0, 0, 0);
-        textEditShared = new myTextEdit(docFrame);
+        //TODO: setting up the correct user id
+        textEditShared = new myTextEdit(docFrame,0);
         textEditShared->setObjectName(QString::fromUtf8("textEditShared"));
         QSizePolicy sizePolicy2(QSizePolicy::Fixed, QSizePolicy::Expanding);
         sizePolicy2.setHorizontalStretch(0);

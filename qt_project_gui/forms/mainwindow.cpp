@@ -5,6 +5,7 @@
 #include "mytextedit.h"
 #include "usertag.h"
 #include "../web_requests/smtpclient.h"
+#include "../data_structure/crdt.h"
 #include <QDebug>
 #include <QFontDialog>
 #include <QErrorMessage>
@@ -114,7 +115,8 @@ void MainWindow::alignLeft()
     cursor.mergeBlockFormat(textBlockFormat);
     textEdit->setTextCursor(cursor);
 
-    ui->textEditShared->addAction(cursor.selectionStart(),cursor.selectedText().length(),AlignLeft);
+    Action a = Action(BlockFormatting, AlignLeft);
+    Crdt::getInstance().sendActionToServer(a, cursor.selectionStart() + 1, cursor.selectedText().length());
 }
 
 void MainWindow::alignCenter()
@@ -132,7 +134,8 @@ void MainWindow::alignCenter()
     cursor.mergeBlockFormat(textBlockFormat);
     textEdit->setTextCursor(cursor);
 
-    ui->textEditShared->addAction(cursor.selectionStart(),cursor.selectedText().length(),AlignCenter);
+    Action a = Action(BlockFormatting, AlignCenter);
+    Crdt::getInstance().sendActionToServer(a, cursor.selectionStart() + 1, cursor.selectedText().length());
 }
 
 void MainWindow::alignRight()
@@ -150,7 +153,8 @@ void MainWindow::alignRight()
     cursor.mergeBlockFormat(textBlockFormat);
     textEdit->setTextCursor(cursor);
 
-    ui->textEditShared->addAction(cursor.selectionStart(),cursor.selectedText().length(),AlignRight);
+    Action a = Action(BlockFormatting, AlignRight);
+    Crdt::getInstance().sendActionToServer(a, cursor.selectionStart() + 1, cursor.selectedText().length());
 }
 
 void MainWindow::alignJustify()
@@ -168,8 +172,10 @@ void MainWindow::alignJustify()
     cursor.mergeBlockFormat(textBlockFormat);
     textEdit->setTextCursor(cursor);
 
-    ui->textEditShared->addAction(cursor.selectionStart(),cursor.selectedText().length(),AlignJustify);
+    Action a = Action(BlockFormatting, AlignJustify);
+    Crdt::getInstance().sendActionToServer(a, cursor.selectionStart() + 1, cursor.selectedText().length());
 }
+
 
 void MainWindow::makeBold()
 {
@@ -184,7 +190,8 @@ void MainWindow::makeBold()
     cursor.mergeCharFormat(format);
     textEdit->setTextCursor(cursor);
 
-    ui->textEditShared->addAction(cursor.selectionStart(),cursor.selectedText().length(),is_bold,Bold);
+    Action a = Action(TextFormatting, 0, is_bold ? 0 : 1);
+    Crdt::getInstance().sendActionToServer(a, cursor.selectionStart() + 1, cursor.selectedText().length());
 }
 
 void MainWindow::makeItalic()
@@ -200,7 +207,8 @@ void MainWindow::makeItalic()
     cursor.mergeCharFormat(format);
     textEdit->setTextCursor(cursor);
 
-    ui->textEditShared->addAction(cursor.selectionStart(),cursor.selectedText().length(),is_italic,Italic);
+    Action a = Action(TextFormatting, 1, is_italic ? 0 : 1);
+    Crdt::getInstance().sendActionToServer(a, cursor.selectionStart() + 1, cursor.selectedText().length());
 }
 
 void MainWindow::makeUnderline()
@@ -216,21 +224,51 @@ void MainWindow::makeUnderline()
     cursor.mergeCharFormat(format);
     textEdit->setTextCursor(cursor);
 
-    ui->textEditShared->addAction(cursor.selectionStart(),cursor.selectedText().length(),is_underlined,Underlined);
+    Action a = Action(TextFormatting, 2, is_underlined ? 0 : 1);
+    Crdt::getInstance().sendActionToServer(a, cursor.selectionStart() + 1, cursor.selectedText().length());
 }
 
+//TODO: create multiple actions when copy pasting text with different styles
 void MainWindow::textChanged(int pos, int nDel, int nIns) {
 
-    if(nDel==0)  {  //insertion
-        QString str("");
-        for(int i=0; i<nIns; i++) {
-            str += ui->textEditShared->document()->characterAt(pos+i);
-        }
-        ui->textEditShared->addAction(pos, nIns, str);
+    if(nDel==0) {  //insertion
+        QString str = ui->textEditShared->document()->toPlainText().mid(pos, nIns);
+//        for(int i=0; i<nIns; i++) {
+//            str += ui->textEditShared->document()->characterAt(pos+i);
+//        }
+//        qDebug() << str;
+
+        //check all properties of inserted chars
+        auto text_cursor = ui->textEditShared->textCursor();
+        auto format = text_cursor.charFormat();
+        auto font = format.font();
+
+        QString fontSize = QString::number(font.pointSize());
+        int sizeIndex = ui->textEditShared->getFontSizes().indexOf(fontSize);
+        int familyIndex = ui->textEditShared->getFontFamilies().indexOf(font.family());
+        setComboSize(sizeIndex);
+
+        bool bold = font.bold();
+        bool italic = font.italic();
+        bool underlined = font.underline();
+
+        BlockFormatType blockFormatType;
+        Qt::Alignment alignment = text_cursor.blockFormat().alignment();
+        if (alignment == Qt::AlignLeft)
+            blockFormatType = AlignLeft;
+        else if (alignment == Qt::AlignCenter)
+                blockFormatType = AlignCenter;
+        else if (alignment == Qt::AlignRight)
+             blockFormatType = AlignRight;
+        else if (alignment == Qt::AlignJustify)
+             blockFormatType = AlignJustify;
+
+        Action a = Action(str, familyIndex, sizeIndex, bold, italic, underlined, blockFormatType);
+        Crdt::getInstance().sendActionToServer(a, pos, nIns);
+
     } else if (nIns==0) { //deletion
-        ui->textEditShared->addAction(pos, nDel);
-    } else {
-        //nothing to do
+        Action a = Action();
+        Crdt::getInstance().sendActionToServer(a, pos + 1, nDel);
     }
 }
 
@@ -245,7 +283,8 @@ void MainWindow::selectFont(int familyIndex)
     cursor.mergeCharFormat(format);
     textEdit->setTextCursor(cursor);
 
-    ui->textEditShared->addAction(cursor.selectionStart(),cursor.selectedText().length(),familyIndex,FontFamily);
+    Action a = Action(TextFormatting, 3, familyIndex);
+    Crdt::getInstance().sendActionToServer(a, cursor.selectionStart() + 1, cursor.selectedText().length());
 }
 
 void MainWindow::selectSize(int sizeIndex)
@@ -259,7 +298,8 @@ void MainWindow::selectSize(int sizeIndex)
     cursor.mergeCharFormat(format);
     textEdit->setTextCursor(cursor);
 
-    ui->textEditShared->addAction(cursor.selectionStart(),cursor.selectedText().length(),sizeIndex,FontSize);
+    Action a = Action(TextFormatting, 4, sizeIndex);
+    Crdt::getInstance().sendActionToServer(a, cursor.selectionStart() + 1, cursor.selectedText().length());
 }
 
 void MainWindow::checkTextProperty()
@@ -493,10 +533,10 @@ void MainWindow::on_actionTestActions_triggered()
 {
     Action action;
 
-    action.setActionType(Insertion);
-    action.setCursorPos(0);
-    action.setNumChars(4);
-    action.setChars("ciao");
+//    action.setActionType(Insertion);
+//    action.setCursorPos(0);
+//    action.setNumChars(4);
+//    action.setChars("ciao");
 
 
 /*    action.setActionType(Deletion);
@@ -504,12 +544,11 @@ void MainWindow::on_actionTestActions_triggered()
     action.setNumChars(6);
 */
 
-/*    action.setActionType(TextFormatting);
-    action.setCursorPos(10);
-    action.setNumChars(6);
-    action.setTextFormatType(Bold);
-    action.setTextFormatBoolean(true);
-*/
+//    action.setActionType(TextFormatting);
+//    action.setCursorPos(10);
+//    action.setNumChars(6);
+//    action.setTextFormat(1, 0, 0);
+
 
 /*  action.setActionType(BlockFormatting);
     action.setCursorPos(10);
@@ -517,6 +556,9 @@ void MainWindow::on_actionTestActions_triggered()
     action.setBlockFormatType(AlignCenter);
 */
 
-    ui->textEditShared->toDoList.push_front(action);
-    ui->textEditShared->doReceivedActions();
+//    ui->textEditShared->toDoList.push_front(action);
+//    ui->textEditShared->doReceivedActions();
 }
+
+//TODO: clicking on bold/cursive/etc. with nothing highlighted sends an action but it shouldn't
+//TODO: block formatting doesn't result in sending an action but it should

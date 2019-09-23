@@ -19,6 +19,8 @@ if(APPLE)
 	set(Qt5Widgets_INCLUDE_DIRS /usr/local/Cellar/qt/5.13.1/include)
 	set(Qt5Widgets_DEFINITIONS /usr/local/Cellar/qt/5.13.1/lib)
 	set(Qt5Widgets_DIR /usr/local/Cellar/qt/5.13.1/lib/cmake/Qt5Widgets)
+	set(Qt5PrintSupport_DIR /usr/local/Cellar/qt/5.13.0/lib/cmake/Qt5PrintSupport)
+	set(Qt5Network_DIR /usr/local/Cellar/qt/5.13.0/lib/cmake/Qt5Network)
 	SUBDIRLIST(CMAKE_PREFIX_PATH /usr/local/Cellar/qt/5.13.1/lib/cmake/)
    	#message(${CMAKE_PREFIX_PATH})
 	message(include dir:${Qt5Widgets_INCLUDE_DIRS})
@@ -72,6 +74,8 @@ set(SOURCES
 		data_structure/action.h
 		data_structure/remotecursor.cpp
 		data_structure/remotecursor.h
+		data_structure/crdt.cpp
+		data_structure/crdt.h
 		forms/loginwindow.cpp
 		forms/loginwindow.h
 		forms/mainwindow.cpp

@@ -1,6 +1,8 @@
 #include "forms/loginwindow.h"
 #include "forms/mainwindow.h"
 #include "utility/image_utility.h"
+#include "data_structure/crdt.h"
+#include "data_structure/action.h"
 #include <QApplication>
 #include <QStyleFactory>
 

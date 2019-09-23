@@ -1,35 +1,53 @@
 #include "action.h"
 
 Action::Action() :
-    cursorPos(-1),
-    numChars(-1),
+    actionType(Deletion),
     chars(""),
-    textFormatBoolean(false),
     comboFontIndex(-1),
-    actionType(NoActionType),
-    textFormatType(NoTextFormatType),
+    is_bold(),
+    is_italic(),
+    is_underlined(),
     blockFormatType(NoBlockFormatType)
 {
 }
 
-int Action::getCursorPos() const
+Action::Action(QString chars, int fontIndex, int fontSize, bool bold, bool italic, bool underlined, BlockFormatType blockFormatType) :
+    actionType(Insertion),
+    chars(chars),
+    comboFontIndex(fontIndex),
+    fontSize(fontSize),
+    is_bold(bold),
+    is_italic(italic),
+    is_underlined(underlined),
+    blockFormatType(blockFormatType)
 {
-    return cursorPos;
 }
 
-void Action::setCursorPos(int value)
+Action::Action(ActionType actionType, BlockFormatType blockFormatType) :
+    actionType(BlockFormatting),
+    select(0),
+    blockFormatType(blockFormatType)
 {
-    cursorPos = value;
 }
 
-int Action::getNumChars() const
-{
-    return numChars;
-}
-
-void Action::setNumChars(int value)
-{
-    numChars = value;
+Action::Action(ActionType actionType, int select, int value) : actionType(actionType), select(select){
+    switch (select) {
+        case 0:
+            is_bold = (bool) value;
+            break;
+        case 1:
+            is_italic = (bool) value;
+            break;
+        case 2:
+            is_underlined = (bool) value;
+            break;
+        case 3:
+            comboFontIndex = value;
+            break;
+        case 4:
+            fontSize = value;
+            break;
+    }
 }
 
 QString Action::getChars() const
@@ -40,16 +58,6 @@ QString Action::getChars() const
 void Action::setChars(QString value)
 {
     chars = value;
-}
-
-bool Action::getTextFormatBoolean() const
-{
-    return textFormatBoolean;
-}
-
-void Action::setTextFormatBoolean(bool value)
-{
-    textFormatBoolean = value;
 }
 
 int Action::getComboFontIndex() const
@@ -72,22 +80,38 @@ void Action::setActionType(const ActionType &value)
     actionType = value;
 }
 
-TextFormatType Action::getTextFormatType() const
+bool Action::getBold() const
 {
-    return textFormatType;
+    return is_bold;
 }
 
-void Action::setTextFormatType(const TextFormatType &value)
+bool Action::getItalic() const
 {
-    textFormatType = value;
+    return is_italic;
 }
 
-BlockFormatType Action::getBlockFormatType() const
+bool Action::getUnderlined() const
+{
+    return is_underlined;
+}
+
+void Action::setTextFormat(bool bold, bool italic, bool underlined)
+{
+    is_bold = bold;
+    is_italic = italic;
+    is_underlined = underlined;
+}
+
+BlockFormatType Action::getBlockFormat() const
 {
     return blockFormatType;
 }
 
-void Action::setBlockFormatType(const BlockFormatType &value)
+void Action::setBlockFormat(const BlockFormatType &value)
 {
     blockFormatType = value;
+}
+
+int Action::getSelection() const {
+    return select;
 }

@@ -9,6 +9,7 @@
 #include <chrono>
 #include <qthread.h>
 #include "usertag.h"
+#include "../data_structure/crdt.h"
 
 class Periodic_task : public QThread
 {
