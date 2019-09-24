@@ -13,8 +13,14 @@ class LoginWindow : public QDialog
     Q_OBJECT
 
 public:
-    explicit LoginWindow(QWidget *parent = nullptr);
-    ~LoginWindow();
+    LoginWindow(const LoginWindow&) = delete;
+    LoginWindow& operator=(const LoginWindow&) = delete;
+
+    static LoginWindow& getInstance(){
+        static LoginWindow instance;
+
+        return instance;
+    }
 
     bool isLoginCorrect();
 
@@ -24,10 +30,14 @@ public slots:
     void switchFrame(int direction=0);
     void changeYourUsername();
     void changeYourAvatar();
-    void openEditor();
+    void createDocument();
+    void openDocument();
     void requestURI();
 
 private:
+    explicit LoginWindow(QWidget *parent = nullptr);
+    ~LoginWindow();
+
     Ui::LoginWindow *ui;
     bool loginCorrect=false;
 

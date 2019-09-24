@@ -51,8 +51,14 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
+    MainWindow(const MainWindow&) = delete;
+    MainWindow& operator=(const MainWindow&) = delete;
+
+    static MainWindow& getInstance(){
+        static MainWindow instance;
+
+        return instance;
+    }
 
     void collaborativeURI_Copied();
     void collaborativeURI_Pasted();
@@ -93,6 +99,9 @@ private slots:
     void on_actionTestActions_triggered();
 
 private:
+    explicit MainWindow(QWidget *parent = nullptr);
+    ~MainWindow();
+
     Ui::MainWindow *ui;
     Periodic_task background_task;
     QClipboard *clipboard;

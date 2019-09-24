@@ -4,8 +4,10 @@
 #include <QPaintEvent>
 
 
-myTextEdit::myTextEdit(QWidget *,int user_id)
+myTextEdit::myTextEdit(QWidget *parent)
 {
+    this->setParent(parent);
+
     this->setCurrentFont(QFont("Calibri",11,-1,false));
     this->document()->setDocumentMargin(11);
     this->hiddenCursor = new QTextCursor(this->document());
@@ -16,12 +18,20 @@ myTextEdit::myTextEdit(QWidget *,int user_id)
                           "Consolas" << "Constantia" << "Freestyle Script" << "Georgia" << "Gill Sans MT" <<
                           "Informal Roman" << "Lucida Calligraphy" << "MS Shell Dlg 2" <<
                           "Palatino Linotype" << "Tahoma" << "Times New Roman" << "Verdana" << "Vivaldi";
-    this->user_id = user_id;
+    this->user_id = 0;
+    //testing the coloring feature
+    this->textColorsList.emplace_back("#6DFF4C");
+    this->textColorsList.emplace_back("#6DFF4C");
+    this->textColorsList.emplace_back("#FF0000");
+    this->textColorsList.emplace_back("#6DFF4C");
+    this->textColorsList.emplace_back("#6DFF4C");
 
     Crdt::getInstance().init(user_id);
 }
 
-
+myTextEdit::~myTextEdit() {
+    delete hiddenCursor;
+}
 
 void myTextEdit::paintEvent(QPaintEvent *e) {
 
@@ -199,6 +209,32 @@ QStringList myTextEdit::getFontFamilies() const
     return fontFamilies;
 }
 
+void myTextEdit::colorText(bool checked)
+{
+    QTextCharFormat format;
+    if(checked) {
+        int size = this->textColorsList.size();
+        for(int i=0; i<size; i++) {
+            int n = i;
+            this->hiddenCursor->setPosition(i);
+            QString currentColor = this->textColorsList.at(i);
+            while(this->textColorsList.at(i+1) == currentColor) {
+                i++;
+                if(i==(size-1)) break;
+            }
+            this->hiddenCursor->movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, i-n+1);
+            format.setForeground(QBrush(QColor(this->textColorsList.at(n))));
+            this->hiddenCursor->mergeCharFormat(format);
+        }
+    }
+    else {
+        format.setForeground(QBrush(QColor("black")));
+        this->hiddenCursor->select(QTextCursor::Document);
+        this->hiddenCursor->mergeCharFormat(format);
+    }
+
+}
+
 void myTextEdit::createCursor(int pos, QString text, QColor color) {
 
     QTextCursor tmpCursor(this->document());
@@ -213,4 +249,12 @@ void myTextEdit::createCursor(int pos, QString text, QColor color) {
     newCursor->setColor(color);
 
     this->addCursor(newCursor);
+}
+
+const QString &myTextEdit::getDocumentName() const {
+    return documentName;
+}
+
+void myTextEdit::setDocumentName(const QString &documentName) {
+    myTextEdit::documentName = documentName;
 }

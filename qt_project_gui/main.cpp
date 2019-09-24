@@ -9,14 +9,12 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    //LoginWindow l;
-    //l.exec();
-    //if(l.isLoginCorrect()) {
-        MainWindow w;
-        w.show();
+    LoginWindow::getInstance().exec();
+    if(LoginWindow::getInstance().isLoginCorrect()) {
+        MainWindow::getInstance().show();
 
         return a.exec();
-    //}
+    }
     //a.setStyle(QStyleFactory::create("Fusion")); // for uniform style
 
     /*QColor c;

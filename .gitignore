@@ -18,6 +18,7 @@ c++_project/Makefile
 # CMake
 cmake-build-*/
 
+
 # File-based project format
 *.iws
 
@@ -104,14 +105,8 @@ cmake-build-*/
 # *.iml
 # *.ipr
 
-# CMake
-cmake-build-*/
-
 # Mongo Explorer plugin
 .idea/**/mongoSettings.xml
-
-# File-based project format
-*.iws
 
 # IntelliJ
 out/

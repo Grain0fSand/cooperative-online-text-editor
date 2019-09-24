@@ -100,13 +100,10 @@
          </property>
          <property name="html">
           <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Calibri'; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="placeholderText">
-          <string>inizia ad editare qui!</string>
+           &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+           p, li { white-space: pre-wrap; }
+           &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Calibri'; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
+           &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
         </widget>
        </item>
@@ -391,6 +388,7 @@ p, li { white-space: pre-wrap; }
    <addaction name="actionCut"/>
    <addaction name="actionPaste"/>
    <addaction name="separator"/>
+   <addaction name="separator"/>
    <addaction name="actionBold"/>
    <addaction name="actionItalic"/>
    <addaction name="actionUnderlined"/>
@@ -399,6 +397,7 @@ p, li { white-space: pre-wrap; }
    <addaction name="actionAlignCenter"/>
    <addaction name="actionAlignRight"/>
    <addaction name="actionAlignJustify"/>
+   <addaction name="actionTestColor"/>
    <addaction name="actionTestCursor"/>
    <addaction name="actionTestTag"/>
    <addaction name="actionTestDisconnect"/>
@@ -588,6 +587,14 @@ p, li { white-space: pre-wrap; }
   <action name="actionTestActions">
    <property name="text">
     <string>TestActions</string>
+   </property>
+  </action>
+  <action name="actionTestColor">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>TestColor</string>
    </property>
   </action>
  </widget>

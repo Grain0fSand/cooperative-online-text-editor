@@ -71,6 +71,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionTestCursor,&QAction::triggered,this,&MainWindow::insertRemoteCursor); //only for test
     connect(ui->actionTestTag,&QAction::triggered,this,&MainWindow::addUserTag);    //only for test
     connect(ui->actionTestDisconnect,&QAction::triggered,this,&MainWindow::disableEditor); //only for test
+    connect(ui->actionTestColor,&QAction::toggled,ui->textEditShared,&myTextEdit::colorText);
 }
 
 MainWindow::~MainWindow()
@@ -402,10 +403,10 @@ void MainWindow::disableEditor()
     ui->statusBar->setEnabled(!ui->statusBar->isEnabled());
     ui->actionCopy->setEnabled(!ui->actionCopy->isEnabled());
     ui->actionCut->setEnabled(!ui->actionCut->isEnabled());
+    ui->actionPaste->setEnabled(!ui->actionPaste->isEnabled());
     auto comboBoxes = ui->mainToolBar->findChildren<QComboBox*>();
     comboBoxes[0]->setEnabled(!comboBoxes[0]->isEnabled());
     comboBoxes[1]->setEnabled(!comboBoxes[1]->isEnabled());
-    ui->actionPaste->setEnabled(!ui->actionPaste->isEnabled());
     ui->actionBold->setEnabled(!ui->actionBold->isEnabled());
     ui->actionItalic->setEnabled(!ui->actionItalic->isEnabled());
     ui->actionUnderlined->setEnabled(!ui->actionUnderlined->isEnabled());
@@ -436,14 +437,13 @@ void MainWindow::setupFontComboBoxes(QComboBox* comboSize, QComboBox* comboFamil
     }
     comboFamily->setCurrentText(ui->textEditShared->currentFont().family());
 
-    ui->mainToolBar->insertWidget(ui->mainToolBar->actions()[7], comboFamily);
-    ui->mainToolBar->insertWidget(ui->mainToolBar->actions()[8], comboSize);
+    ui->mainToolBar->insertWidget(ui->mainToolBar->actions()[5], comboFamily);
+    ui->mainToolBar->insertWidget(ui->mainToolBar->actions()[6], comboSize);
 }
 
 void MainWindow::setupStatusBar()
 {
-    ui->textEditShared->setDocumentTitle("file_name.txt");
-    QLabel *filename = new QLabel("Document: "+ui->textEditShared->documentTitle());
+    QLabel *filename = new QLabel("Document: "+ui->textEditShared->getDocumentName()+".txt");
     filename->setObjectName("filename");
     QLabel *charCount = new QLabel("Chars: "+QString::number(ui->textEditShared->document()->characterCount()));
     charCount->setObjectName("charCount");

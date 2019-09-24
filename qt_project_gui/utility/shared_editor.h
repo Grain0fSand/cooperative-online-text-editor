@@ -11,9 +11,9 @@ public:
     Shared_editor& operator=(const Shared_editor&) = delete;
 
     static Shared_editor& getInstance(){
-        static Shared_editor istance;
+        static Shared_editor instance;
 
-        return istance;
+        return instance;
     }
 
     void addCharapter(int position,QChar c){

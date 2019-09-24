@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created by: Qt User Interface Compiler version 5.13.1
+** Created by: Qt User Interface Compiler version 5.13.0
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -51,6 +51,7 @@ public:
     QAction *actionTestTag;
     QAction *actionTestDisconnect;
     QAction *actionTestActions;
+    QAction *actionTestColor;
     QWidget *centralWidget;
     QHBoxLayout *horizontalLayout;
     QWidget *docFrame;
@@ -160,6 +161,9 @@ public:
         actionTestDisconnect->setObjectName(QString::fromUtf8("actionTestDisconnect"));
         actionTestActions = new QAction(MainWindow);
         actionTestActions->setObjectName(QString::fromUtf8("actionTestActions"));
+        actionTestColor = new QAction(MainWindow);
+        actionTestColor->setObjectName(QString::fromUtf8("actionTestColor"));
+        actionTestColor->setCheckable(true);
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QString::fromUtf8("centralWidget"));
         sizePolicy.setHeightForWidth(centralWidget->sizePolicy().hasHeightForWidth());
@@ -183,8 +187,7 @@ public:
         docFrameLayout->setContentsMargins(11, 11, 11, 11);
         docFrameLayout->setObjectName(QString::fromUtf8("docFrameLayout"));
         docFrameLayout->setContentsMargins(0, 0, 0, 0);
-        //TODO: setting up the correct user id
-        textEditShared = new myTextEdit(docFrame,0);
+        textEditShared = &myTextEdit::getInstance();
         textEditShared->setObjectName(QString::fromUtf8("textEditShared"));
         QSizePolicy sizePolicy2(QSizePolicy::Fixed, QSizePolicy::Expanding);
         sizePolicy2.setHorizontalStretch(0);
@@ -245,7 +248,7 @@ public:
         myAvatar = new QLabel(myTag);
         myAvatar->setObjectName(QString::fromUtf8("myAvatar"));
         myAvatar->setGeometry(QRect(10, 10, 71, 71));
-        myAvatar->setPixmap(QPixmap(QString::fromUtf8(":/PdsProject.app/Contents/Resources/avatars/avatar.png")));
+        myAvatar->setPixmap(QPixmap(QString::fromUtf8(":/resources/avatar.png")));
         myAvatar->setScaledContents(true);
         myLed = new QLabel(myTag);
         myLed->setObjectName(QString::fromUtf8("myLed"));
@@ -332,6 +335,7 @@ public:
         mainToolBar->addAction(actionCut);
         mainToolBar->addAction(actionPaste);
         mainToolBar->addSeparator();
+        mainToolBar->addSeparator();
         mainToolBar->addAction(actionBold);
         mainToolBar->addAction(actionItalic);
         mainToolBar->addAction(actionUnderlined);
@@ -340,6 +344,7 @@ public:
         mainToolBar->addAction(actionAlignCenter);
         mainToolBar->addAction(actionAlignRight);
         mainToolBar->addAction(actionAlignJustify);
+        mainToolBar->addAction(actionTestColor);
         mainToolBar->addAction(actionTestCursor);
         mainToolBar->addAction(actionTestTag);
         mainToolBar->addAction(actionTestDisconnect);
@@ -381,12 +386,12 @@ public:
         actionTestDisconnect->setToolTip(QCoreApplication::translate("MainWindow", "TestDisconnect", nullptr));
 #endif // QT_CONFIG(tooltip)
         actionTestActions->setText(QCoreApplication::translate("MainWindow", "TestActions", nullptr));
+        actionTestColor->setText(QCoreApplication::translate("MainWindow", "TestColor", nullptr));
         textEditShared->setHtml(QCoreApplication::translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:'Calibri'; font-size:11pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p></body></html>", nullptr));
-        textEditShared->setPlaceholderText(QCoreApplication::translate("MainWindow", "inizia ad editare qui!", nullptr));
+                                                                          "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+                                                                          "p, li { white-space: pre-wrap; }\n"
+                                                                          "</style></head><body style=\" font-family:'Calibri'; font-size:11pt; font-weight:400; font-style:normal;\">\n"
+                                                                          "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p></body></html>", nullptr));
         myUsername->setText(QCoreApplication::translate("MainWindow", "dario.patti90", nullptr));
         myStatus->setText(QCoreApplication::translate("MainWindow", "Online", nullptr));
         myAvatar->setText(QString());

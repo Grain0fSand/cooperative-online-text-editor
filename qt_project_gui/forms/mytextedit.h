@@ -10,9 +10,15 @@
 class myTextEdit : public QTextEdit
 {
 public:
-    myTextEdit(QWidget *, int user_id);
+    myTextEdit(const myTextEdit&) = delete;
+    myTextEdit& operator=(const myTextEdit&) = delete;
 
-    static myTextEdit* getInstance();
+    static myTextEdit& getInstance(){
+        static myTextEdit instance;
+
+        return instance;
+    }
+
     void paintEvent(QPaintEvent *e);
     void createCursor(int pos, QString text, QColor color);
     void addCursor(RemoteCursor *cursor);
@@ -26,12 +32,26 @@ public:
     QStringList getFontSizes() const;
     QStringList getFontFamilies() const;
 
+public slots:
+    void colorText(bool checked);
+
 private:
+    myTextEdit(QWidget *parent = nullptr);
+    ~myTextEdit();
+
     std::list<RemoteCursor*> cursorsList;
   //  std::list<Action> toSendList;
+    std::vector<QString> textColorsList;
     QStringList fontSizes;
     QStringList fontFamilies;
     QTextCursor* hiddenCursor;
+    QString documentName;
+
+public:
+    const QString &getDocumentName() const;
+    void setDocumentName(const QString &documentName);
+
+private:
     int user_id;
 };
 

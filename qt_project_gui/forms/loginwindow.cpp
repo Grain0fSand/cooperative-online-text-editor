@@ -1,5 +1,6 @@
 #include "loginwindow.h"
 #include "ui_loginwindow.h"
+#include "mytextedit.h"
 #include <QDebug>
 #include <QPropertyAnimation>
 #include <QMenu>
@@ -26,10 +27,12 @@ LoginWindow::LoginWindow(QWidget *parent) :
     connect(ui->minimizeButton,&QPushButton::pressed,this,&LoginWindow::showMinimized);
     connect(ui->loginText,&QPushButton::clicked,this,&LoginWindow::switchFrame);
     connect(ui->registerText,&QPushButton::clicked,this,&LoginWindow::switchFrame);
+    connect(ui->loggedLogoutButton,&QPushButton::clicked,[&](){this->loginCorrect=false;});
     connect(ui->loggedLogoutButton,&QPushButton::clicked,this,&LoginWindow::switchFrame);
     connect(ui->actionChangeUsername,&QAction::triggered,this,&LoginWindow::changeYourUsername);
     connect(ui->actionChangeAvatar,&QAction::triggered,this,&LoginWindow::changeYourAvatar);
-    connect(ui->loggedNewButton,&QPushButton::clicked,this,&LoginWindow::openEditor);
+    connect(ui->loggedNewButton,&QPushButton::clicked,this,&LoginWindow::createDocument);
+    connect(ui->loggedOpenButton,&QPushButton::clicked,this,&LoginWindow::openDocument);
     connect(ui->loggedURIButton,&QPushButton::clicked,this,&LoginWindow::requestURI);
 }
 
@@ -109,10 +112,36 @@ void LoginWindow::changeYourAvatar()
     }
 }
 
-void LoginWindow::openEditor()
+void LoginWindow::createDocument()
 {
-    this->loginCorrect=true;
+    QInputDialog dialog(this);
+    dialog.setLabelText("Insert filename:");
+
+    while(true) {
+        if(dialog.exec()==QDialog::Accepted) {
+            if(dialog.textValue()=="") {
+                QMessageBox advice(this);
+                advice.setText("Filename field empty!\nEnter a valid one");
+                advice.setIcon(QMessageBox::Critical);
+                advice.exec();
+            } else {
+                myTextEdit::getInstance().setDocumentName(dialog.textValue());
+                QMessageBox advice(this);
+                advice.setText("New document created on the server!");
+                advice.setIcon(QMessageBox::Information);
+                advice.exec();
+                break;
+            }
+        }
+        else return;
+    }
     close();
+}
+
+void LoginWindow::openDocument()
+{
+    //i have to show a simple list received from db:
+    //filename | creation data | last mod data | num of users
 }
 
 void LoginWindow::requestURI()
@@ -143,9 +172,10 @@ void LoginWindow::tryLogin()
         ui->loginErrorLabel->setText("Insert a password");
     }
     else if(ui->loginUsernameInput->text()!="test" || ui->loginPasswordInput->text()!="test") {
-        ui->loginErrorLabel->setText("Login failed");
+        ui->loginErrorLabel->setText("Login failed\nWrong username or password");
     }
     else {
+        this->loginCorrect=true;
         ui->loggedUsernameLabel->setText(ui->loginUsernameInput->text());
         this->switchFrame(1);
     }
