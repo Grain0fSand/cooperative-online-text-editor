@@ -331,7 +331,7 @@ void MainWindow::checkTextProperty()
     ui->actionCopy->setEnabled(ui->textEditShared->textCursor().hasSelection());
     ui->actionCut->setEnabled(ui->textEditShared->textCursor().hasSelection());
 
-    ui->statusBar->findChild<QLabel*>("charCount")->setText("Chars: "+QString::number(ui->textEditShared->document()->characterCount()));
+    ui->statusBar->findChild<QLabel*>("charCount")->setText("Chars: "+QString::number(ui->textEditShared->document()->characterCount()-1));
     ui->statusBar->findChild<QLabel*>("lineCount")->setText("Lines: "+QString::number(ui->textEditShared->document()->lineCount()));
     ui->statusBar->findChild<QLabel*>("cursorPos")->setText("pos: "+QString::number(ui->textEditShared->textCursor().position()));
     ui->statusBar->findChild<QLabel*>("cursorColumn")->setText("col: "+QString::number(ui->textEditShared->textCursor().columnNumber()));
@@ -391,9 +391,9 @@ void MainWindow::addUserTag()
     QListWidgetItem *item = new QListWidgetItem();
     item->setData(Qt::UserRole + 1, "Username");
     item->setData(Qt::UserRole + 2, "Online");
-    item->setData(Qt::UserRole + 3, QPixmap("://PdsProject.app/Contents/Resources/avatars/avatar.png"));
-    item->setData(Qt::UserRole + 4, QPixmap("://PdsProject.app/Contents/Resources/img/greenLed.png"));
-    item->setData(Qt::UserRole + 5, QColor(Qt::red));
+    item->setData(Qt::UserRole + 3, QPixmap(":/resources/avatar.png"));
+    item->setData(Qt::UserRole + 4, QPixmap(":/resources/greenLed.png"));
+    item->setData(Qt::UserRole + 5, QColor::fromHsv(180,255,255));
     ui->listOnlineUsers->addItem(item);
 }
 
@@ -431,7 +431,7 @@ void MainWindow::setupFontComboBoxes(QComboBox* comboSize, QComboBox* comboFamil
     comboSize->setCurrentText(QString::number(ui->textEditShared->currentFont().pointSize()));
 
     comboFamily->addItems(ui->textEditShared->getFontFamilies());
-    QIcon icon("://PdsProject.app/Contents/Resources/img/font_icon.png");
+    QIcon icon(":/resources/font_icon.png");
     for(int i=0; i<comboFamily->count(); i++) {
         comboFamily->setItemIcon(i, icon);
     }
@@ -512,20 +512,20 @@ void MainWindow::on_onlineRollButton_clicked()
 {
     ui->listOnlineUsers->setVisible(!ui->listOnlineUsers->isVisible());
     if(ui->listOnlineUsers->isVisible()) {
-        ui->onlineRollButton->setIcon(QIcon("://PdsProject.app/Contents/Resources/img/arrow_up.png"));
+        ui->onlineRollButton->setIcon(QIcon(":/resources/arrow_up.png"));
     }
     else {
-        ui->onlineRollButton->setIcon(QIcon("://PdsProject.app/Contents/Resources/img/arrow_down.png"));
+        ui->onlineRollButton->setIcon(QIcon(":/resources/arrow_down.png"));
     }
 }
 void MainWindow::on_offlineRollButton_clicked()
 {
     ui->listOfflineUsers->setVisible(!ui->listOfflineUsers->isVisible());
     if(ui->listOfflineUsers->isVisible()) {
-        ui->offlineRollButton->setIcon(QIcon("://PdsProject.app/Contents/Resources/img/arrow_up.png"));
+        ui->offlineRollButton->setIcon(QIcon(":/resources/arrow_up.png"));
     }
     else {
-        ui->offlineRollButton->setIcon(QIcon("://PdsProject.app/Contents/Resources/img/arrow_down.png"));
+        ui->offlineRollButton->setIcon(QIcon(":/resources/arrow_down.png"));
     }
 }
 

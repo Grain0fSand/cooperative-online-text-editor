@@ -223,12 +223,12 @@ void myTextEdit::colorText(bool checked)
                 if(i==(size-1)) break;
             }
             this->hiddenCursor->movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, i-n+1);
-            format.setForeground(QBrush(QColor(this->textColorsList.at(n))));
+            format.setBackground(QBrush(QColor(this->textColorsList.at(n))));
             this->hiddenCursor->mergeCharFormat(format);
         }
     }
     else {
-        format.setForeground(QBrush(QColor("black")));
+        format.setBackground(QBrush(Qt::black,Qt::NoBrush));
         this->hiddenCursor->select(QTextCursor::Document);
         this->hiddenCursor->mergeCharFormat(format);
     }

@@ -27,6 +27,7 @@ LoginWindow::LoginWindow(QWidget *parent) :
     connect(ui->minimizeButton,&QPushButton::pressed,this,&LoginWindow::showMinimized);
     connect(ui->loginText,&QPushButton::clicked,this,&LoginWindow::switchFrame);
     connect(ui->registerText,&QPushButton::clicked,this,&LoginWindow::switchFrame);
+    connect(ui->registerButton,&QPushButton::clicked,this,&LoginWindow::tryRegister);
     connect(ui->loggedLogoutButton,&QPushButton::clicked,[&](){this->loginCorrect=false;});
     connect(ui->loggedLogoutButton,&QPushButton::clicked,this,&LoginWindow::switchFrame);
     connect(ui->actionChangeUsername,&QAction::triggered,this,&LoginWindow::changeYourUsername);
@@ -105,7 +106,7 @@ void LoginWindow::changeYourAvatar()
     QString file_path = QFileDialog::getOpenFileName(nullptr,"Choose your own avatar..");
     if(file_path!="") {
         QString file_name = file_path.split("/").last();
-        QString new_file_path = "://PdsProject.app/Contents/Resources/avatars/"+file_name;
+        QString new_file_path = ":/resources/"+file_name;
         QFile::copy(file_path,new_file_path);
 
         ui->loggedAvatar->setPixmap(QPixmap(new_file_path));
@@ -180,6 +181,35 @@ void LoginWindow::tryLogin()
         this->switchFrame(1);
     }
     ui->loginErrorLabel->setVisible(true);
+}
+
+void LoginWindow::tryRegister()
+{
+    //TODO: check in db if the username exist already
+    //if not, proceed with the registration, otherwise show a message
+
+    QPixmap avatar(":/resources/avatar.png");
+    QMessageBox::StandardButton chooseAvatar;
+    chooseAvatar = QMessageBox::question(this, "Choose your avatar",
+            "Do you want to choose a personal avatar?\nClicking 'No' a default one will be assigned to you",
+            QMessageBox::Yes|QMessageBox::No);
+    if (chooseAvatar == QMessageBox::Yes) {
+        QString file_path = QFileDialog::getOpenFileName(nullptr,"Choose your own avatar...");
+        if(file_path!="") {
+            QString file_name = file_path.split("/").last();
+            QString new_file_path = ":/resources/"+file_name;
+            QFile::copy(file_path,new_file_path);
+            avatar.load(new_file_path);
+        } else {
+            QMessageBox advice(this);
+            advice.setText("You didn't select any image!");
+            advice.setInformativeText("<― this avatar will be assigned to you");
+            advice.setIconPixmap(QPixmap(":/resources/avatar.png").scaled(60,60));
+            advice.exec();
+        }
+    }
+    //now the avatar is ready to be set
+    //TODO: if everything ok, proceed with registration on db
 }
 
 void LoginWindow::mousePressEvent(QMouseEvent *event) {

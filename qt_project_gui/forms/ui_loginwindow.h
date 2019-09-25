@@ -313,7 +313,7 @@ public:
         loggedAvatar->setFrameShape(QFrame::Panel);
         loggedAvatar->setFrameShadow(QFrame::Raised);
         loggedAvatar->setLineWidth(1);
-        loggedAvatar->setPixmap(QPixmap(QString::fromUtf8(":/PdsProject.app/Contents/Resources/avatars/avatar.png")));
+        loggedAvatar->setPixmap(QPixmap(QString::fromUtf8(":/resources/avatar.png")));
         loggedAvatar->setScaledContents(true);
         loggedUsernameLabel = new QLabel(formFrame);
         loggedUsernameLabel->setObjectName(QString::fromUtf8("loggedUsernameLabel"));
