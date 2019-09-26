@@ -1,6 +1,7 @@
 #include "loginwindow.h"
 #include "ui_loginwindow.h"
 #include "mytextedit.h"
+#include <cmath>
 #include <QDebug>
 #include <QPropertyAnimation>
 #include <QMenu>
@@ -210,6 +211,45 @@ void LoginWindow::tryRegister()
     }
     //now the avatar is ready to be set
     //TODO: if everything ok, proceed with registration on db
+
+
+    /*
+    //formula for the color (experimental... but trust me)
+
+    int x,n,group,hue,sat,val;
+
+    x = 1;
+    n = ceil(log2(((x-1)%16)+1));
+    hue = ceil(((2*((x-1)%16)+1)/pow(2,n)-1)*360);
+    group = floor((x-1)/16);
+
+    switch(group)
+    {
+        case 0: //first 16 users
+            sat = 35;
+            val = 75;
+            break;
+        case 1: //17-32
+            sat = 100;
+            val = 100;
+            break;
+        case 2: //33-48
+            sat = 35;
+            val = 100;
+            break;
+        case 3: //49-64
+            sat = 100;
+            val = 75;
+            break;
+        default: //other users
+            std::srand(std::time(nullptr));
+            hue = rand()%360;
+            sat = rand()%256;
+            val = rand()%256;
+            break;
+    }
+    QString hexColor = QColor::fromHsv(hue,sat,val).name();
+     */
 }
 
 void LoginWindow::mousePressEvent(QMouseEvent *event) {
