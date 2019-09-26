@@ -3,6 +3,7 @@
 #include "utility/image_utility.h"
 #include "data_structure/crdt.h"
 #include "data_structure/action.h"
+#include "utility/json_comunicator.h"
 #include <QApplication>
 #include <QStyleFactory>
 
@@ -24,4 +25,6 @@ int main(int argc, char *argv[])
     create_svg(c,120);
 
 */
+//    ActionWrapper a(Action(), std::make_pair((int)1,(int)1), std::vector<std::pair<int,int>>());
+//    json_serializer::sendAction(a);
 }
