@@ -12,14 +12,13 @@ SmtpClient::SmtpClient() :
     this->host = "smtp.gmail.com";
     this->port = uint16_t(465);
 
-    connect(socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SLOT(socketStateChanged(QAbstractSocket::SocketState)));
-    connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(socketError(QAbstractSocket::SocketError)));
-    connect(socket, SIGNAL(readyRead()), this, SLOT(socketReadyRead()));
+    connect(socket,&QSslSocket::stateChanged,this,&SmtpClient::socketStateChanged);
+    connect(socket,SIGNAL(error(QAbstractSocket::SocketError)),this,SLOT(socketError(QAbstractSocket::SocketError)));
+    connect(socket,&QSslSocket::readyRead,this,&SmtpClient::socketReadyRead);
 }
 
 SmtpClient::~SmtpClient() {
-    if (socket)
-        delete socket;
+    delete socket;
 }
 
 bool SmtpClient::connectToHost() {

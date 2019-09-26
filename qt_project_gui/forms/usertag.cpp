@@ -37,7 +37,7 @@ void UserTag::paint ( QPainter * painter, const QStyleOptionViewItem & option, c
     QString description = index.data(Qt::UserRole + 2).toString();
     QIcon avatar = QIcon(qvariant_cast<QPixmap>(index.data(Qt::UserRole + 3)));
     QIcon led = QIcon(qvariant_cast<QPixmap>(index.data(Qt::UserRole + 4)));
-    QColor color = QColor(qvariant_cast<QColor>(index.data(Qt::UserRole + 5)));
+    QColor color = qvariant_cast<QColor>(index.data(Qt::UserRole + 5));
 
     //username
     r = option.rect.adjusted(70, 0, -10, -30);

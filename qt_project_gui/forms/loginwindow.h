@@ -26,6 +26,7 @@ public:
 
 public slots:
     void tryLogin();
+    void tryRegister();
     void slowClose();
     void switchFrame(int direction=0);
     void changeYourUsername();
