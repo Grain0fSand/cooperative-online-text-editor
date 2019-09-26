@@ -57,14 +57,11 @@ private:
     std::vector<int> symbolDeletionExt(const std::vector<std::pair<int,int>>& symbol);
     std::vector<int> formattingExt(const std::pair<int,int>& rel_symbol, const std::vector<std::pair<int,int>>& symbol, int select);
 
-    void sendActionToClient(Action& action, SymbolId symbol);
-    void receiveActionFromServer(ActionWrapper& actionWrapper);
-
 public:
     //TODO: remember to save ABSOLUTE position of the cursor before start to apply modification
     //so the action will be coherent with the position of the cursor
     //void actionsArrived(std::list<Action> actions);   //queue non needed
-
+    void receiveActionFromServer(ActionWrapper& actionWrapper);
     void sendActionToServer(Action& action, int cursorPos, int numChars);
    // void pushActionQueue(ActionWrapper action_wrapper);       //push server's actions
 };

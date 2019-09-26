@@ -28,8 +28,8 @@ public:
 
     Action(QString chars, int fontIndex, int fontSize, bool bold, bool italic, bool underlined, BlockFormatType blockFormatType);   //for insertion
     Action(); //for deletion
-    Action(ActionType actionType, BlockFormatType blockFormatType);  //for block formatting
-    Action(ActionType actionType, int select, int value);  //for text formatting
+    Action(BlockFormatType blockFormatType);  //for block formatting
+    Action(int select, int value);  //for text formatting
 
     QString getChars() const;
     void setChars(QString value);
@@ -55,6 +55,10 @@ private:
     int select;  //indicates which style feature is being changed
     int comboFontIndex;
     int fontSize;
+public:
+    int getFontSize() const;
+
+private:
     bool is_bold, is_italic, is_underlined;
     BlockFormatType blockFormatType;
 
@@ -67,7 +71,6 @@ public:
     Action action;
     std::pair<int,int> rel_symbol;
     std::vector<std::pair<int,int>> symbol;     //all symbols to change for deletion and formatting
-
     ActionWrapper(Action action, std::pair<int,int> rel_symbol, std::vector<std::pair<int,int>> symbol):
             action(action),
             rel_symbol(rel_symbol),

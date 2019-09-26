@@ -191,7 +191,7 @@ void MainWindow::makeBold()
     cursor.mergeCharFormat(format);
     textEdit->setTextCursor(cursor);
 
-    Action a = Action(TextFormatting, 0, is_bold ? 0 : 1);
+    Action a = Action(0, is_bold ? 0 : 1);
     Crdt::getInstance().sendActionToServer(a, cursor.selectionStart() + 1, cursor.selectedText().length());
 }
 
@@ -208,7 +208,7 @@ void MainWindow::makeItalic()
     cursor.mergeCharFormat(format);
     textEdit->setTextCursor(cursor);
 
-    Action a = Action(TextFormatting, 1, is_italic ? 0 : 1);
+    Action a = Action(1, is_italic ? 0 : 1);
     Crdt::getInstance().sendActionToServer(a, cursor.selectionStart() + 1, cursor.selectedText().length());
 }
 
@@ -225,7 +225,7 @@ void MainWindow::makeUnderline()
     cursor.mergeCharFormat(format);
     textEdit->setTextCursor(cursor);
 
-    Action a = Action(TextFormatting, 2, is_underlined ? 0 : 1);
+    Action a = Action(2, is_underlined ? 0 : 1);
     Crdt::getInstance().sendActionToServer(a, cursor.selectionStart() + 1, cursor.selectedText().length());
 }
 
@@ -284,7 +284,7 @@ void MainWindow::selectFont(int familyIndex)
     cursor.mergeCharFormat(format);
     textEdit->setTextCursor(cursor);
 
-    Action a = Action(TextFormatting, 3, familyIndex);
+    Action a = Action(3, familyIndex);
     Crdt::getInstance().sendActionToServer(a, cursor.selectionStart() + 1, cursor.selectedText().length());
 }
 
@@ -299,7 +299,7 @@ void MainWindow::selectSize(int sizeIndex)
     cursor.mergeCharFormat(format);
     textEdit->setTextCursor(cursor);
 
-    Action a = Action(TextFormatting, 4, sizeIndex);
+    Action a = Action(4, sizeIndex);
     Crdt::getInstance().sendActionToServer(a, cursor.selectionStart() + 1, cursor.selectedText().length());
 }
 

@@ -2,7 +2,6 @@
 #define TRANSLATOR_SYMBOLID_H
 
 
-//TODO: version for every style?
 class SymbolId {
     int inc_id;
     int usr_id;

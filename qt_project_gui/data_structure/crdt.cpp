@@ -1,10 +1,8 @@
 #include "crdt.h"
 #include "symbol_id.h"
 #include "../forms/mytextedit.h"
+#include "../utility/json_comunicator.h"
 #include <thread>
-
-void sendAction(ActionWrapper action_wrapper) {
-}
 
 std::pair<int,int> Crdt::findRelativePosition(int left_pos) {
     int cmp = 0;
@@ -157,7 +155,7 @@ void Crdt::sendActionToServer(Action& action, int cursorPos, int numChars) {
             break;
     }
     //send to server
-    sendAction(action_wrapper);
+    json_serializer::sendAction(action_wrapper);
 
 //    //flush server buffer,  the documents only gets refreshed AFTER local action
 //    while (!action_queue.empty()) {

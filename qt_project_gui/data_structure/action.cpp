@@ -1,13 +1,7 @@
 #include "action.h"
 
 Action::Action() :
-    actionType(Deletion),
-    chars(""),
-    comboFontIndex(-1),
-    is_bold(),
-    is_italic(),
-    is_underlined(),
-    blockFormatType(NoBlockFormatType)
+    actionType(Deletion)
 {
 }
 
@@ -23,14 +17,14 @@ Action::Action(QString chars, int fontIndex, int fontSize, bool bold, bool itali
 {
 }
 
-Action::Action(ActionType actionType, BlockFormatType blockFormatType) :
+Action::Action(BlockFormatType blockFormatType) :
     actionType(BlockFormatting),
     select(0),
     blockFormatType(blockFormatType)
 {
 }
 
-Action::Action(ActionType actionType, int select, int value) : actionType(actionType), select(select){
+Action::Action(int select, int value) : actionType(TextFormatting), select(select){
     switch (select) {
         case 0:
             is_bold = (bool) value;
@@ -114,4 +108,8 @@ void Action::setBlockFormat(const BlockFormatType &value)
 
 int Action::getSelection() const {
     return select;
+}
+
+int Action::getFontSize() const {
+    return fontSize;
 }
