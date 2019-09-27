@@ -7,6 +7,9 @@ set(CMAKE_CXX_STANDARD 17)
 set(Boost_USE_STATIC_LIBS OFF)
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
+set(SQLITE_DIR library)
+
+
 find_package(Boost 1.45.0 COMPONENTS filesystem regex system thread system)
 
 if (APPLE)
@@ -20,13 +23,11 @@ endif()
 
 include_directories(${Boost_INCLUDE_DIRS})
 
-set(SQLITE_DIR library)
-
-add_subdirectory(${SQLITE_DIR}/SQLiteCpp)
-
 include_directories(
         ${SQLITE_DIR}/SQLiteCpp/include
 )
+
+add_subdirectory(${SQLITE_DIR}/SQLiteCpp)
 
 add_executable(main main.cpp sha256.cpp sha256.h)
 
