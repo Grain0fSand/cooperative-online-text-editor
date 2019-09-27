@@ -92,7 +92,7 @@ set(SOURCES
 		web_requests/online_synchronizer.h
 		web_requests/smtpclient.cpp
         web_requests/smtpclient.h
-)
+		web_requests/online_sender.h)
 
 # User interface files
 set(FORMS

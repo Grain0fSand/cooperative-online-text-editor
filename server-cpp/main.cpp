@@ -1,11 +1,11 @@
 #include <iostream>
 #include <SQLiteCpp/Database.h>
 #include <vector>
-#include <sstream>
 #include <algorithm>
 #include <nlohmann/json.hpp>
+#include "crow_all.h"
 #include "sha256.h"
-#include "crow_all_linux.h"
+
 using json = nlohmann::json;
 
 namespace exchangable_data {

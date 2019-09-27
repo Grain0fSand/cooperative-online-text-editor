@@ -155,7 +155,8 @@ void Crdt::sendActionToServer(Action& action, int cursorPos, int numChars) {
             break;
     }
     //send to server
-    json_serializer::sendAction(action_wrapper);
+    std::string crdt_str = json_serializer::sendAction(action_wrapper);
+    std::cout << crdt_str;
 
 //    //flush server buffer,  the documents only gets refreshed AFTER local action
 //    while (!action_queue.empty()) {
