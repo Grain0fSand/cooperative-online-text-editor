@@ -23,6 +23,11 @@ include_directories(
         ${SQLITE_DIR}/SQLiteCpp/include
 )
 
+if(WIN32)
+    set(nlohmann_DIR library/nlohmann_json)
+    include_directories(${nlohmann_DIR})
+endif()
+
 add_executable(main main.cpp sha256.cpp sha256.h)
 
 target_link_libraries(main
