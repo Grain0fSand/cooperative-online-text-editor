@@ -53,7 +53,7 @@ void json_serializer::sendAction(ActionWrapper &actionWrapper) {
             break;
     }
     //online_syncronizer::send
-    receiveAction(j);
+    //receiveAction(j);
 }
 
 void json_serializer::receiveAction(json j) {

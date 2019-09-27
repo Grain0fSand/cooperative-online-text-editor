@@ -8,7 +8,6 @@ set(Boost_USE_STATIC_LIBS OFF)
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
 find_package(Boost 1.45.0 COMPONENTS filesystem regex system thread system)
-find_package(nlohmann_json 3.2.0 REQUIRED)
 
 include_directories(${Boost_INCLUDE_DIRS})
 
@@ -30,3 +29,7 @@ target_link_libraries(main
         nlohmann_json::nlohmann_json
         ${Boost_LIBRARIES}
         )
+
+if (UNIX AND NOT APPLE)
+    include_directories(library/cget/include/nlohmann/json.hpp)
+endif()
