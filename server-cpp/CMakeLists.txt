@@ -8,7 +8,10 @@ set(Boost_USE_STATIC_LIBS OFF)
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
 find_package(Boost 1.45.0 COMPONENTS filesystem regex system thread system)
-find_package(nlohmann_json 3.2.0 REQUIRED)
+
+if (APPLE)
+    find_package(nlohmann_json 3.2.0 REQUIRED)
+endif()
 
 include_directories(${Boost_INCLUDE_DIRS})
 
