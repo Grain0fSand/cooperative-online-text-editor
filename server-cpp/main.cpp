@@ -1,161 +1,297 @@
 #include <iostream>
-//#include "crow_all_mac.h"
+#include <SQLiteCpp/Database.h>
+#include <vector>
+#include <sstream>
+#include <algorithm>
+#include <nlohmann/json.hpp>
+#include "sha256.h"
+#include "crow_all_linux.h"
+using json = nlohmann::json;
 
-#include <mongoc/mongoc.h>
+namespace exchangable_data {
+
+    class send_data {
+    public:
+        std::string id;
+        std::string crdt;
+
+        send_data(std::string id,std::string crdt) : crdt(crdt),id(id) {}
+    };
 
 
-#include <iostream>
+    void to_json(json& j, const send_data& d) {
+        j = json{{"id", d.id}, {"crdt", d.crdt}};
+    }
 
-#include <bsoncxx/builder/stream/document.hpp>
-#include <bsoncxx/json.hpp>
+    void from_json(const json& j, send_data& d) {
+        j.at("id").get_to(d.id);
+        j.at("crdt").get_to(d.crdt);
+    }
 
-#include <mongocxx/client.hpp>
-#include <mongocxx/instance.hpp>
-
-using bsoncxx::builder::basic::kvp;
-using bsoncxx::builder::basic::make_array;
-using bsoncxx::types::b_date;
-using std::chrono::system_clock;
-using bsoncxx::builder::basic::make_document;
+}
 
 class Database {
 private:
-    static const std::string connUri;
-    mongocxx::instance inst;
-    mongocxx::client connection;
+    SQLite::Database db;
+    static std::string dbUri;
+    std::map<std::string,int> sessionLogged;
+
+    /*
+     * function private for hash
+     */
+    std::string hashed_pass(std::string pass){
+        return sha256(pass + "my crazy random salt porcamadonna PDS");
+    }
+
+    std::string random_string( size_t length )
+    {
+        auto randchar = []() -> char
+        {
+            const char charset[] =
+                    "0123456789"
+                    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                    "abcdefghijklmnopqrstuvwxyz";
+            const size_t max_index = (sizeof(charset) - 1);
+            return charset[ rand() % max_index ];
+        };
+        std::string str(length,0);
+        std::generate_n( str.begin(), length, randchar );
+        return str;
+    }
 
 public:
-    Database() : inst{},connection{mongocxx::uri{connUri}}{
+    Database() : db(dbUri,SQLite::OPEN_READWRITE) {
+        // TODO: only for test, remove it
+        std::cout << "db opened";
+        sessionLogged["1"] = 1;
+        sessionLogged["2"] = 1;
     }
 
-    std::unique_ptr<std::string> insertUser(std::string name,std::string password,std::string image,std::string username){
-        auto collection = connection["pds-db"]["users"];
-        bsoncxx::builder::stream::document docBuff;
+    int userLogged(std::string token){
+        if (sessionLogged.find(token) != sessionLogged.end())
+            return sessionLogged[token];
 
-        docBuff << "name" << name;
-        docBuff << "password" << password;
-        docBuff << "image" << image;
-        docBuff << "username" << username;
-
-        auto res = collection.insert_one(docBuff.view());
-
-        return std::make_unique<std::string>(res.get().inserted_id().get_oid().value.to_string());
+        return -1;
     }
 
-    void getUser(){
-        auto collection = connection["pds-db"]["users"];
-        auto cursor = collection.find({});
+    void login(std::string username,std::string password){
+        std::string hashedPass = hashed_pass(password);
+        bool isLoginCorrect = true;
 
-        for (auto&& doc : cursor) {
-            std::cout << bsoncxx::to_json(doc) << std::endl;
+
+        // TODO: check login is correct
+        if (isLoginCorrect) {
+            std::string token = random_string(40);
+            int id = 15;
+
+            sessionLogged[token] = id;
         }
     }
 
-    std::unique_ptr<std::string> createDocument(std::string docName,std::string uid){
-        std::string docId{"DOC_" + docName + uid};
-        auto collection = connection["pds-db"][docId];
-        bsoncxx::builder::stream::document docBuff;
-
-        docBuff << "name" << docName;
-        docBuff << "partecipant" << make_array(uid);
-        docBuff << "crdt" << make_array();
-        docBuff << "messages" << make_array();
-        docBuff << "online users" << make_document(kvp(uid,b_date(system_clock::now())));
-
-
-        auto res = collection.insert_one(docBuff.view());
-
-        return std::make_unique<std::string>(res.get().inserted_id().get_oid().value.to_string());
+    //TODO: ricordati di inviare tutto lo storico dei crdt
+    void addPartecipant(std::string docId,std::string uid){
+        std::string sql = "INSERT INTO user_document_request VALUES(" + uid + "," + docId + ",datetime('now'))";
+        SQLite::Statement query(db,sql);
+        query.exec();
     }
 
-
-    void addCrdtToDocument(std::string docId,std::string uid,std::string crdt,std::string docName){
-        auto collection = connection["pds-db"][docId];
-
-        auto res = collection.update_one(make_document(kvp("name", docName)),
-                make_document(kvp("$push",make_document(kvp("messages",make_document(kvp("cia","mondo")))))));
-
-        //std::cout << res->result().upserted_ids();
-
+    void updateTimestamp(std::string docId,std::string uid){
+        std::string sql = "UPDATE user_document_request SET lastReq = datetime('now') WHERE idUser = " + uid + " AND idDocument = " + docId + ";)";
+        SQLite::Statement query(db,sql);
+        query.exec();
     }
 
+    /*
+     * the operation of insert crdt create the crdt, and after create a notification
+     * for each user subscribed to the document, the subscription is seen if a user
+     * has a row inside the table user_document_request
+     */
+    void insertCrdt(std::string crdt_json,std::string uid,std::string docId){
+        std::string sql = "INSERT INTO crdt(idDoc,idUser,crdt_json)  VALUES(" + docId + "," + uid + ",'" + crdt_json + "');";
 
-    void addPartecipantToDocument(std::string docName,std::string uid,std::string docId){
-        auto collection = connection["pds-db"][docId];
+        SQLite::Statement queryUpdate(db,sql);
+        auto res = queryUpdate.exec();
+        int idCrdtInserted = db.getLastInsertRowid();
 
-        collection.update_one(make_document(kvp("name", docName)),make_document(kvp("$push",make_document(kvp("partecipant",uid)))));
-        std::cout << "done!";
-    }
+        sql = "SELECT idUser FROM user_document_request WHERE idDocument=" + docId + ";";
+        SQLite::Statement idGetter(db,sql);
+        std::vector<int> ids;
 
-    void viewPartecipantToDocument(std::string docId){
-        auto collection = connection["pds-db"][docId];
-        auto obj = collection.find_one({}).value().view();
-        auto partecipant = obj["partecipant"].get_array();
-        std::vector<std::string> partecipants{};
 
-        for(bsoncxx::v_noabi::array::element p : partecipant.value){
-            std::string val = p.get_utf8().value.to_string();
-            partecipants.push_back(val);
+        while (idGetter.executeStep()){
+            ids.push_back(idGetter.getColumn(0));
         }
+
+        std::stringstream ss{uid};
+
+        int creator_id;
+
+        ss >> creator_id;
+
+        ids.erase(std::remove(ids.begin(),ids.end(),creator_id),ids.end());
+        std::string crdtId = std::to_string(idCrdtInserted);
+
+        for(int usrId : ids){
+            sql = "insert into crdt_delvery(idDoc,idCrdt,idUser) values(" + docId + "," + crdtId + "," + std::to_string(usrId) + ")";
+            SQLite::Statement insertNotification(db,sql);
+            insertNotification.exec();
+        }
+
     }
 
-    bool checkPartecipantToDocument(std::string docId,std::string uid){
-        auto collection = connection["pds-db"][docId];
-        auto obj = collection.find_one({}).value().view();
+    /*
+     * it returns the list of unseen crdt given a user, a document and the last
+     * seen document; it ensure also the statistics of witch crdt has been seen
+     * by a user
+     */
+    std::vector<exchangable_data::send_data> getCrdtUser(std::string lastCrdtId,std::string uid,std::string docId){
+        std::string sql;
 
-        bsoncxx::stdx::string_view res = obj["name"].get_utf8();
-        bsoncxx::stdx::string_view exampleArray = obj["crdt"].get_array().value.begin()->get_utf8(); // .get_document().value["prova"]
-        std::chrono::microseconds exampleDate = obj["online users"]["prova"].get_date().value;
+        if (lastCrdtId.compare("")!=0){
+            sql = "UPDATE crdt_delvery SET delivered = '1' WHERE idDoc=" + docId + " AND idCrdt <=" + lastCrdtId + " AND idUser = " + uid + ";";
 
-        auto exist = obj["online users"]["aaa"];
+            SQLite::Statement queryUpdate(db,sql);
+            queryUpdate.exec();
 
-        if (exist){
-            return true;
+
+            sql = "SELECT id,crdt_json FROM crdt WHERE id IN (SELECT idCrdt from crdt_delvery WHERE idUser=" + uid + " AND idDoc=" + docId + "  AND delivered=0)";
         } else {
-            return false;
+            sql = "SELECT id,crdt_json FROM crdt WHERE id IN (SELECT idCrdt from crdt_delvery WHERE idUser=" + uid + " AND idDoc=" + docId + ")";
         }
 
-        // {"online users.prova": { $exists : true } }
+        std::cout << sql;
 
-        // std::cout << res;
-        // std::cout << exampleDate.count();
-        // std::cout << exampleArray;
+        SQLite::Statement query(db, sql);
+        std::vector<exchangable_data::send_data> vect;
+
+        while (query.executeStep()){
+            std::string id = query.getColumn(0);
+            std::string crdt_json = query.getColumn(1);
+
+            vect.push_back(exchangable_data::send_data(id,crdt_json));
+        }
+
+        return vect;
     }
+
 
 };
 
-const std::string Database::connUri{"mongodb://PDS-admin:123stella@47.53.242.167:27017"};
+std::string Database::dbUri = "../pds.db";
+
 
 int main() {
-
     Database db;
-    db.addCrdtToDocument("DOC_provaprova","giggino","crdt di prova","prova");
-    /*
-     *
-     * working code for generating a webpage with plain hello work response
-     *
     crow::SimpleApp app;
 
-    CROW_ROUTE(app, "/")
-    ([]{
-        return "Hello, world!";
+    CROW_ROUTE(app,"/register_user")
+    .methods("GET"_method)
+    ([&](const crow::request& req){
+        auto params = req.url_params;
+
+        // if error
+        //return crow::response(400);
+
+        std::string par = params.get("username");
+        std::ostringstream os;
+
+        // fill the reply
+        os << par;
+        os << "che schifo i voti di cabodi madonna immacoolata";
+
+        return crow::response{os.str()};
     });
 
-    CROW_ROUTE(app, "/amazon")
-            ([]{
-                return "Hello, amazon world!";
+    CROW_ROUTE(app,"/update_user")
+    .methods("GET"_method)
+            ([&](const crow::request& req){
+                return "bello stai calmo che non ho ancora finito! torna più tardi";
             });
 
-    app
-    .port(8080)
-    .multithreaded()
+
+    CROW_ROUTE(app,"/get_image_user")
+    .methods("GET"_method)
+            ([&](const crow::request& req){
+                return "senti mettici dentro la foto di un cazzo  tanto a cabodi piace perfino di più";
+            });
+
+    // to test launch and open
+    // http://localhost:8080/get_crdt?token=1&lastcrdt=&docId=1
+    CROW_ROUTE(app,"/get_crdt")
+            .methods("GET"_method)
+                    ([&](const crow::request& req){
+                        auto params = req.url_params;
+
+                        if(params.get("token") == nullptr || params.get("lastcrdt") == nullptr
+                        || params.get("docId") == nullptr)
+                            return crow::response(500);
+
+
+                        // TODO: replace the simple id to the hashmap of token
+                        std::string uid = params.get("token");
+                        std::string lastcrdt = params.get("lastcrdt");
+                        std::string docId = params.get("docId");
+
+                        int idUser = db.userLogged(uid);
+                        if(idUser<0)
+                            return crow::response(403);
+
+                        std::vector<exchangable_data::send_data> d = db.getCrdtUser(lastcrdt,std::to_string(idUser),docId);
+                        json j = d;
+                        std::ostringstream os;
+
+                        // fill the reply
+                        os << j;
+
+                        return crow::response{os.str()};
+                    });
+
+    // to test launch and open
+    // http://localhost:8080/push_crdt?token=1&crdt=mannaggia il porco&docId=1
+    CROW_ROUTE(app,"/push_crdt")
+            .methods("GET"_method)
+                    ([&](const crow::request& req){
+                        auto params = req.url_params;
+
+                        if(params.get("token") == nullptr || params.get("crdt") == nullptr
+                           || params.get("docId") == nullptr)
+                            return crow::response(500);
+
+
+                        // TODO: replace the simple id to the hashmap of token
+                        std::string uid = params.get("token");
+                        std::string crdt = params.get("crdt");
+                        std::string docId = params.get("docId");
+
+                        int idUser = db.userLogged(uid);
+                        if(idUser<0)
+                            return crow::response(403);
+
+                        db.insertCrdt(crdt,std::to_string(idUser),docId);
+
+                        std::ostringstream os;
+
+                        // fill the reply
+                        os << "1";
+
+                        return crow::response{os.str()};
+                    });
+
+    app.port(8080)
+    //.multithreaded() // active only if you need more performance
     .run();
-     */
+
+    return 0;
 }
 
-void tests(){
-    // creation of a user
-    Database db;
-    auto ptr = db.insertUser("elia","ciao","ajisdasjida","eliax1996");
-    std::cout<<ptr;
-}
+
+
+
+/*
+    QUERY INSERIMENTO DB:
+    INSERT INTO user VALUES(NULL,'user','5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8','dario.patti@elia.migliore.com','image');
+    INSERT INTO user_document_request VALUES(1,1,datetime('now'))
+    INSERT INTO document VALUES(NULL,'documento di prova')
+    INSERT INTO crdt(idDoc,idUser,crdt_json)  VALUES(NULL,1,'crdt_json')
+    insert into crdt_delvery(idCrdt,idUser,idDocument) values(1,1,1)
+ */
