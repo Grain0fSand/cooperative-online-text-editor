@@ -52,8 +52,10 @@ std::string json_serializer::sendAction(ActionWrapper &actionWrapper) {
         default:
             break;
     }
+
     //online_syncronizer::send
-    return j;
+
+    return j.dump();
 }
 
 void json_serializer::receiveAction(json j) {
