@@ -9,7 +9,7 @@
 using json = nlohmann::json;
 
 namespace json_serializer {
-    void sendAction(ActionWrapper &actionWrapper);
+    std::string sendAction(ActionWrapper &actionzcxWrapper);
     void receiveAction(json j);
 }
 #endif // JSON_COMUNICATOR_H

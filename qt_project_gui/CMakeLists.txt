@@ -19,8 +19,8 @@ if(APPLE)
 	set(Qt5Widgets_INCLUDE_DIRS /usr/local/Cellar/qt/5.13.1/include)
 	set(Qt5Widgets_DEFINITIONS /usr/local/Cellar/qt/5.13.1/lib)
 	set(Qt5Widgets_DIR /usr/local/Cellar/qt/5.13.1/lib/cmake/Qt5Widgets)
-	set(Qt5PrintSupport_DIR /usr/local/Cellar/qt/5.13.0/lib/cmake/Qt5PrintSupport)
-	set(Qt5Network_DIR /usr/local/Cellar/qt/5.13.0/lib/cmake/Qt5Network)
+	set(Qt5PrintSupport_DIR /usr/local/Cellar/qt/5.13.1/lib/cmake/Qt5PrintSupport)
+	set(Qt5Network_DIR /usr/local/Cellar/qt/5.13.1/lib/cmake/Qt5Network)
 	SUBDIRLIST(CMAKE_PREFIX_PATH /usr/local/Cellar/qt/5.13.1/lib/cmake/)
    	#message(${CMAKE_PREFIX_PATH})
 	message(include dir:${Qt5Widgets_INCLUDE_DIRS})
@@ -106,6 +106,11 @@ set(RESOURCES
 )
 
 # Shared libraries
+if(APPLE)
+	set(nlohmann_DIR /Users/eliamigliore/Desktop/PDS-project/server-cpp/library/nlohmann_json)
+	include_directories(${nlohmann_DIR})
+endif()
+
 set(LIBRARIES
 		Qt5::Widgets
 		Qt5::Network
@@ -128,5 +133,7 @@ install(FILES resources/${TARGET_NAME}.png DESTINATION share/icons/hicolor/48x48
 install(FILES ${TARGET_NAME}.desktop DESTINATION share/applications)
 
 # nlohmann JSON
-set(nlohmann_DIR C:/Users/Dario/Desktop/project_utilities/nlohmann_json)
-include_directories(${nlohmann_DIR})
+if(WIN32)
+	set(nlohmann_DIR C:/Users/Dario/Desktop/project_utilities/nlohmann_json)
+	include_directories(${nlohmann_DIR})
+endif()

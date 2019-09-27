@@ -5,14 +5,22 @@
 #ifndef TRANSLATOR_ONLINE_SENDER_H
 #define TRANSLATOR_ONLINE_SENDER_H
 
-class OnlineQuery : public QThread
+#include <QObject>
+#include <QThread>
+#include <QNetworkAccessManager>
+#include <QNetworkRequest>
+#include <QNetworkReply>
+#include <vector>
+#include <QMutex>
+
+class OnlineSender : public QThread
 {
     Q_OBJECT
 
 public:
-    OnlineQuery(){
+    OnlineSender(){
         // because the background thread cannot communicate with the gui thread
-        connect(this,&OnlineQuery::request_time,this,&OnlineQuery::request);
+        connect(this,&OnlineSender::request_time,this,&OnlineSender::request);
 
 
 
