@@ -13,6 +13,11 @@ if (APPLE)
     find_package(nlohmann_json 3.2.0 REQUIRED)
 endif()
 
+if(WIN32)
+    set(nlohmann_DIR library/nlohmann_json)
+    include_directories(${nlohmann_DIR})
+endif()
+
 include_directories(${Boost_INCLUDE_DIRS})
 
 set(SQLITE_DIR library)
@@ -22,11 +27,6 @@ add_subdirectory(${SQLITE_DIR}/SQLiteCpp)
 include_directories(
         ${SQLITE_DIR}/SQLiteCpp/include
 )
-
-if(WIN32)
-    set(nlohmann_DIR library/nlohmann_json)
-    include_directories(${nlohmann_DIR})
-endif()
 
 add_executable(main main.cpp sha256.cpp sha256.h)
 
