@@ -76,6 +76,11 @@ void UserTag::setUsername(QString newName)
     this->userUsername = newName;
 }
 
+void UserTag::setUserColor(QString color)
+{
+    this->userColor = color;
+}
+
 void UserTag::chooseAvatar()
 {
     //to implement?
@@ -100,7 +105,3 @@ bool UserTag::getStatus()
 {
     return this->userStatus;
 }
-
-
-
-

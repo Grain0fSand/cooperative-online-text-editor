@@ -81,8 +81,8 @@ public slots:
     void checkTextProperty();
     void insertRemoteCursor();
     void reqInvitationEmailAddress();
-    void addUserTag();
     void disableEditor();
+    void newUserTag();
 
 protected slots:
     void textChanged(int, int, int);
@@ -102,6 +102,7 @@ private:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+    void addUserTag(QString username, bool status, QPixmap avatar, QColor color);
     Ui::MainWindow *ui;
     Periodic_task background_task;
     QClipboard *clipboard;

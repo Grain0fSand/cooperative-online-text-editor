@@ -6,23 +6,20 @@
 #include "usertag.h"
 #include "../web_requests/smtpclient.h"
 #include "../data_structure/crdt.h"
+#include <random>
 #include <QDebug>
 #include <QFontDialog>
-#include <QErrorMessage>
 #include <QFontComboBox>
 #include <QComboBox>
 #include <QLabel>
-#include <QUndoStack>
 #include <QClipboard>
 #include <QPrinter>
 #include <QFileDialog>
 #include <QMessageBox>
-#include <QGroupBox>
 #include <QInputDialog>
 #include <QPainter>
 #include <QPushButton>
 #include <QStringListModel>
-#include <QFormLayout>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -69,7 +66,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionExport_to_PDF,&QAction::triggered,this,&MainWindow::exportPDF);
     connect(ui->actionInvite,&QAction::triggered,this,&MainWindow::reqInvitationEmailAddress);
     connect(ui->actionTestCursor,&QAction::triggered,this,&MainWindow::insertRemoteCursor); //only for test
-    connect(ui->actionTestTag,&QAction::triggered,this,&MainWindow::addUserTag);    //only for test
+    connect(ui->actionTestTag,&QAction::triggered,this,&MainWindow::newUserTag);    //only for test
     connect(ui->actionTestDisconnect,&QAction::triggered,this,&MainWindow::disableEditor); //only for test
     connect(ui->actionTestColor,&QAction::toggled,ui->textEditShared,&myTextEdit::colorText);
 }
@@ -336,6 +333,8 @@ void MainWindow::checkTextProperty()
     ui->statusBar->findChild<QLabel*>("cursorPos")->setText("pos: "+QString::number(ui->textEditShared->textCursor().position()));
     ui->statusBar->findChild<QLabel*>("cursorColumn")->setText("col: "+QString::number(ui->textEditShared->textCursor().columnNumber()));
     ui->statusBar->findChild<QLabel*>("cursorSelectionCount")->setText("sel: "+QString::number(ui->textEditShared->textCursor().selectedText().length()));
+
+    ui->textEditShared->setTextColor(QColor("black"));
 }
 
 void MainWindow::insertRemoteCursor() {
@@ -382,19 +381,47 @@ void MainWindow::reqInvitationEmailAddress()
     }
 }
 
-void MainWindow::addUserTag()
+void MainWindow::newUserTag() {
+    //receive informations on the partecipants from db
+    QString username("dario");
+    QPixmap avatar(":/resources/avatar.png");
+    bool status = false;
+
+    std::default_random_engine generator(std::chrono::system_clock::now().time_since_epoch().count());
+    std::uniform_int_distribution<int> distribution(0,255);
+    auto random_value = std::bind(distribution, generator);
+
+    QColor color(random_value(),random_value(),random_value());
+
+    addUserTag(username, status, avatar, color);
+}
+
+void MainWindow::addUserTag(QString username, bool status, QPixmap avatar, QColor color)
 {
     auto tag = new UserTag();
     this->usersList.push_back(tag);
 
-    ui->listOnlineUsers->setItemDelegate(tag);
+    QPixmap led;
+    QString statusLabel;
+    if(status) {
+        led.load(":/resources/greenLed.png");
+        statusLabel = "Online";
+    }
+    else {
+        led.load(":/resources/redLed.png");
+        statusLabel = "Offline";
+    }
+
+    ui->listOfflineUsers->setItemDelegate(tag);
     QListWidgetItem *item = new QListWidgetItem();
-    item->setData(Qt::UserRole + 1, "Username");
-    item->setData(Qt::UserRole + 2, "Online");
-    item->setData(Qt::UserRole + 3, QPixmap(":/resources/avatar.png"));
-    item->setData(Qt::UserRole + 4, QPixmap(":/resources/greenLed.png"));
-    item->setData(Qt::UserRole + 5, QColor::fromHsv(180,255,255));
-    ui->listOnlineUsers->addItem(item);
+    item->setData(Qt::UserRole + 1, username);
+    item->setData(Qt::UserRole + 2, statusLabel);
+    item->setData(Qt::UserRole + 3, avatar);
+    item->setData(Qt::UserRole + 4, led);
+    item->setData(Qt::UserRole + 5, color);
+    ui->listOfflineUsers->addItem(item);
+
+    qDebug() << this->usersList.size();
 }
 
 void MainWindow::disableEditor()

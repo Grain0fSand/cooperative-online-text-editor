@@ -62,6 +62,7 @@ include_directories(
 		${CMAKE_CURRENT_BINARY_DIR}
 		${CMAKE_CURRENT_SOURCE_DIR}
 		${Qt5Widgets_DIR}
+
 )
 
 # Instruct CMake to run moc automatically when needed
@@ -125,3 +126,7 @@ target_link_libraries(${TARGET_NAME} ${LIBRARIES})
 install(TARGETS ${TARGET_NAME} RUNTIME DESTINATION bin)
 install(FILES resources/${TARGET_NAME}.png DESTINATION share/icons/hicolor/48x48/apps)
 install(FILES ${TARGET_NAME}.desktop DESTINATION share/applications)
+
+# nlohmann JSON
+set(nlohmann_DIR C:/Users/Dario/Desktop/project_utilities/nlohmann_json)
+include_directories(${nlohmann_DIR})

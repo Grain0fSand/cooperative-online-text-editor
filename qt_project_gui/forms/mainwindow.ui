@@ -593,8 +593,15 @@
    <property name="checkable">
     <bool>true</bool>
    </property>
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/resources/colorButtonIcon.png</normaloff>:/resources/colorButtonIcon.png</iconset>
+   </property>
    <property name="text">
     <string>TestColor</string>
+   </property>
+   <property name="toolTip">
+    <string>Highlights the text based on who entered it</string>
    </property>
   </action>
  </widget>

@@ -20,11 +20,22 @@ myTextEdit::myTextEdit(QWidget *parent)
                           "Palatino Linotype" << "Tahoma" << "Times New Roman" << "Verdana" << "Vivaldi";
     this->user_id = 0;
     //testing the coloring feature
-    this->textColorsList.emplace_back("#6DFF4C");
-    this->textColorsList.emplace_back("#6DFF4C");
-    this->textColorsList.emplace_back("#FF0000");
-    this->textColorsList.emplace_back("#6DFF4C");
-    this->textColorsList.emplace_back("#6DFF4C");
+    this->textColorsList.emplace_back("#61E761");
+    this->textColorsList.emplace_back("#61E761");
+    this->textColorsList.emplace_back("#61E761");
+    this->textColorsList.emplace_back("#61E761");
+    this->textColorsList.emplace_back("#4C331C");
+    this->textColorsList.emplace_back("#4C331C");
+    this->textColorsList.emplace_back("#4C331C");
+    this->textColorsList.emplace_back("#4C331C");
+    this->textColorsList.emplace_back("#EFB66F");
+    this->textColorsList.emplace_back("#EFB66F");
+    this->textColorsList.emplace_back("#EFB66F");
+    this->textColorsList.emplace_back("#EFB66F");
+    this->textColorsList.emplace_back("#D20E38");
+    this->textColorsList.emplace_back("#D20E38");
+    this->textColorsList.emplace_back("#D20E38");
+    this->textColorsList.emplace_back("#D20E38");
 
     Crdt::getInstance().init(user_id);
 }
@@ -211,7 +222,6 @@ QStringList myTextEdit::getFontFamilies() const
 
 void myTextEdit::colorText(bool checked)
 {
-    QTextCharFormat format;
     if(checked) {
         int size = this->textColorsList.size();
         for(int i=0; i<size; i++) {
@@ -223,16 +233,21 @@ void myTextEdit::colorText(bool checked)
                 if(i==(size-1)) break;
             }
             this->hiddenCursor->movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, i-n+1);
-            format.setBackground(QBrush(QColor(this->textColorsList.at(n))));
+            QColor color(this->textColorsList.at(n));
+            QTextCharFormat format;
+            format.setBackground(QBrush(color));
+            if((color.red()*299 + color.green()*587 + color.blue()*114)/1000 < 123)
+                format.setForeground(QBrush(QColor(Qt::white)));
             this->hiddenCursor->mergeCharFormat(format);
         }
     }
     else {
+        QTextCharFormat format;
         format.setBackground(QBrush(Qt::black,Qt::NoBrush));
+        format.setForeground(QBrush(Qt::black));
         this->hiddenCursor->select(QTextCursor::Document);
         this->hiddenCursor->mergeCharFormat(format);
     }
-
 }
 
 void myTextEdit::createCursor(int pos, QString text, QColor color) {

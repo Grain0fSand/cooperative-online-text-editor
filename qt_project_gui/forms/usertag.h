@@ -17,6 +17,7 @@ public:
     void setUsername(QString);
     void chooseAvatar();
     void setUserStatus(bool);
+    void setUserColor(QString);
     QString getUsername();
     QPixmap getAvatar();
     bool getStatus();
@@ -29,6 +30,7 @@ private:
     QString userUsername;
     QPixmap userAvatar;
     bool userStatus;
+    QString userColor;
 };
 
 #endif // USERTAG_H

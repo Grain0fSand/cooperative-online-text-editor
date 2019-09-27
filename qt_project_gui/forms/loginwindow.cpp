@@ -1,7 +1,6 @@
 #include "loginwindow.h"
 #include "ui_loginwindow.h"
 #include "mytextedit.h"
-#include <cmath>
 #include <QDebug>
 #include <QPropertyAnimation>
 #include <QMenu>
@@ -167,6 +166,8 @@ void LoginWindow::requestURI()
 
 void LoginWindow::tryLogin()
 {
+    //TODO: check the login correctness on db
+
     if(ui->loginUsernameInput->text()=="") {
         ui->loginErrorLabel->setText("Insert a valid username");
     }
@@ -177,8 +178,10 @@ void LoginWindow::tryLogin()
         ui->loginErrorLabel->setText("Login failed\nWrong username or password");
     }
     else {
+        //TODO: receive the other informations on the user (id, nickname, avatar)
         this->loginCorrect=true;
         ui->loggedUsernameLabel->setText(ui->loginUsernameInput->text());
+        ui->loggedAvatar->setPixmap(QPixmap(":/resources/avatar.png"));
         this->switchFrame(1);
     }
     ui->loginErrorLabel->setVisible(true);
@@ -186,70 +189,33 @@ void LoginWindow::tryLogin()
 
 void LoginWindow::tryRegister()
 {
-    //TODO: check in db if the username exist already
+    //TODO: check in db if the username or email exist already
     //if not, proceed with the registration, otherwise show a message
 
-    QPixmap avatar(":/resources/avatar.png");
+    QString email(ui->registerEmailInput->text());
+    QString username(ui->registerUsernameInput->text());
+    QString password(ui->registerPasswordInput->text());
+    QPixmap avatar;
+
     QMessageBox::StandardButton chooseAvatar;
     chooseAvatar = QMessageBox::question(this, "Choose your avatar",
-            "Do you want to choose a personal avatar?\nClicking 'No' a default one will be assigned to you",
+            "Do you want to choose a personal avatar?\nClicking 'No', a default one will be assigned to you.",
             QMessageBox::Yes|QMessageBox::No);
     if (chooseAvatar == QMessageBox::Yes) {
         QString file_path = QFileDialog::getOpenFileName(nullptr,"Choose your own avatar...");
         if(file_path!="") {
-            QString file_name = file_path.split("/").last();
-            QString new_file_path = ":/resources/"+file_name;
-            QFile::copy(file_path,new_file_path);
-            avatar.load(new_file_path);
+            avatar.load(file_path);
         } else {
             QMessageBox advice(this);
             advice.setText("You didn't select any image!");
-            advice.setInformativeText("<― this avatar will be assigned to you");
+            advice.setInformativeText("<― this avatar will be assigned to you.");
             advice.setIconPixmap(QPixmap(":/resources/avatar.png").scaled(60,60));
             advice.exec();
+            avatar.load(":/resources/avatar.png");
         }
     }
-    //now the avatar is ready to be set
-    //TODO: if everything ok, proceed with registration on db
 
-
-    /*
-    //formula for the color (experimental... but trust me)
-
-    int x,n,group,hue,sat,val;
-
-    x = 1;
-    n = ceil(log2(((x-1)%16)+1));
-    hue = ceil(((2*((x-1)%16)+1)/pow(2,n)-1)*360);
-    group = floor((x-1)/16);
-
-    switch(group)
-    {
-        case 0: //first 16 users
-            sat = 35;
-            val = 75;
-            break;
-        case 1: //17-32
-            sat = 100;
-            val = 100;
-            break;
-        case 2: //33-48
-            sat = 35;
-            val = 100;
-            break;
-        case 3: //49-64
-            sat = 100;
-            val = 75;
-            break;
-        default: //other users
-            std::srand(std::time(nullptr));
-            hue = rand()%360;
-            sat = rand()%256;
-            val = rand()%256;
-            break;
-    }
-    QString hexColor = QColor::fromHsv(hue,sat,val).name();
-     */
+    //TODO: proceed with registration on db
 }
 
 void LoginWindow::mousePressEvent(QMouseEvent *event) {

@@ -164,6 +164,9 @@ public:
         actionTestColor = new QAction(MainWindow);
         actionTestColor->setObjectName(QString::fromUtf8("actionTestColor"));
         actionTestColor->setCheckable(true);
+        QIcon icon11;
+        icon11.addFile(QString::fromUtf8(":/resources/colorButtonIcon.png"), QSize(), QIcon::Normal, QIcon::Off);
+        actionTestColor->setIcon(icon11);
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QString::fromUtf8("centralWidget"));
         sizePolicy.setHeightForWidth(centralWidget->sizePolicy().hasHeightForWidth());
@@ -266,7 +269,7 @@ public:
         onlineRollButton->setMaximumSize(QSize(258, 16777215));
         onlineRollButton->setLayoutDirection(Qt::RightToLeft);
         onlineRollButton->setStyleSheet(QString::fromUtf8("text-align:left;"));
-        QIcon icon11;
+        QIcon icon12;
         icon11.addFile(QString::fromUtf8(":/resources/arrow_up.png"), QSize(), QIcon::Normal, QIcon::Off);
         onlineRollButton->setIcon(icon11);
         onlineRollButton->setIconSize(QSize(10, 10));
@@ -344,6 +347,7 @@ public:
         mainToolBar->addAction(actionAlignCenter);
         mainToolBar->addAction(actionAlignRight);
         mainToolBar->addAction(actionAlignJustify);
+        mainToolBar->addSeparator();
         mainToolBar->addAction(actionTestColor);
         mainToolBar->addAction(actionTestCursor);
         mainToolBar->addAction(actionTestTag);
@@ -387,6 +391,9 @@ public:
 #endif // QT_CONFIG(tooltip)
         actionTestActions->setText(QCoreApplication::translate("MainWindow", "TestActions", nullptr));
         actionTestColor->setText(QCoreApplication::translate("MainWindow", "TestColor", nullptr));
+#if QT_CONFIG(tooltip)
+        actionTestColor->setToolTip(QCoreApplication::translate("MainWindow", "Highlights the text based on who entered it", nullptr));
+#endif // QT_CONFIG(tooltip)
         textEditShared->setHtml(QCoreApplication::translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
                                                                           "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
                                                                           "p, li { white-space: pre-wrap; }\n"
