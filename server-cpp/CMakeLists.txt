@@ -3,6 +3,7 @@ project(sqlite)
 
 set(CMAKE_CXX_STANDARD 17)
 
+
 set(Boost_USE_STATIC_LIBS OFF)
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
@@ -35,6 +36,9 @@ target_link_libraries(main
         sqlite3
         pthread
         dl
-        nlohmann_json::nlohmann_json
         ${Boost_LIBRARIES}
         )
+
+if (UNIX AND NOT APPLE)
+    include_directories(library/cget/include/nlohmann/json.hpp)
+endif()

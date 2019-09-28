@@ -24,8 +24,8 @@ namespace exchangable_data {
     }
 
     void from_json(const json& j, send_data& d) {
-        j.at("id").get_to(d.id);
-        j.at("crdt").get_to(d.crdt);
+        d.id = j.at("id").get<std::string>();
+        d.crdt = j.at("crdt").get<std::string>();
     }
 
 }
