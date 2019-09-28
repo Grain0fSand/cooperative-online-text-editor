@@ -8,8 +8,10 @@
 #include <QNetworkReply>
 #include <vector>
 #include <QMutex>
+#include <nlohmann/json.hpp>
+#include "../exchangeable.h"
 
-
+using json = nlohmann::json;
 
 class SynkObj {
 
@@ -30,7 +32,9 @@ class OnlineQuery : public QThread
     Q_OBJECT
 
 public:
-    OnlineQuery(){
+    // TODO: if you want change lastcrdt, now it is setted as no previus crdt during construction
+    // has to be replaced if you want restore the situation of the editor from a file
+    OnlineQuery(std::string docId,std::string token) : token(token),docId(docId),lastcrdt("") {
         // because the background thread cannot communicate with the gui thread
         connect(this,&OnlineQuery::request_time,this,&OnlineQuery::request);
 
@@ -50,7 +54,7 @@ public:
 
 
             std::string answer = reply->readAll().toStdString();
-            //json j = answer;
+            json j = answer;
             //exchangable_data::send_data d = j.get<exchangable_data::send_data>();
 
             // TODO: remove comment here
@@ -64,7 +68,7 @@ public:
         while(true){
             qDebug() << "request sygnal launched";
             emit request_time();
-            std::this_thread::sleep_for(std::chrono::milliseconds(200));
+            std::this_thread::sleep_for(std::chrono::milliseconds(800));
         }
     }
 
@@ -76,7 +80,14 @@ public slots:
 
         // body of webrequest and json decode/unmarshaling
 
-        url.setUrl("https://www.google.it/");
+        QString base="http://localhost:8080/get_crdt?";
+        QString params="token=";
+        params=params+QString::fromStdString(token);
+        params=params+"&lastcrdt=";
+        params=params+QString::fromStdString(lastcrdt);
+        params=params+"&docId=";
+        params=params+QString::fromStdString(docId);
+        url.setUrl(base+params);
         req.setUrl(url);
         manager.get(req);
 
@@ -89,6 +100,9 @@ private:
     QNetworkAccessManager manager{this};
     QUrl url;
     QNetworkRequest req;
+    std::string docId;
+    std::string token;
+    std::string lastcrdt;
 
 signals:
     void response_arrived(std::string response);
@@ -97,50 +111,5 @@ signals:
     // periodic web request for filling the queue of SynkObj
 };
 
-// for templating class is not possible split
-// definition from implementation due to the
-// size that the compiler must know for the type
-// during the precompilation phases
-
-class OnlineSynchronizer : public QObject
-{
-    Q_OBJECT
-
-public:
-    OnlineSynchronizer(){
-        this->query.start();
-        connect(&(this->query),&OnlineQuery::response_arrived,this,&OnlineSynchronizer::receiveSynkObj);
-    }
-
-signals:
-    void sendSynkObj(std::string obj);
-
-public slots:
-    void receiveSynkObj(std::string obj){
-        // for thread safe implementation
-        QMutexLocker l(&synk_mutex_send);
-
-        qDebug() << "text downloaded from webrequest: " << QString(obj.c_str());
-
-
-
-    }
-
-private:
-    QMutex synk_mutex_send;
-    QMutex synk_mutex_receive;
-    std::vector<SynkObj> send;
-    std::vector<SynkObj> receive;
-    OnlineQuery query; // obj that fill the queue due to QThread and QWebRequest and json decoder
-
-
-    void sendSynkObjFromQueue(){
-        // for thread safe implementation
-        QMutexLocker l(&synk_mutex_receive);
-        SynkObj obj = receive.back();
-        receive.pop_back();
-        emit sendSynkObj(obj.action_json); // during that phase no-one can access to the receive queue
-    }
-};
 #endif // ONLINE_SYNCHRONIZER_H
 

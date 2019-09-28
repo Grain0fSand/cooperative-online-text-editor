@@ -1,6 +1,5 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "../web_requests/online_synchronizer.h"
 #include "../utility/shared_editor.h"
 #include "mytextedit.h"
 #include "usertag.h"
@@ -32,6 +31,9 @@ MainWindow::MainWindow(QWidget *parent) :
     // TODO: are saved as constant but need to be replaced in the future!
     this->sessionData.token = std::string("1"); // change for changing the user
     this->sessionData.docId = std::string("1"); // change for changing document
+
+    query = new OnlineQuery{this->sessionData.token,this->sessionData.docId};
+    query->start();
 
     ui->setupUi(this);
     ui->textEditShared->setAcceptRichText(false); //this needs to be false to avoid pasting formatted text with CTRL+V

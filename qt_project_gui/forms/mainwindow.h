@@ -10,6 +10,7 @@
 #include <qthread.h>
 #include <atomic>
 #include "usertag.h"
+#include "../web_requests/online_synchronizer.h"
 #include "../data_structure/crdt.h"
 #include "../data_structure/session_data.h"
 
@@ -109,6 +110,7 @@ private:
     Periodic_task background_task;
     QClipboard *clipboard;
     std::list<UserTag*> usersList;
+    OnlineQuery* query; // for online updates of crdt
 };
 
 #endif // MAINWINDOW_H
