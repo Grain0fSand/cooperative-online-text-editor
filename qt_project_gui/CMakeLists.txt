@@ -22,7 +22,7 @@ if(APPLE)
 	set(Qt5PrintSupport_DIR /usr/local/Cellar/qt/5.13.1/lib/cmake/Qt5PrintSupport)
 	set(Qt5Network_DIR /usr/local/Cellar/qt/5.13.1/lib/cmake/Qt5Network)
 	SUBDIRLIST(CMAKE_PREFIX_PATH /usr/local/Cellar/qt/5.13.1/lib/cmake/)
-   	#message(${CMAKE_PREFIX_PATH})
+	#message(${CMAKE_PREFIX_PATH})
 	message(include dir:${Qt5Widgets_INCLUDE_DIRS})
 	message(definition dir:${Qt5Widgets_DEFINITIONS})
 endif()
@@ -36,8 +36,8 @@ add_definitions(${Qt5Widgets_DEFINITIONS})
 
 # Check the build type and ask the user to set concrete one
 if(NOT CMAKE_BUILD_TYPE)
-   set(CMAKE_BUILD_TYPE RelWithDebInfo)
-   message(WARNING "CMAKE_BUILD_TYPE is not set, forcing to RelWithDebInfo")
+	set(CMAKE_BUILD_TYPE RelWithDebInfo)
+	message(WARNING "CMAKE_BUILD_TYPE is not set, forcing to RelWithDebInfo")
 endif()
 
 # Set compiler flags
@@ -92,19 +92,19 @@ set(SOURCES
 		utility/shared_editor.h
 		web_requests/online_synchronizer.h
 		web_requests/smtpclient.cpp
-        web_requests/smtpclient.h
+		web_requests/smtpclient.h
 		web_requests/online_sender.h data_structure/session_data.h)
 
 # User interface files
 set(FORMS
 		forms/mainwindow.ui
 		forms/loginwindow.ui
-)
+		)
 
 # Resource files
 set(RESOURCES
-	resources.qrc
-)
+		resources.qrc
+		)
 
 # Shared libraries
 if(APPLE)
@@ -116,7 +116,7 @@ set(LIBRARIES
 		Qt5::Widgets
 		Qt5::Network
 		Qt5::PrintSupport
-)
+		)
 
 # Generate additional sources with MOC and UIC
 qt5_wrap_ui(UIC_SOURCES ${FORMS})

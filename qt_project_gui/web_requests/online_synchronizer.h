@@ -9,16 +9,19 @@
 #include <vector>
 #include <QMutex>
 
+
+
 class SynkObj {
 
 public:
 
-    SynkObj(std::string str) : str(str) {}
+    SynkObj(std::string id,std::string action) : id_last_action(id),action_json(action) {}
 
     // NB: is a std::string because QString are constructable only throw the main thread
     // because each children must know the father, and that is possible only thread unsafe
 
-    std::string str; // temporary as like this! in the future the type is strongly typed and meaningfull
+    std::string id_last_action;
+    std::string action_json; // temporary as like this! in the future the type is strongly typed and meaningfull
     // and has also methods for translating itself from json to obj and vice-versa
 };
 
@@ -47,7 +50,8 @@ public:
 
 
             std::string answer = reply->readAll().toStdString();
-            qDebug() << "request correctly terminated numchar: " << answer.size() ;
+            //json j = answer;
+            //exchangable_data::send_data d = j.get<exchangable_data::send_data>();
 
             // TODO: remove comment here
             //emit response_arrived(answer);
@@ -118,7 +122,7 @@ public slots:
 
         qDebug() << "text downloaded from webrequest: " << QString(obj.c_str());
 
-        send.push_back(SynkObj(obj));
+
 
     }
 
@@ -135,7 +139,7 @@ private:
         QMutexLocker l(&synk_mutex_receive);
         SynkObj obj = receive.back();
         receive.pop_back();
-        emit sendSynkObj(obj.str); // during that phase no-one can access to the receive queue
+        emit sendSynkObj(obj.action_json); // during that phase no-one can access to the receive queue
     }
 };
 #endif // ONLINE_SYNCHRONIZER_H
