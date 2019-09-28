@@ -17,6 +17,7 @@ namespace exchangable_data {
 
     class send_data {
     public:
+        send_data(){}
         std::string id;
         std::string crdt;
 

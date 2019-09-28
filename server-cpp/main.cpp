@@ -7,6 +7,8 @@
 #include "sha256.h"
 #include "exchangable_data.h"
 
+
+
 class Database {
 private:
     SQLite::Database db;
