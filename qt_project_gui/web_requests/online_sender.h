@@ -18,7 +18,7 @@ class OnlineSender : public QThread
     Q_OBJECT
 
 public:
-    OnlineSender(){
+    OnlineSender(std::string json_to_sent,std::string docId,std::string token){
         // because the background thread cannot communicate with the gui thread
         connect(this,&OnlineSender::request_time,this,&OnlineSender::request);
 
@@ -59,10 +59,7 @@ public:
 
 public slots:
 
-            void request() {
-
-        // body of webrequest and json decode/unmarshaling
-
+    void request() {
         url.setUrl("https://www.google.it/");
         req.setUrl(url);
         manager.get(req);
@@ -73,15 +70,15 @@ public slots:
     }
 
 private:
+    std::string json_to_send;
+    std::string token;
+    std::string docId;
     QNetworkAccessManager manager{this};
     QUrl url;
     QNetworkRequest req;
 
     signals:
             void response_arrived(std::string response);
-    void request_time();
-
-    // periodic web request for filling the queue of SynkObj
 };
 
 #endif //TRANSLATOR_ONLINE_SENDER_H

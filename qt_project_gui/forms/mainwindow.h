@@ -10,6 +10,7 @@
 #include <qthread.h>
 #include "usertag.h"
 #include "../data_structure/crdt.h"
+#include "../data_structure/session_data.h"
 
 class Periodic_task : public QThread
 {
@@ -51,12 +52,13 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
+    SessionData sessionData;
     MainWindow(const MainWindow&) = delete;
     MainWindow& operator=(const MainWindow&) = delete;
 
     static MainWindow& getInstance(){
         static MainWindow instance;
-
+        token="1";
         return instance;
     }
 
