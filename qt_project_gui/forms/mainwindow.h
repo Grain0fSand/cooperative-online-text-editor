@@ -58,7 +58,6 @@ public:
 
     static MainWindow& getInstance(){
         static MainWindow instance;
-        token="1";
         return instance;
     }
 

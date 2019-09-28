@@ -47,12 +47,7 @@ public:
     }
 
     void run(void) override {
-        // while loop
-        while(true){
-            qDebug() << "request sygnal launched";
-            emit request_time();
-            std::this_thread::sleep_for(std::chrono::milliseconds(200));
-        }
+        emit request_time();
     }
 
 
@@ -68,6 +63,9 @@ public slots:
         qDebug() << "request launched";
 
     }
+
+ signals:
+    void request_time();
 
 private:
     std::string json_to_send;
