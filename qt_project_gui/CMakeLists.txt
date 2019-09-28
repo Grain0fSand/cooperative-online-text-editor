@@ -83,6 +83,7 @@ set(SOURCES
 		forms/mainwindow.h
 		forms/mytextedit.cpp
 		forms/mytextedit.h
+		exchangeable.h
 		forms/usertag.cpp
 		forms/usertag.h
 		utility/image_utility.h

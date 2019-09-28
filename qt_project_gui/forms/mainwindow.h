@@ -8,6 +8,7 @@
 #include <thread>
 #include <chrono>
 #include <qthread.h>
+#include <atomic>
 #include "usertag.h"
 #include "../data_structure/crdt.h"
 #include "../data_structure/session_data.h"

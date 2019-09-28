@@ -77,8 +77,9 @@ public slots:
 
 private:
     std::string json_to_send;
-    std::string token;
     std::string docId;
+    std::string token;
+
     QNetworkAccessManager manager{this};
     QUrl url;
     QNetworkRequest req;

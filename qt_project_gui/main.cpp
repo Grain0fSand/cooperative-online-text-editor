@@ -1,14 +1,21 @@
 #include "forms/loginwindow.h"
+
 #include "forms/mainwindow.h"
 #include "utility/image_utility.h"
 #include "data_structure/crdt.h"
 #include "data_structure/action.h"
-#include "utility/json_comunicator.h"
+
 #include <QApplication>
 #include <QStyleFactory>
+#include <nlohmann/json.hpp>
+#include "utility/json_comunicator.h"
+//#include "exchangeable.h"
 
 int main(int argc, char *argv[])
 {
+//    exchangable_data::send_data b("ff","ff");
+//    json j = b;
+//    std::cout << j.dump();
     QApplication a(argc, argv);
 //    LoginWindow::getInstance().exec();
 //    if(LoginWindow::getInstance().isLoginCorrect()) {

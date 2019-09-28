@@ -41,8 +41,9 @@ myTextEdit::myTextEdit(QWidget *parent)
     Crdt::getInstance().init(user_id);
 }
 
+//TODO: check delete hiddenCursor
 myTextEdit::~myTextEdit() {
-    delete hiddenCursor;
+   // delete hiddenCursor;
 }
 
 void myTextEdit::paintEvent(QPaintEvent *e) {
@@ -101,6 +102,7 @@ void myTextEdit::doReceivedAction(Action& action, std::vector<int>& all_pos )
                 case Insertion:
                     this->hiddenCursor->insertText(action.getChars().mid(ptr_start, ptr_end + 1 - ptr_start));
                     this->hiddenCursor->setPosition(all_pos[ptr_start]);
+                    [[fallthrough]];
                 case TextFormatting:  //no break, insertion does formatting too
                 {
                     this->hiddenCursor->movePosition(QTextCursor::Right,QTextCursor::KeepAnchor, ptr_end + 1 - ptr_start);
