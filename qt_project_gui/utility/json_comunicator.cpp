@@ -56,13 +56,11 @@ std::string json_serializer::sendAction(ActionWrapper &actionWrapper) {
     }
 
     //online_syncronizer::send
-<<<<<<< HEAD
-    receiveAction(j);
 
-=======
+ //   receiveAction(j);
 
     return j.dump();
->>>>>>> ea5d78c92cfdc06b42fa0212d1094528d3306866
+
 }
 
 void json_serializer::receiveAction(json j) {
