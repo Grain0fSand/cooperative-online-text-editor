@@ -13,9 +13,6 @@
 
 int main(int argc, char *argv[])
 {
-//    exchangable_data::send_data b("ff","ff");
-//    json j = b;
-//    std::cout << j.dump();
     QApplication a(argc, argv);
 //    LoginWindow::getInstance().exec();
 //    if(LoginWindow::getInstance().isLoginCorrect()) {

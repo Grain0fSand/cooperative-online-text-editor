@@ -120,7 +120,7 @@ void MainWindow::alignLeft()
     cursor.mergeBlockFormat(textBlockFormat);
     textEdit->setTextCursor(cursor);
 
-    Action a = Action(BlockFormatting, AlignLeft);
+    Action a = Action( AlignLeft);
     Crdt::getInstance().sendActionToServer(a, cursor.selectionStart(), cursor.selectedText().length());
 }
 
@@ -139,7 +139,7 @@ void MainWindow::alignCenter()
     cursor.mergeBlockFormat(textBlockFormat);
     textEdit->setTextCursor(cursor);
 
-    Action a = Action(BlockFormatting, AlignCenter);
+    Action a = Action( AlignCenter);
     Crdt::getInstance().sendActionToServer(a, cursor.selectionStart(), cursor.selectedText().length());
 }
 
@@ -158,7 +158,7 @@ void MainWindow::alignRight()
     cursor.mergeBlockFormat(textBlockFormat);
     textEdit->setTextCursor(cursor);
 
-    Action a = Action(BlockFormatting, AlignRight);
+    Action a = Action(AlignRight);
     Crdt::getInstance().sendActionToServer(a, cursor.selectionStart(), cursor.selectedText().length());
 }
 
@@ -177,7 +177,7 @@ void MainWindow::alignJustify()
     cursor.mergeBlockFormat(textBlockFormat);
     textEdit->setTextCursor(cursor);
 
-    Action a = Action(BlockFormatting, AlignJustify);
+    Action a = Action(AlignJustify);
     Crdt::getInstance().sendActionToServer(a, cursor.selectionStart(), cursor.selectedText().length());
 }
 
