@@ -114,7 +114,7 @@ void MainWindow::alignLeft()
     textEdit->setTextCursor(cursor);
 
     Action a = Action(BlockFormatting, AlignLeft);
-    Crdt::getInstance().sendActionToServer(a, cursor.selectionStart() + 1, cursor.selectedText().length());
+    Crdt::getInstance().sendActionToServer(a, cursor.selectionStart(), cursor.selectedText().length());
 }
 
 void MainWindow::alignCenter()
@@ -133,7 +133,7 @@ void MainWindow::alignCenter()
     textEdit->setTextCursor(cursor);
 
     Action a = Action(BlockFormatting, AlignCenter);
-    Crdt::getInstance().sendActionToServer(a, cursor.selectionStart() + 1, cursor.selectedText().length());
+    Crdt::getInstance().sendActionToServer(a, cursor.selectionStart(), cursor.selectedText().length());
 }
 
 void MainWindow::alignRight()
@@ -152,7 +152,7 @@ void MainWindow::alignRight()
     textEdit->setTextCursor(cursor);
 
     Action a = Action(BlockFormatting, AlignRight);
-    Crdt::getInstance().sendActionToServer(a, cursor.selectionStart() + 1, cursor.selectedText().length());
+    Crdt::getInstance().sendActionToServer(a, cursor.selectionStart(), cursor.selectedText().length());
 }
 
 void MainWindow::alignJustify()
@@ -171,12 +171,11 @@ void MainWindow::alignJustify()
     textEdit->setTextCursor(cursor);
 
     Action a = Action(BlockFormatting, AlignJustify);
-    Crdt::getInstance().sendActionToServer(a, cursor.selectionStart() + 1, cursor.selectedText().length());
+    Crdt::getInstance().sendActionToServer(a, cursor.selectionStart(), cursor.selectedText().length());
 }
 
 
-void MainWindow::makeBold()
-{
+void MainWindow::makeBold() {
     auto textEdit = ui->textEditShared;
     auto cursor = textEdit->textCursor();
 
@@ -188,8 +187,10 @@ void MainWindow::makeBold()
     cursor.mergeCharFormat(format);
     textEdit->setTextCursor(cursor);
 
-    Action a = Action(0, is_bold ? 1 : 0);
-    Crdt::getInstance().sendActionToServer(a, cursor.selectionStart() + 1, cursor.selectedText().length());
+    if (cursor.selectedText().length() > 0) {
+        Action a = Action(0, is_bold ? 1 : 0);
+        Crdt::getInstance().sendActionToServer(a, cursor.selectionStart() + 1, cursor.selectedText().length());
+    }
 }
 
 void MainWindow::makeItalic()
@@ -205,8 +206,10 @@ void MainWindow::makeItalic()
     cursor.mergeCharFormat(format);
     textEdit->setTextCursor(cursor);
 
-    Action a = Action(1, is_italic ? 1 : 0);
-    Crdt::getInstance().sendActionToServer(a, cursor.selectionStart() + 1, cursor.selectedText().length());
+    if (cursor.selectedText().length() > 0) {
+        Action a = Action(1, is_italic ? 1 : 0);
+        Crdt::getInstance().sendActionToServer(a, cursor.selectionStart() + 1, cursor.selectedText().length());
+    }
 }
 
 void MainWindow::makeUnderline()
@@ -222,8 +225,10 @@ void MainWindow::makeUnderline()
     cursor.mergeCharFormat(format);
     textEdit->setTextCursor(cursor);
 
-    Action a = Action(2, is_underlined ? 1 : 0);
-    Crdt::getInstance().sendActionToServer(a, cursor.selectionStart() + 1, cursor.selectedText().length());
+    if (cursor.selectedText().length() > 0) {
+        Action a = Action(2, is_underlined ? 1 : 0);
+        Crdt::getInstance().sendActionToServer(a, cursor.selectionStart() + 1, cursor.selectedText().length());
+    }
 }
 
 //TODO: create multiple actions when copy pasting text with different styles

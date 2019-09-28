@@ -20,7 +20,7 @@ std::pair<int,int> Crdt::findRelativePosition(int left_pos) {
     }
 
     if (cmp != left_pos)
-        throw "error: char not already present in the memory";
+        throw "error: char not present in the memory";
     return left_sym;
 }
 

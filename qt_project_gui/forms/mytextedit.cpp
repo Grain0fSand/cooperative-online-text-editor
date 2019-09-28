@@ -1,4 +1,5 @@
 #include "mytextedit.h"
+#include "mainwindow.h"
 #include <QPainter>
 #include <QDebug>
 #include <QPaintEvent>
@@ -80,69 +81,6 @@ void myTextEdit::addCursor(RemoteCursor *cursor)
     this->cursorsList.push_back(cursor);
 }
 
-//void myTextEdit::addAction(int cursorPos, int numChars, QString chars, ActionType actionType) //insertion
-//{
-//    Action action;
-//    action.setActionType(actionType);
-//    action.setCursorPos(cursorPos);
-//    action.setNumChars(numChars);
-//    action.setChars(chars);
-//
-//    Crdt::getInstance().sendActionToServer(action);
-//   // this->toSendList.push_front(action);
-//}
-//
-//void myTextEdit::addAction(int cursorPos, int numChars, ActionType actionType) //deletion
-//{
-//    Action action;
-//    action.setActionType(actionType);
-//    action.setCursorPos(cursorPos);
-//    action.setNumChars(numChars);
-//
-//    Crdt::getInstance().sendActionToServer(action);
-//   // this->toSendList.push_front(action);
-//}
-//
-//void myTextEdit::addAction(int cursorPos, int numChars, bool formatBoolean, TextFormatType formatType, ActionType actionType) //text formatting
-//{
-//    Action action;
-//    action.setActionType(actionType);
-//    action.setCursorPos(cursorPos);
-//    action.setNumChars(numChars);
-//    action.setTextFormatBoolean(formatBoolean);
-//    action.setTextFormatType(formatType);
-//
-//    Crdt::getInstance().sendActionToServer(action);
-//   // this->toSendList.push_front(action);
-//}
-//
-//void myTextEdit::addAction(int cursorPos, int numChars, int index, TextFormatType formatType, ActionType actionType) //font formatting
-//{
-//    Action action;
-//    action.setActionType(actionType);
-//    action.setCursorPos(cursorPos);
-//    action.setNumChars(numChars);
-//    action.setComboFontIndex(index);
-//    action.setTextFormatType(formatType);
-//
-//
-//
-//    //nb: removed because the modification is sent immediatly after elaboration of crdt
-//    //and the responsability of send online is of the class crdt
-//    //this->toSendList.push_front(action);
-//}
-//
-//void myTextEdit::addAction(int cursorPos, int numChars, BlockFormatType formatType, ActionType actionType) //block formatting
-//{
-//    Action action;
-//    action.setActionType(actionType);
-//    action.setCursorPos(cursorPos);
-//    action.setNumChars(numChars);
-//    action.setBlockFormatType(formatType);
-//
-//  //  this->toSendList.push_front(action);
-//}
-//
 void myTextEdit::doReceivedAction(Action& action, std::vector<int>& all_pos )
 {
    // this->document()->blockSignals(true);
@@ -162,12 +100,8 @@ void myTextEdit::doReceivedAction(Action& action, std::vector<int>& all_pos )
                     break;
                 case Insertion:
                     this->hiddenCursor->insertText(action.getChars().mid(ptr_start, ptr_end + 1 - ptr_start));
-                    break;
-                case Deletion:
-                    this->hiddenCursor->movePosition(QTextCursor::Right,QTextCursor::KeepAnchor,ptr_end + 1 - ptr_start);
-                    this->hiddenCursor->removeSelectedText();
-                    break;
-                case TextFormatting:
+                    this->hiddenCursor->setPosition(all_pos[ptr_start]);
+                case TextFormatting:  //no break, insertion does formatting too
                 {
                     this->hiddenCursor->movePosition(QTextCursor::Right,QTextCursor::KeepAnchor, ptr_end + 1 - ptr_start);
                     QTextCharFormat format;
@@ -177,9 +111,13 @@ void myTextEdit::doReceivedAction(Action& action, std::vector<int>& all_pos )
                     format.setFontUnderline(action.getUnderlined());
                     format.setFontFamily(this->fontFamilies.at(action.getComboFontIndex()));
                     format.setFontPointSize(this->fontSizes.at(action.getComboFontIndex()).toInt());
-                    this->hiddenCursor->mergeCharFormat(format);
+                    this->hiddenCursor->setCharFormat(format);
                     break;
                 }
+                case Deletion:
+                    this->hiddenCursor->movePosition(QTextCursor::Right,QTextCursor::KeepAnchor,ptr_end + 1 - ptr_start);
+                    this->hiddenCursor->removeSelectedText();
+                    break;
                 case BlockFormatting:
                 {
                     this->hiddenCursor->movePosition(QTextCursor::Right,QTextCursor::KeepAnchor,ptr_end + 1 - ptr_start);
@@ -202,12 +140,13 @@ void myTextEdit::doReceivedAction(Action& action, std::vector<int>& all_pos )
                             format.setAlignment(Qt::AlignJustify);
                             break;
                     }
-                    this->hiddenCursor->mergeBlockFormat(format);
+                    this->hiddenCursor->setBlockFormat(format);
                     break;
                 }
             }
             ++ptr_end;
         }
+        MainWindow::getInstance().checkTextProperty();
 }
 
 QStringList myTextEdit::getFontSizes() const
