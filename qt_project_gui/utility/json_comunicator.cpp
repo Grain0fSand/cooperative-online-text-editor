@@ -15,15 +15,17 @@ void json_serializer::sendAction(ActionWrapper &actionWrapper) {
     ActionType type = a.getActionType();
     j.push_back(type);
 
+
     switch(type) {
         case Insertion:
-            j.push_back(a.getChars().toUtf8().constData());  //TODO: Utf8
+            j.push_back(a.getChars().toUtf8().constData());
+            j.push_back(a.getComboFontIndex());
+            j.push_back(a.getFontSize());
             j.push_back(a.getBold());
             j.push_back(a.getItalic());
             j.push_back(a.getUnderlined());
             j.push_back(a.getBlockFormat());
-            j.push_back(a.getComboFontIndex());
-            j.push_back(a.getFontSize());
+
             break;
 
         case  TextFormatting:
@@ -53,10 +55,12 @@ void json_serializer::sendAction(ActionWrapper &actionWrapper) {
             break;
     }
     //online_syncronizer::send
-    //receiveAction(j);
+    receiveAction(j);
+
 }
 
 void json_serializer::receiveAction(json j) {
+    std::string s = j.dump();
     std::pair<int,int> p;
     int i = 0;
     p.first = j[i].get<int>();

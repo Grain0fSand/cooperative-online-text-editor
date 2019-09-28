@@ -36,7 +36,6 @@ target_link_libraries(main
         sqlite3
         pthread
         dl
-        nlohmann_json::nlohmann_json
         ${Boost_LIBRARIES}
         )
 
