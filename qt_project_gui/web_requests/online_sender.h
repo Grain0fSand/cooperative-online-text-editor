@@ -40,7 +40,8 @@ public:
 
 
                     std::string answer = reply->readAll().toStdString();
-                    std::cout << answer;
+                    if (answer.compare("1")!=0)
+                        std::cout << "error: the server is not reachable";
 
                     // TODO: remove comment here
                     //emit response_arrived(answer);
