@@ -13,6 +13,7 @@ class SessionData {
 public:
     std::string docId;
     std::string token;
+    std::string lastCrdtId;
     // TODO: add list of user
     // TODO: add list of cursor
     // TODO: add list of online user

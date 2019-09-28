@@ -9,6 +9,8 @@
 #include <vector>
 #include <QMutex>
 #include <nlohmann/json.hpp>
+#include "../data_structure/action.h"
+#include "../forms/mainwindow.h"
 #include "../exchangeable.h"
 
 using json = nlohmann::json;
@@ -54,8 +56,29 @@ public:
 
 
             std::string answer = reply->readAll().toStdString();
-            json j = answer;
-            //exchangable_data::send_data d = j.get<exchangable_data::send_data>();
+            json j = json::parse(answer);
+            std::vector<exchangable_data::send_data> array;
+
+            for (auto& element : j) {
+                exchangable_data::send_data data;
+                exchangable_data::send_data::from_json(data, element);
+                array.push_back(data);
+
+                // TODO: update that and make it work
+                //MainWindow::getInstance().sessionData.lastCrdtId = data.id;
+            }
+
+            std::vector<ActionWrapper> actions;
+
+            for(exchangable_data::send_data act : array){
+                ActionWrapper w;
+                ActionWrapper::action_from_json(w,json::parse(act.crdt));
+                actions.push_back(w);
+            }
+
+            std::cout << "ciao mondo";
+
+
 
             // TODO: remove comment here
             //emit response_arrived(answer);
@@ -93,6 +116,8 @@ public slots:
 
 
         qDebug() << "request launched";
+
+        return;
 
     }
 

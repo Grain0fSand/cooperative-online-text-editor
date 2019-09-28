@@ -77,6 +77,8 @@ public:
             symbol(std::move(symbol))
     {}
 
+    ActionWrapper(){}
+
     ActionWrapper(Action action) : action(action){
     }
 
@@ -139,7 +141,7 @@ public:
         return j;
     }
 
-    ActionWrapper action_from_json(const json& j) {
+    static void action_from_json(ActionWrapper& w,const json& j) {
         std::string s = j.dump();
         std::pair<int,int> p;
         int i = 0;
@@ -170,7 +172,7 @@ public:
             default:
                 break;
         }
-        return ActionWrapper(a, p, vc);
+        w = ActionWrapper(a, p, vc);
     }
 };
 

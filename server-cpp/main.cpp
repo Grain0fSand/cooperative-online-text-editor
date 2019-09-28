@@ -43,7 +43,7 @@ public:
         // TODO: only for test, remove it
         std::cout << "db opened";
         sessionLogged["1"] = 1;
-        sessionLogged["2"] = 1;
+        sessionLogged["2"] = 2;
     }
 
     int userLogged(std::string token){

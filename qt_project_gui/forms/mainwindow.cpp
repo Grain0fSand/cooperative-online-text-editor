@@ -29,10 +29,10 @@ MainWindow::MainWindow(QWidget *parent) :
     // TODO: structure are necessary for the correct web request
     // TODO: but need to be getted as reply of requests, now for mocking
     // TODO: are saved as constant but need to be replaced in the future!
-    this->sessionData.token = std::string("1"); // change for changing the user
+    this->sessionData.token = std::string("2"); // change for changing the user
     this->sessionData.docId = std::string("1"); // change for changing document
 
-    query = new OnlineQuery{this->sessionData.token,this->sessionData.docId};
+    query = new OnlineQuery{this->sessionData.docId,this->sessionData.token};
     query->start();
 
     ui->setupUi(this);
