@@ -4,7 +4,7 @@
 #include "../utility/json_comunicator.h"
 #include "../forms/mainwindow.h"
 #include <thread>
-
+#include "../exchangeable.h"
 
 std::pair<int,int> Crdt::findRelativePosition(int left_pos) {
     int cmp = 0;
@@ -157,14 +157,14 @@ void Crdt::sendActionToServer(Action& action, int cursorPos, int numChars) {
             break;
     }
     //send to server
-//    std::string crdt_str = json_serializer::sendAction(action_wrapper);
+    json str = action_wrapper.get_json();
 
     auto docId = MainWindow::getInstance().sessionData.docId;
     auto token = MainWindow::getInstance().sessionData.token;
 
     // no need to free: https://stackoverflow.com/questions/26714492/how-to-release-memory-of-qthread-object
-//    QThread* sender = new OnlineSender{crdt_str,docId,token};
- //   sender->start();
+    QThread* sender = new OnlineSender{str.dump(),docId,token};
+    sender->start();
     //std::cout << crdt_str;
 
 //    //flush server buffer,  the documents only gets refreshed AFTER local action
