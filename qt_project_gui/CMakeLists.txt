@@ -107,10 +107,9 @@ set(RESOURCES
 		)
 
 # Shared libraries
-if(APPLE)
-	set(nlohmann_DIR /Users/eliamigliore/Desktop/PDS-project/server-cpp/library/nlohmann_json)
-	include_directories(${nlohmann_DIR})
-endif()
+	# nlohmann JSON
+set(nlohmann_DIR library/nlohmann_json)
+include_directories(${nlohmann_DIR})
 
 set(LIBRARIES
 		Qt5::Widgets
@@ -132,9 +131,3 @@ target_link_libraries(${TARGET_NAME} ${LIBRARIES})
 install(TARGETS ${TARGET_NAME} RUNTIME DESTINATION bin)
 install(FILES resources/${TARGET_NAME}.png DESTINATION share/icons/hicolor/48x48/apps)
 install(FILES ${TARGET_NAME}.desktop DESTINATION share/applications)
-
-# nlohmann JSON
-if(WIN32)
-	set(nlohmann_DIR C:/Users/Dario/Desktop/project_utilities/nlohmann_json)
-	include_directories(${nlohmann_DIR})
-endif()

@@ -17,7 +17,7 @@ c++_project/Makefile
 
 # CMake
 cmake-build-*/
-
+server-cpp/cmake-build-*/
 
 # File-based project format
 *.iws
@@ -172,3 +172,4 @@ Temporary Items
 .apdisk
 
 # End of https://www.gitignore.io/api/c++,clion,macos
+server-cpp/library/SQLiteCpp/
