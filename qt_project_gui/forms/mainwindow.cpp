@@ -26,6 +26,13 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow),
     background_task(200)
 {
+    // TODO: remove after login are setted correctly, this
+    // TODO: structure are necessary for the correct web request
+    // TODO: but need to be getted as reply of requests, now for mocking
+    // TODO: are saved as constant but need to be replaced in the future!
+    this->sessionData.token = std::string("1"); // change for changing the user
+    this->sessionData.docId = std::string("1"); // change for changing document
+
     ui->setupUi(this);
     ui->textEditShared->setAcceptRichText(false); //this needs to be false to avoid pasting formatted text with CTRL+V
 

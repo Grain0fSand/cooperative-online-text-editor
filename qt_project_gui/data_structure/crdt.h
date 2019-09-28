@@ -6,6 +6,7 @@
 #include <QtCore/QArgument>
 #include "action.h"
 #include "symbol_id.h"
+#include "../web_requests/online_sender.h"
 
 class Crdt {
     //Q_OBJECT
