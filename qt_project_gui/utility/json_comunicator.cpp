@@ -1,7 +1,7 @@
 #include <data_structure/crdt.h>
 #include "json_comunicator.h"
 
-void json_serializer::sendAction(ActionWrapper &actionWrapper) {
+std::string json_serializer::sendAction(ActionWrapper &actionWrapper) {
     json j;
     j.push_back(actionWrapper.rel_symbol.first);
     j.push_back(actionWrapper.rel_symbol.second);
@@ -54,9 +54,15 @@ void json_serializer::sendAction(ActionWrapper &actionWrapper) {
         default:
             break;
     }
+
     //online_syncronizer::send
+<<<<<<< HEAD
     receiveAction(j);
 
+=======
+
+    return j.dump();
+>>>>>>> ea5d78c92cfdc06b42fa0212d1094528d3306866
 }
 
 void json_serializer::receiveAction(json j) {

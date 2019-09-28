@@ -14,6 +14,8 @@ int main(int argc, char *argv[])
     if(LoginWindow::getInstance().isLoginCorrect()) {
         MainWindow::getInstance().show();
 
+        a.setStyle(QStyleFactory::create("Fusion")); // for uniform style
+
         return a.exec();
     }
     //a.setStyle(QStyleFactory::create("Fusion")); // for uniform style
