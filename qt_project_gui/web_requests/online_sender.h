@@ -22,7 +22,7 @@ public:
         // because the background thread cannot communicate with the gui thread
         connect(this,&OnlineSender::request_time,this,&OnlineSender::request);
 
-        std::cout << json_to_sent << docId << token << "request called";
+        //std::cout << json_to_sent << docId << token << "request called";
 
 
 
@@ -68,8 +68,6 @@ public slots:
         url.setUrl(base+params);
         req.setUrl(url);
         manager.get(req);
-
-        std::cout << "signal launghed" << std::endl;
 
     }
 

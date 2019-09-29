@@ -71,6 +71,7 @@ public:
     void setupStatusBar();
 
 public slots:
+    void update_id(std::string id);
     void exportPDF();
     void selectFont(int);
     void selectSize(int);

@@ -16,32 +16,17 @@
 
 using json = nlohmann::json;
 
-class SynkObj {
-
-public:
-
-    SynkObj(std::string id,std::string action) : id_last_action(id),action_json(action) {}
-
-    // NB: is a std::string because QString are constructable only throw the main thread
-    // because each children must know the father, and that is possible only thread unsafe
-
-    std::string id_last_action;
-    std::string action_json; // temporary as like this! in the future the type is strongly typed and meaningfull
-    // and has also methods for translating itself from json to obj and vice-versa
-};
-
 class OnlineQuery : public QThread
 {
     Q_OBJECT
 
 public:
-    // TODO: if you want change lastcrdt, now it is setted as no previus crdt during construction
-    // has to be replaced if you want restore the situation of the editor from a file
-    OnlineQuery(std::string docId,std::string token) : token(token),docId(docId),lastcrdt("") {
+    OnlineQuery(std::string docId,std::string token,QObject* m) : token(token),docId(docId),lastCrdtId("") {
         // because the background thread cannot communicate with the gui thread
         connect(this,&OnlineQuery::request_time,this,&OnlineQuery::request);
         connect(this,SIGNAL(send_actions(std::vector<ActionWrapper>)),
                 &Crdt::getInstance(),SLOT(update_income(std::vector<ActionWrapper>)));
+        connect(this,SIGNAL(update_id(std::string)),m,SLOT(update_id(std::string)));
 
 
 
@@ -62,13 +47,25 @@ public:
             json j = json::parse(answer);
             std::vector<exchangable_data::send_data> array;
 
+
+
+            int last = 0;
+
+            if(lastCrdtId.compare("")!=0)
+                last = std::stoi(lastCrdtId);
+
+            int cmp;
+
             for (auto& element : j) {
                 exchangable_data::send_data data;
                 exchangable_data::send_data::from_json(data, element);
-                array.push_back(data);
+                cmp = std::stoi(data.id);
 
-                // TODO: update that and make it work
-                //MainWindow::getInstance().sessionData.lastCrdtId = data.id;
+                if(cmp>last){
+                    array.push_back(data);
+                    lastCrdtId = data.id;
+                }
+
             }
 
             std::vector<ActionWrapper> actions;
@@ -79,9 +76,9 @@ public:
                 actions.push_back(w);
             }
 
+
+            emit update_id(lastCrdtId);
             emit send_actions(actions);
-
-
 
             // TODO: remove comment here
             //emit response_arrived(answer);
@@ -92,7 +89,6 @@ public:
     void run(void) override {
         // while loop
         while(true){
-            qDebug() << "request sygnal launched";
             emit request_time();
             std::this_thread::sleep_for(std::chrono::milliseconds(800));
         }
@@ -110,15 +106,12 @@ public slots:
         QString params="token=";
         params=params+QString::fromStdString(token);
         params=params+"&lastcrdt=";
-        params=params+QString::fromStdString(lastcrdt);
+        params=params+QString::fromStdString(lastCrdtId);
         params=params+"&docId=";
         params=params+QString::fromStdString(docId);
         url.setUrl(base+params);
         req.setUrl(url);
         manager.get(req);
-
-
-        qDebug() << "request launched";
 
         return;
 
@@ -130,10 +123,11 @@ private:
     QNetworkRequest req;
     std::string docId;
     std::string token;
-    std::string lastcrdt;
+    std::string lastCrdtId;
 
 signals:
     void response_arrived(std::string response);
+    void update_id(std::string id);
     void request_time();
     void send_actions(std::vector<ActionWrapper> actions);
 

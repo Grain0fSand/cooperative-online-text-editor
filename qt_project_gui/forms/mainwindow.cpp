@@ -32,7 +32,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->sessionData.token = std::string("2"); // change for changing the user
     this->sessionData.docId = std::string("1"); // change for changing document
 
-    query = new OnlineQuery{this->sessionData.docId,this->sessionData.token};
+    query = new OnlineQuery{this->sessionData.docId,this->sessionData.token,this};
     query->start();
 
     ui->setupUi(this);
@@ -85,6 +85,11 @@ MainWindow::~MainWindow()
     background_task.cancel();
     background_task.wait();
     delete ui;
+}
+
+void MainWindow::update_id(std::string id){
+    if (id.compare("")!=0)
+        this->sessionData.lastCrdtId = id;
 }
 
 void MainWindow::exportPDF()

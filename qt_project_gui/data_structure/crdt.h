@@ -44,7 +44,8 @@ public:
 
 public slots:
     void update_income(std::vector<ActionWrapper> actions){
-        std::cout << "received actions" << std::endl;
+        if (actions.size() != 0)
+            std::cout << "received actions" << std::endl;
     };
 
 private:

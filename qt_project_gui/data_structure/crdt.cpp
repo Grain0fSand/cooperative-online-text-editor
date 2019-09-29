@@ -165,7 +165,7 @@ void Crdt::sendActionToServer(Action& action, int cursorPos, int numChars) {
     // no need to free: https://stackoverflow.com/questions/26714492/how-to-release-memory-of-qthread-object
     QThread* sender = new OnlineSender{str.dump(),docId,token};
     sender->start();
-    std::cout << str;
+//    std::cout << str;
 
 //    //flush server buffer,  the documents only gets refreshed AFTER local action
 //    while (!action_queue.empty()) {
