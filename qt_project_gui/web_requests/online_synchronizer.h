@@ -12,6 +12,7 @@
 #include "../data_structure/action.h"
 #include "../forms/mainwindow.h"
 #include "../exchangeable.h"
+#include "../data_structure/crdt.h"
 
 using json = nlohmann::json;
 
@@ -39,6 +40,8 @@ public:
     OnlineQuery(std::string docId,std::string token) : token(token),docId(docId),lastcrdt("") {
         // because the background thread cannot communicate with the gui thread
         connect(this,&OnlineQuery::request_time,this,&OnlineQuery::request);
+        connect(this,SIGNAL(send_actions(std::vector<ActionWrapper>)),
+                &Crdt::getInstance(),SLOT(update_income(std::vector<ActionWrapper>)));
 
 
 
@@ -76,7 +79,7 @@ public:
                 actions.push_back(w);
             }
 
-            std::cout << "ciao mondo";
+            emit send_actions(actions);
 
 
 
@@ -132,6 +135,7 @@ private:
 signals:
     void response_arrived(std::string response);
     void request_time();
+    void send_actions(std::vector<ActionWrapper> actions);
 
     // periodic web request for filling the queue of SynkObj
 };

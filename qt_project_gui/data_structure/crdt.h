@@ -4,12 +4,13 @@
 #include <list>
 #include <queue>
 #include <QtCore/QArgument>
+#include <QtCore/QObject>
 #include "action.h"
 #include "symbol_id.h"
 #include "../web_requests/online_sender.h"
 
-class Crdt {
-    //Q_OBJECT
+class Crdt : public QObject {
+    Q_OBJECT
 
     std::vector<SymbolId> list;
     int usr_id;
@@ -39,6 +40,12 @@ public:
     std::vector<SymbolId>& getSymbolList(){
         return this->list;
     }
+
+
+public slots:
+    void update_income(std::vector<ActionWrapper> actions){
+        std::cout << "received actions" << std::endl;
+    };
 
 private:
 
