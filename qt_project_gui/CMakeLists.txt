@@ -77,23 +77,26 @@ set(SOURCES
 		data_structure/remotecursor.h
 		data_structure/crdt.cpp
 		data_structure/crdt.h
+		data_structure/exchangeable.h
+		data_structure/session_data.h
 		forms/loginwindow.cpp
 		forms/loginwindow.h
 		forms/mainwindow.cpp
 		forms/mainwindow.h
 		forms/mytextedit.cpp
 		forms/mytextedit.h
-		exchangeable.h
 		forms/usertag.cpp
 		forms/usertag.h
 		utility/image_utility.h
 		utility/json_comunicator.cpp
 		utility/json_comunicator.h
 		utility/shared_editor.h
-		web_requests/online_synchronizer.h
+		web_requests/online_query.cpp
+        web_requests/online_query.h
 		web_requests/smtpclient.cpp
 		web_requests/smtpclient.h
-		web_requests/online_sender.h data_structure/session_data.h)
+		web_requests/online_sender.cpp
+		web_requests/online_sender.h)
 
 # User interface files
 set(FORMS

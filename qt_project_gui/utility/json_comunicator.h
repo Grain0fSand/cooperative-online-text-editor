@@ -121,4 +121,4 @@
 //    }
 
 
-#endif  JSON_COMUNICATOR_H
+#endif  //JSON_COMUNICATOR_H

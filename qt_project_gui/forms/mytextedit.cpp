@@ -5,7 +5,7 @@
 #include <QPaintEvent>
 
 
-myTextEdit::myTextEdit(QWidget *parent)
+MyTextEdit::MyTextEdit(QWidget *parent)
 {
     this->setParent(parent);
 
@@ -42,11 +42,11 @@ myTextEdit::myTextEdit(QWidget *parent)
 }
 
 //TODO: check delete hiddenCursor
-myTextEdit::~myTextEdit() {
+MyTextEdit::~MyTextEdit() {
    // delete hiddenCursor;
 }
 
-void myTextEdit::paintEvent(QPaintEvent *e) {
+void MyTextEdit::paintEvent(QPaintEvent *e) {
 
     if(!cursorsList.empty()) {
         QPainter painter(this->viewport());
@@ -77,12 +77,12 @@ void myTextEdit::paintEvent(QPaintEvent *e) {
     QTextEdit::paintEvent(e);
 }
 
-void myTextEdit::addCursor(RemoteCursor *cursor)
+void MyTextEdit::addCursor(RemoteCursor *cursor)
 {
     this->cursorsList.push_back(cursor);
 }
 
-void myTextEdit::doReceivedAction(Action& action, std::vector<int>& all_pos )
+void MyTextEdit::doReceivedAction(Action& action, std::vector<int>& all_pos )
 {
    // this->document()->blockSignals(true);
         int ptr_start, ptr_end = 0, n = all_pos.size();    //ptr start and ptr end are for calculating ranges of subsequent positions in all_pos
@@ -151,17 +151,17 @@ void myTextEdit::doReceivedAction(Action& action, std::vector<int>& all_pos )
         MainWindow::getInstance().checkTextProperty();
 }
 
-QStringList myTextEdit::getFontSizes() const
+QStringList MyTextEdit::getFontSizes() const
 {
     return fontSizes;
 }
 
-QStringList myTextEdit::getFontFamilies() const
+QStringList MyTextEdit::getFontFamilies() const
 {
     return fontFamilies;
 }
 
-void myTextEdit::colorText(bool checked)
+void MyTextEdit::colorText(bool checked)
 {
     if(checked) {
         int size = this->textColorsList.size();
@@ -191,7 +191,7 @@ void myTextEdit::colorText(bool checked)
     }
 }
 
-void myTextEdit::createCursor(int pos, QString text, QColor color) {
+void MyTextEdit::createCursor(int pos, QString text, QColor color) {
 
     QTextCursor tmpCursor(this->document());
     tmpCursor.setPosition(pos);
@@ -207,10 +207,10 @@ void myTextEdit::createCursor(int pos, QString text, QColor color) {
     this->addCursor(newCursor);
 }
 
-const QString &myTextEdit::getDocumentName() const {
+const QString &MyTextEdit::getDocumentName() const {
     return documentName;
 }
 
-void myTextEdit::setDocumentName(const QString &documentName) {
-    myTextEdit::documentName = documentName;
+void MyTextEdit::setDocumentName(const QString &documentName) {
+    MyTextEdit::documentName = documentName;
 }

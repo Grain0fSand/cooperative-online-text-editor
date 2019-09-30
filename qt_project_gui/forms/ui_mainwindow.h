@@ -50,13 +50,12 @@ public:
     QAction *actionTestCursor;
     QAction *actionTestTag;
     QAction *actionTestDisconnect;
-    QAction *actionTestActions;
     QAction *actionTestColor;
     QWidget *centralWidget;
     QHBoxLayout *horizontalLayout;
     QWidget *docFrame;
     QGridLayout *docFrameLayout;
-    myTextEdit *textEditShared;
+    MyTextEdit *textEditShared;
     QFrame *verticalLine;
     QVBoxLayout *sideLayout;
     QFrame *myTag;
@@ -159,8 +158,6 @@ public:
         actionTestTag->setObjectName(QString::fromUtf8("actionTestTag"));
         actionTestDisconnect = new QAction(MainWindow);
         actionTestDisconnect->setObjectName(QString::fromUtf8("actionTestDisconnect"));
-        actionTestActions = new QAction(MainWindow);
-        actionTestActions->setObjectName(QString::fromUtf8("actionTestActions"));
         actionTestColor = new QAction(MainWindow);
         actionTestColor->setObjectName(QString::fromUtf8("actionTestColor"));
         actionTestColor->setCheckable(true);
@@ -190,7 +187,7 @@ public:
         docFrameLayout->setContentsMargins(11, 11, 11, 11);
         docFrameLayout->setObjectName(QString::fromUtf8("docFrameLayout"));
         docFrameLayout->setContentsMargins(0, 0, 0, 0);
-        textEditShared = &myTextEdit::getInstance();
+        textEditShared = &MyTextEdit::getInstance();
         textEditShared->setObjectName(QString::fromUtf8("textEditShared"));
         QSizePolicy sizePolicy2(QSizePolicy::Fixed, QSizePolicy::Expanding);
         sizePolicy2.setHorizontalStretch(0);
@@ -352,7 +349,6 @@ public:
         mainToolBar->addAction(actionTestCursor);
         mainToolBar->addAction(actionTestTag);
         mainToolBar->addAction(actionTestDisconnect);
-        mainToolBar->addAction(actionTestActions);
         menuBar->addAction(menuMain->menuAction());
         menuBar->addAction(menuAbout->menuAction());
         menuMain->addAction(actionConnect);
@@ -389,7 +385,6 @@ public:
 #if QT_CONFIG(tooltip)
         actionTestDisconnect->setToolTip(QCoreApplication::translate("MainWindow", "TestDisconnect", nullptr));
 #endif // QT_CONFIG(tooltip)
-        actionTestActions->setText(QCoreApplication::translate("MainWindow", "TestActions", nullptr));
         actionTestColor->setText(QCoreApplication::translate("MainWindow", "TestColor", nullptr));
 #if QT_CONFIG(tooltip)
         actionTestColor->setToolTip(QCoreApplication::translate("MainWindow", "Highlights the text based on who entered it", nullptr));

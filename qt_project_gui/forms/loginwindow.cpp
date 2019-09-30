@@ -126,7 +126,7 @@ void LoginWindow::createDocument()
                 advice.setIcon(QMessageBox::Critical);
                 advice.exec();
             } else {
-                myTextEdit::getInstance().setDocumentName(dialog.textValue());
+                MyTextEdit::getInstance().setDocumentName(dialog.textValue());
                 QMessageBox advice(this);
                 advice.setText("New document created on the server!");
                 advice.setIcon(QMessageBox::Information);

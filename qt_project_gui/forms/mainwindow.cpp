@@ -77,7 +77,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionTestCursor,&QAction::triggered,this,&MainWindow::insertRemoteCursor); //only for test
     connect(ui->actionTestTag,&QAction::triggered,this,&MainWindow::newUserTag);    //only for test
     connect(ui->actionTestDisconnect,&QAction::triggered,this,&MainWindow::disableEditor); //only for test
-    connect(ui->actionTestColor,&QAction::toggled,ui->textEditShared,&myTextEdit::colorText);
+    connect(ui->actionTestColor,&QAction::toggled,ui->textEditShared,&MyTextEdit::colorText);
 }
 
 MainWindow::~MainWindow()
@@ -280,12 +280,12 @@ void MainWindow::textChanged(int pos, int nDel, int nIns) {
         else if (alignment == Qt::AlignJustify)
              blockFormatType = AlignJustify;
 
-        Action a = Action(str, familyIndex, sizeIndex, bold, italic, underlined, blockFormatType);
-        Crdt::getInstance().sendActionToServer(a, pos, nIns);
+        Action action(str, familyIndex, sizeIndex, bold, italic, underlined, blockFormatType);
+        Crdt::getInstance().sendActionToServer(action, pos, nIns);
 
     } else if (nIns==0) { //deletion
-        Action a = Action();
-        Crdt::getInstance().sendActionToServer(a, pos + 1, nDel);
+        Action action;
+        Crdt::getInstance().sendActionToServer(action, pos + 1, nDel);
     }
 }
 
@@ -573,37 +573,6 @@ void MainWindow::on_offlineRollButton_clicked()
     else {
         ui->offlineRollButton->setIcon(QIcon(":/resources/arrow_down.png"));
     }
-}
-
-void MainWindow::on_actionTestActions_triggered()
-{
-    Action action;
-
-//    action.setActionType(Insertion);
-//    action.setCursorPos(0);
-//    action.setNumChars(4);
-//    action.setChars("ciao");
-
-
-/*    action.setActionType(Deletion);
-    action.setCursorPos(10);
-    action.setNumChars(6);
-*/
-
-//    action.setActionType(TextFormatting);
-//    action.setCursorPos(10);
-//    action.setNumChars(6);
-//    action.setTextFormat(1, 0, 0);
-
-
-/*  action.setActionType(BlockFormatting);
-    action.setCursorPos(10);
-    action.setNumChars(30);
-    action.setBlockFormatType(AlignCenter);
-*/
-
-//    ui->textEditShared->toDoList.push_front(action);
-//    ui->textEditShared->doReceivedActions();
 }
 
 //TODO: clicking on bold/cursive/etc. with nothing highlighted sends an action but it shouldn't

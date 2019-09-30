@@ -9,7 +9,7 @@
 #include <QStyleFactory>
 #include <nlohmann/json.hpp>
 #include "utility/json_comunicator.h"
-#include "exchangeable.h"
+#include "data_structure/exchangeable.h"
 
 int main(int argc, char *argv[])
 {

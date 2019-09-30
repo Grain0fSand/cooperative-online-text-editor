@@ -10,7 +10,7 @@
 #include <qthread.h>
 #include <atomic>
 #include "usertag.h"
-#include "../web_requests/online_synchronizer.h"
+#include "web_requests/online_query.h"
 #include "../data_structure/crdt.h"
 #include "../data_structure/session_data.h"
 
@@ -97,10 +97,7 @@ signals:
 
 private slots:
     void on_onlineRollButton_clicked();
-
     void on_offlineRollButton_clicked();
-
-    void on_actionTestActions_triggered();
 
 private:
     explicit MainWindow(QWidget *parent = nullptr);

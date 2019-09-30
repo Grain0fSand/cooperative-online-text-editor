@@ -4,7 +4,7 @@
 #include "../utility/json_comunicator.h"
 #include "../forms/mainwindow.h"
 #include <thread>
-#include "../exchangeable.h"
+#include "exchangeable.h"
 
 std::pair<int,int> Crdt::findRelativePosition(int left_pos) {
     int cmp = 0;
@@ -163,7 +163,7 @@ void Crdt::sendActionToServer(Action& action, int cursorPos, int numChars) {
     auto token = MainWindow::getInstance().sessionData.token;
 
     // no need to free: https://stackoverflow.com/questions/26714492/how-to-release-memory-of-qthread-object
-    QThread* sender = new OnlineSender{str.dump(),docId,token};
+    QThread* sender = new OnlineSender(str.dump(),docId,token);
     sender->start();
 //    std::cout << str;
 
@@ -270,7 +270,7 @@ void Crdt::receiveActionFromServer(ActionWrapper& action_wrapper) {
         default:
             break;
     }
-   // myTextEdit::getInstance()->doReceivedAction(action, all_pos);
+   // MyTextEdit::getInstance()->doReceivedAction(action, all_pos);
 
 //    for (SymbolId s : list)
 //        std::cout << s.getIncId() << s.getUsrId() << s.is_hidden() << ' ';

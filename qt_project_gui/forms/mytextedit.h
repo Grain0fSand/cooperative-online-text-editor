@@ -7,14 +7,14 @@
 #include "../data_structure/action.h"
 #include <data_structure/crdt.h>
 
-class myTextEdit : public QTextEdit
+class MyTextEdit : public QTextEdit
 {
 public:
-    myTextEdit(const myTextEdit&) = delete;
-    myTextEdit& operator=(const myTextEdit&) = delete;
+    MyTextEdit(const MyTextEdit &) = delete;
+    MyTextEdit& operator=(const MyTextEdit &) = delete;
 
-    static myTextEdit& getInstance(){
-        static myTextEdit instance;
+    static MyTextEdit& getInstance(){
+        static MyTextEdit instance;
 
         return instance;
     }
@@ -36,8 +36,8 @@ public slots:
     void colorText(bool checked);
 
 private:
-    myTextEdit(QWidget *parent = nullptr);
-    ~myTextEdit();
+    MyTextEdit(QWidget *parent = nullptr);
+    ~MyTextEdit();
 
     std::list<RemoteCursor*> cursorsList;
   //  std::list<Action> toSendList;

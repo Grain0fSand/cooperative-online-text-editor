@@ -74,7 +74,7 @@
         <number>0</number>
        </property>
        <item row="0" column="1">
-        <widget class="myTextEdit" name="textEditShared">
+        <widget class="MyTextEdit" name="textEditShared">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
            <horstretch>0</horstretch>
@@ -401,7 +401,6 @@
    <addaction name="actionTestCursor"/>
    <addaction name="actionTestTag"/>
    <addaction name="actionTestDisconnect"/>
-   <addaction name="actionTestActions"/>
   </widget>
   <widget class="QStatusBar" name="statusBar">
    <property name="sizeGripEnabled">
@@ -584,11 +583,6 @@
     <string>TestDisconnect</string>
    </property>
   </action>
-  <action name="actionTestActions">
-   <property name="text">
-    <string>TestActions</string>
-   </property>
-  </action>
   <action name="actionTestColor">
    <property name="checkable">
     <bool>true</bool>
@@ -608,7 +602,7 @@
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
-   <class>myTextEdit</class>
+   <class>MyTextEdit</class>
    <extends>QTextEdit</extends>
    <header>mytextedit.h</header>
   </customwidget>

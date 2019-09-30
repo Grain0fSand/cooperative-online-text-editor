@@ -1,12 +1,11 @@
-
-#ifndef TRANSLATOR_EXCHANGEABLE_H
-#define TRANSLATOR_EXCHANGEABLE_H
+#ifndef EXCHANGEABLE_H
+#define EXCHANGEABLE_H
 
 #include <iostream>
 
 using json = nlohmann::json;
 
-namespace exchangable_data {
+namespace exchangeable_data {
     class send_data {
     public:
         send_data(){}
@@ -27,6 +26,4 @@ namespace exchangable_data {
 
 }
 
-
-
-#endif // TRANSLATOR_EXCHANGEABLE_H
+#endif // EXCHANGEABLE_H
