@@ -1,5 +1,7 @@
 #include "online_query.h"
 
+#define IP_ADDRESS "localhost"
+
 OnlineQuery::OnlineQuery(std::string docId,std::string token,QObject* m) :
     docId(docId),
     token(token),
@@ -28,14 +30,17 @@ void OnlineQuery::getCrdtRequest() {
 
     // body of webrequest and json decode/unmarshaling
 
-    QString base="http://localhost:8080/get_crdt?";
-    QString params="";
+    QString ip_address = IP_ADDRESS;
+    QString location = "http://" + ip_address + ":8080/";
+    QString request = "get_crdt";
+    QString params = "?";
     params += "token=" + QString::fromStdString(token);
     params += "&";
     params += "lastcrdt=" + QString::fromStdString(lastCrdtId);
     params += "&";
     params += "docId=" + QString::fromStdString(docId);
-    url.setUrl(base+params);
+
+    url.setUrl(location+request+params);
     req.setUrl(url);
     manager.get(req);
 }

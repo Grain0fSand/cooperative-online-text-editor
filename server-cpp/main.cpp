@@ -18,13 +18,23 @@ int main() {
                     std::string username = params.get("username");
                     std::string password = params.get("password");
 
-                    std::ostringstream os;
+                    int replyCode = db.userRegistration(email,username,password);
 
-                    db.userRegistration(email,username,password);
-                    os << "Utente registrato con successo";
-
-                    return crow::response{os.str()};
+                    return crow::response{std::to_string(replyCode)};
                 });
+
+    CROW_ROUTE(app,"/try_login")
+            .methods("GET"_method)
+                    ([&](const crow::request& req){
+                        auto params = req.url_params;
+
+                        std::string username = params.get("username");
+                        std::string password = params.get("password");
+
+                        bool replyCode = db.userLogin(username,password);
+
+                        return crow::response{std::to_string(replyCode)};
+                    });
 
     CROW_ROUTE(app,"/update_user")
            .methods("GET"_method)

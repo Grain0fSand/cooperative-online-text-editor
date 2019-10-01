@@ -17,28 +17,52 @@ int Database::userLogged(std::string token)
     return -1;
 }
 
-void Database::userLogin(std::string username,std::string password)
+bool Database::userLogin(std::string username,std::string password)
 {
     std::string hashedPass = hashed_pass(password);
-    bool isLoginCorrect = true;
+    bool isLoginCorrect;
 
+    std::string sql = "SELECT * FROM users WHERE username='" + username + "' AND password='" + hashedPass + "'";
 
-    // TODO: check login is correct
+    try {
+        SQLite::Statement query(db, sql);
+        isLoginCorrect = query.executeStep();
+    } catch (SQLite::Exception &error) {
+        std::cout << error.getExtendedErrorCode() << " - " << error.what();
+        __throw_exception_again;
+    }
+
     if (isLoginCorrect) {
         std::string token = random_string(40);
         int id = 15;
 
         sessionLogged[token] = id;
     }
+
+    return isLoginCorrect;
 }
 
-void Database::userRegistration(std::string email,std::string username,std::string password)
+int Database::userRegistration(std::string email,std::string username,std::string password)
 {
     std::string hashedPass = hashed_pass(password);
 
     std::string sql = "INSERT INTO users(email,username,password) VALUES('" + email + "','" + username + "','" + hashedPass + "')";
-    SQLite::Statement query(db,sql);
-    query.exec();
+    try {
+        SQLite::Statement query(db, sql);
+        query.exec();
+    } catch (SQLite::Exception &error) {
+
+        if(error.getExtendedErrorCode()==2067) { //UNIQUE CONSTRAINT
+            std::string details = error.what();
+            std::string column = details.substr(details.find_last_of('.')+1);
+            if(column=="email")
+                return 1;
+            else if(column=="username")
+                return 2;
+        }
+        else __throw_exception_again;
+    }
+    return 0;
 }
 
 //TODO: ricordati di inviare tutto lo storico dei crdt
