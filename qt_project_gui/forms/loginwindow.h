@@ -23,6 +23,7 @@ public:
     }
 
     bool isLoginCorrect();
+    static QString generateBlob(const QString& avatar_path);
 
 public slots:
     void tryLogin();

@@ -1,7 +1,7 @@
 #include <iostream>
 #include "online_sender.h"
 
-#define IP_ADDRESS "localhost"
+#define IP_ADDRESS "192.168.1.114"
 
 OnlineSender::OnlineSender(std::string json_to_send,std::string docId,std::string token) :
     json_to_send(json_to_send),
@@ -17,16 +17,17 @@ OnlineSender::OnlineSender(std::string json_to_send,std::string docId,std::strin
     connect(&manager, &QNetworkAccessManager::finished, this, &OnlineSender::checkReply);
 }
 
-OnlineSender::OnlineSender(std::string email,std::string username,std::string password, int i) :
+OnlineSender::OnlineSender(QString email, QString username, QString password, QString avatar) :
     email(email),
     username(username),
-    password(password)
+    password(password),
+    avatar(avatar)
 {
     connect(this,&OnlineSender::request_time,this,&OnlineSender::tryRegistrationRequest);
     connect(&manager, &QNetworkAccessManager::finished, this, &OnlineSender::checkReply);
 }
 
-OnlineSender::OnlineSender(std::string username,std::string password) :
+OnlineSender::OnlineSender(QString username, QString password) :
         username(username),
         password(password)
 {
@@ -77,11 +78,13 @@ void OnlineSender::tryRegistrationRequest()
     QString location = "http://" + ip_address + ":8080/";
     QString request = "try_registration";
     QString params = "?";
-    params += "email=" + QString::fromStdString(email);
+    params += "email=" + email;
     params += "&";
-    params += "username=" + QString::fromStdString(username);
+    params += "username=" + username;
     params += "&";
-    params += "password=" + QString::fromStdString(password);
+    params += "password=" + password;
+    params += "&";
+    params += "image=" + avatar;
 
     url.setUrl(location+request+params);
     req.setUrl(url);
@@ -94,9 +97,9 @@ void OnlineSender::tryLoginRequest()
     QString location = "http://" + ip_address + ":8080/";
     QString request = "try_login";
     QString params = "?";
-    params += "username=" + QString::fromStdString(username);
+    params += "username=" + username;
     params += "&";
-    params += "password=" + QString::fromStdString(password);
+    params += "password=" + password;
 
     url.setUrl(location+request+params);
     req.setUrl(url);

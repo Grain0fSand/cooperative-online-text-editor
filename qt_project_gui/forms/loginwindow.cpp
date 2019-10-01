@@ -2,6 +2,7 @@
 #include "ui_loginwindow.h"
 #include "mytextedit.h"
 #include <QDebug>
+#include <QBuffer>
 #include <QPropertyAnimation>
 #include <QMenu>
 #include <QInputDialog>
@@ -195,27 +196,28 @@ void LoginWindow::tryRegister()
     QString email(ui->registerEmailInput->text());
     QString username(ui->registerUsernameInput->text());
     QString password(ui->registerPasswordInput->text());
-    QPixmap avatar;
+    QString avatar_path(":/resources/avatar.png");
 
     QMessageBox::StandardButton chooseAvatar;
     chooseAvatar = QMessageBox::question(this, "Choose your avatar",
             "Do you want to choose a personal avatar?\nClicking 'No', a default one will be assigned to you.",
             QMessageBox::Yes|QMessageBox::No);
     if (chooseAvatar == QMessageBox::Yes) {
-        QString file_path = QFileDialog::getOpenFileName(nullptr,"Choose your own avatar...");
-        if(file_path!="") {
-            avatar.load(file_path);
-        } else {
+        avatar_path = QFileDialog::getOpenFileName(nullptr,"Choose your own avatar...");
+        if(avatar_path=="") {
+            avatar_path = ":/resources/avatar.png";
             QMessageBox advice(this);
             advice.setText("You didn't select any image!");
             advice.setInformativeText("<― this avatar will be assigned to you.");
             advice.setIconPixmap(QPixmap(":/resources/avatar.png").scaled(60,60));
             advice.exec();
-            avatar.load(":/resources/avatar.png");
         }
     }
 
-    //TODO: proceed with registration on db
+    QString encodedAvatar = LoginWindow::generateBlob(avatar_path);
+
+    QThread* sender = new OnlineSender(email, username, password, encodedAvatar);
+    sender->start();
 }
 
 void LoginWindow::mousePressEvent(QMouseEvent *event) {
@@ -227,4 +229,18 @@ void LoginWindow::mouseMoveEvent(QMouseEvent *event) {
     if(event->localPos().x()<=ui->titleBar->width() && event->localPos().y()<=ui->titleBar->height()) {
         move(event->globalX()-mouseClickXCoordinate,event->globalY()-mouseClickYCoordinate);
     }
+}
+
+QString LoginWindow::generateBlob(const QString& avatar_path) {
+
+    QString format(avatar_path.split('.').last().toUpper());
+    QPixmap avatar(avatar_path);
+    avatar = avatar.scaled(71,71);
+    QByteArray blobAvatar;
+    QBuffer buffer(&blobAvatar);
+    buffer.open(QIODevice::WriteOnly);
+    avatar.save(&buffer, "PNG"); //format.toStdString().c_str()
+    QString encodedAvatar = buffer.data().toBase64();
+
+    return encodedAvatar;
 }

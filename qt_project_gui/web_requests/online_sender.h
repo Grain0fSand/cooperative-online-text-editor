@@ -15,8 +15,8 @@ class OnlineSender : public QThread
 
 public:
     OnlineSender(std::string json_to_send,std::string docId,std::string token); //for crdt push
-    OnlineSender(std::string email,std::string username,std::string password, int i); //for registration (must change the int with the image)
-    OnlineSender(std::string username,std::string password); //for login
+    OnlineSender(QString email,QString username,QString password,QString encodedAvatar); //for registration
+    OnlineSender(QString username,QString password); //for login
 
     void run() override;
 
@@ -34,9 +34,10 @@ private:
     std::string json_to_send;
     std::string docId;
     std::string token;
-    std::string email;
-    std::string username;
-    std::string password;
+    QString email;
+    QString username;
+    QString password;
+    QString avatar;
 
     QNetworkAccessManager manager{this};
     QUrl url;
