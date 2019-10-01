@@ -16,7 +16,7 @@ public:
 
     int userLogged(std::string token);
     bool userLogin(std::string username,std::string password);
-    int userRegistration(std::string email,std::string username,std::string password);
+    int userRegistration(std::string email,std::string username,std::string password,std::string image);
     void addPartecipant(std::string docId,std::string uid);
     void updateTimestamp(std::string docId,std::string uid);
     void insertCrdt(std::string crdt_json,std::string uid,std::string docId);
