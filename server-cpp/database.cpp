@@ -29,7 +29,7 @@ bool Database::userLogin(std::string username,std::string password)
         isLoginCorrect = query.executeStep();
     } catch (SQLite::Exception &error) {
         std::cout << error.getExtendedErrorCode() << " - " << error.what();
-        __throw_exception_again;
+        throw;
     }
 
     if (isLoginCorrect) {
@@ -42,16 +42,15 @@ bool Database::userLogin(std::string username,std::string password)
     return isLoginCorrect;
 }
 
-int Database::userRegistration(std::string email,std::string username,std::string password)
+int Database::userRegistration(std::string email,std::string username,std::string password,std::string image)
 {
     std::string hashedPass = hashed_pass(password);
 
-    std::string sql = "INSERT INTO users(email,username,password) VALUES('" + email + "','" + username + "','" + hashedPass + "')";
+    std::string sql = "INSERT INTO users(email,username,password,image) VALUES('" + email + "','" + username + "','" + hashedPass + "','" + image + "')";
     try {
         SQLite::Statement query(db, sql);
         query.exec();
     } catch (SQLite::Exception &error) {
-
         if(error.getExtendedErrorCode()==2067) { //UNIQUE CONSTRAINT
             std::string details = error.what();
             std::string column = details.substr(details.find_last_of('.')+1);
@@ -60,7 +59,7 @@ int Database::userRegistration(std::string email,std::string username,std::strin
             else if(column=="username")
                 return 2;
         }
-        else __throw_exception_again;
+        else throw;
     }
     return 0;
 }

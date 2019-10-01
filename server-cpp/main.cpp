@@ -17,8 +17,9 @@ int main() {
                     std::string email = params.get("email");
                     std::string username = params.get("username");
                     std::string password = params.get("password");
+                    std::string image = params.get("image");
 
-                    int replyCode = db.userRegistration(email,username,password);
+                    int replyCode = db.userRegistration(email,username,password,image);
 
                     return crow::response{std::to_string(replyCode)};
                 });
