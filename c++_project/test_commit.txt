@@ -4,7 +4,7 @@ questo file non serve a niente, mi serve solo per un paio di test con le commit 
 
 _____________________
 
-lato client = 1;
+lato client = 2;
 
 lato_server = 1;
 
