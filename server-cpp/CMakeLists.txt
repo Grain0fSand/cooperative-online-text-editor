@@ -19,7 +19,15 @@ include_directories(
 
 add_subdirectory(${SQLITE_DIR}/SQLiteCpp)
 
-add_executable(main main.cpp sha256.cpp sha256.h exchangable_data.h)
+add_executable(
+        main
+        main.cpp
+        sha256.cpp
+        sha256.h
+        exchangeable_data.cpp
+        exchangeable_data.h
+        database.cpp
+        database.h)
 
 target_link_libraries(
         main
