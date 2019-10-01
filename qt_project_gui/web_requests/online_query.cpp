@@ -13,56 +13,7 @@ OnlineQuery::OnlineQuery(std::string docId,std::string token,QObject* m) :
     // the QTObj must be always be manipulated only by
     // the QThread that create the obj, so all the code must be
     // in the same thread: the run() method
-    QObject::connect(&manager, &QNetworkAccessManager::finished,
-                     this, [=](QNetworkReply *reply) {
-
-                if (reply->error()) {
-                    qDebug() << reply->errorString();
-                    return;
-                }
-
-
-                std::string answer = reply->readAll().toStdString();
-                json j = json::parse(answer);
-                std::vector<exchangeable_data::send_data> array;
-
-
-
-                int last = 0;
-
-                if(lastCrdtId.compare("")!=0)
-                    last = std::stoi(lastCrdtId);
-
-                int cmp;
-
-                for (auto& element : j) {
-                    exchangeable_data::send_data data;
-                    exchangeable_data::send_data::from_json(data, element);
-                    cmp = std::stoi(data.id);
-
-                    if(cmp>last){
-                        array.push_back(data);
-                        lastCrdtId = data.id;
-                    }
-
-                }
-
-                std::vector<ActionWrapper> actions;
-
-                for(exchangeable_data::send_data act : array){
-                    ActionWrapper w;
-                    ActionWrapper::action_from_json(w,json::parse(act.crdt));
-                    actions.push_back(w);
-                }
-
-
-                emit update_id(lastCrdtId);
-                emit send_actions(actions);
-
-                // TODO: remove comment here
-                //emit response_arrived(answer);
-            }
-    );
+    QObject::connect(&manager, &QNetworkAccessManager::finished, this, &OnlineQuery::checkReply);
 }
 
 void OnlineQuery::run() {
@@ -87,4 +38,47 @@ void OnlineQuery::getCrdtRequest() {
     url.setUrl(base+params);
     req.setUrl(url);
     manager.get(req);
+}
+
+void OnlineQuery::checkReply(QNetworkReply *reply) {
+    if (reply->error()) {
+        qDebug() << reply->errorString();
+        return;
+    }
+
+    std::string answer = reply->readAll().toStdString();
+    json j = json::parse(answer);
+    std::vector<exchangeable_data::send_data> array;
+
+    int last = 0;
+
+    if(lastCrdtId!="")
+        last = std::stoi(lastCrdtId);
+
+    int cmp;
+
+    for (auto& element : j) {
+        exchangeable_data::send_data data;
+        exchangeable_data::send_data::from_json(data, element);
+        cmp = std::stoi(data.id);
+
+        if(cmp>last){
+            array.push_back(data);
+            lastCrdtId = data.id;
+        }
+    }
+
+    std::vector<ActionWrapper> actions;
+
+    for(exchangeable_data::send_data act : array){
+        ActionWrapper w;
+        ActionWrapper::action_from_json(w,json::parse(act.crdt));
+        actions.push_back(w);
+    }
+
+    emit update_id(lastCrdtId);
+    emit send_actions(actions);
+
+    // TODO: remove comment here
+    //emit response_arrived(answer);
 }

@@ -26,6 +26,7 @@ public:
 
 public slots:
     void getCrdtRequest();
+    void checkReply(QNetworkReply *reply);
 
 private:
     QNetworkAccessManager manager{this};
