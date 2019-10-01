@@ -6,6 +6,6 @@ _____________________
 
 lato client = 1;
 
-lato_server = 0;
+lato_server = 1;
 
 _____________________
