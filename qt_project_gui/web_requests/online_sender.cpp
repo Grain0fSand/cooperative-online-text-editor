@@ -1,4 +1,5 @@
 #include <iostream>
+#include <QEventLoop>
 #include "online_sender.h"
 
 #define IP_ADDRESS "192.168.1.114"
@@ -23,16 +24,20 @@ OnlineSender::OnlineSender(QString email, QString username, QString password, QS
     password(password),
     avatar(avatar)
 {
+    moveToThread(this);
     connect(this,&OnlineSender::request_time,this,&OnlineSender::tryRegistrationRequest);
     connect(&manager, &QNetworkAccessManager::finished, this, &OnlineSender::checkReply);
+    connect(this, &OnlineSender::response_arrived, this, &OnlineSender::quit);
 }
 
 OnlineSender::OnlineSender(QString username, QString password) :
         username(username),
         password(password)
 {
+    moveToThread(this);
     connect(this,&OnlineSender::request_time,this,&OnlineSender::tryLoginRequest);
     connect(&manager, &QNetworkAccessManager::finished, this, &OnlineSender::checkReply);
+    connect(this, &OnlineSender::response_arrived, this, &OnlineSender::quit);
 }
 
 void OnlineSender::run()
@@ -44,7 +49,7 @@ void OnlineSender::checkReply(QNetworkReply *reply)
 {
     if (reply->error()) {
         QString err = reply->errorString();
-        std::cout << err.toUtf8().constData();
+        std::cout << err.toStdString();
         return;
     }
 
@@ -89,6 +94,9 @@ void OnlineSender::tryRegistrationRequest()
     url.setUrl(location+request+params);
     req.setUrl(url);
     manager.get(req);
+
+    QEventLoop loop(this);
+    loop.exec();
 }
 
 void OnlineSender::tryLoginRequest()
@@ -104,4 +112,7 @@ void OnlineSender::tryLoginRequest()
     url.setUrl(location+request+params);
     req.setUrl(url);
     manager.get(req);
+
+    QEventLoop loop(this);
+    loop.exec();
 }

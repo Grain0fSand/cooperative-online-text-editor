@@ -42,11 +42,6 @@ private:
 
     Ui::LoginWindow *ui;
     bool loginCorrect=false;
-
-    void mousePressEvent(QMouseEvent *event);
-    void mouseMoveEvent(QMouseEvent *event);
-    int mouseClickXCoordinate;
-    int mouseClickYCoordinate;
 };
 
 #endif // LOGINWINDOW_H

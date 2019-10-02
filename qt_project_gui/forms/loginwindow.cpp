@@ -167,21 +167,24 @@ void LoginWindow::requestURI()
 
 void LoginWindow::tryLogin()
 {
-    //TODO: check the login correctness on db
+    QString username = ui->loginUsernameInput->text();
+    QString password = ui->loginPasswordInput->text();
 
-    if(ui->loginUsernameInput->text()=="") {
+    if(username=="") {
         ui->loginErrorLabel->setText("Insert a valid username");
     }
-    else if(ui->loginPasswordInput->text()=="") {
+    else if(password=="") {
         ui->loginErrorLabel->setText("Insert a password");
     }
-    else if(ui->loginUsernameInput->text()!="test" || ui->loginPasswordInput->text()!="test") {
+    else if(username!="test" || password!="test") {
         ui->loginErrorLabel->setText("Login failed\nWrong username or password");
     }
     else {
-        //TODO: receive the other informations on the user (id, nickname, avatar)
+        QThread* sender = new OnlineSender(username, password);
+        sender->start();
+
         this->loginCorrect=true;
-        ui->loggedUsernameLabel->setText(ui->loginUsernameInput->text());
+        ui->loggedUsernameLabel->setText(username);
         ui->loggedAvatar->setPixmap(QPixmap(":/resources/avatar.png"));
         this->switchFrame(1);
     }
@@ -190,9 +193,6 @@ void LoginWindow::tryLogin()
 
 void LoginWindow::tryRegister()
 {
-    //TODO: check in db if the username or email exist already
-    //if not, proceed with the registration, otherwise show a message
-
     QString email(ui->registerEmailInput->text());
     QString username(ui->registerUsernameInput->text());
     QString password(ui->registerPasswordInput->text());
@@ -218,17 +218,6 @@ void LoginWindow::tryRegister()
 
     QThread* sender = new OnlineSender(email, username, password, encodedAvatar);
     sender->start();
-}
-
-void LoginWindow::mousePressEvent(QMouseEvent *event) {
-    mouseClickXCoordinate = event->x();
-    mouseClickYCoordinate = event->y();
-}
-
-void LoginWindow::mouseMoveEvent(QMouseEvent *event) {
-    if(event->localPos().x()<=ui->titleBar->width() && event->localPos().y()<=ui->titleBar->height()) {
-        move(event->globalX()-mouseClickXCoordinate,event->globalY()-mouseClickYCoordinate);
-    }
 }
 
 QString LoginWindow::generateBlob(const QString& avatar_path) {
