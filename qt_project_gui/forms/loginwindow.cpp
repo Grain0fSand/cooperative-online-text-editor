@@ -22,6 +22,7 @@ LoginWindow::LoginWindow(QWidget *parent) :
     settingsMenu->addAction(ui->actionChangeUsername);
     settingsMenu->addAction(ui->actionChangeAvatar);
     ui->loggedSettingsButton->setMenu(settingsMenu);
+    ui->registerWhiteFrame->setVisible(false);
 
     connect(ui->loginButton,&QPushButton::clicked,this,&LoginWindow::tryLogin);
     connect(ui->closeButton,&QPushButton::pressed,this,&LoginWindow::slowClose);
@@ -48,6 +49,13 @@ bool LoginWindow::isLoginCorrect()
     return this->loginCorrect;
 }
 
+void LoginWindow::resetInputFields() {
+    QList<QLineEdit *> inputList= ui->formFrame->findChildren<QLineEdit *>(QString(), Qt::FindDirectChildrenOnly);
+    for(QLineEdit* input : inputList) {
+        input->setText("");
+    }
+}
+
 void LoginWindow::slowClose()
 {
     QPropertyAnimation* a = new QPropertyAnimation(this, "windowOpacity");
@@ -65,7 +73,7 @@ void LoginWindow::switchFrame(int direction)
         if(this->sender()->objectName()=="loginText" || this->sender()->objectName()=="loggedLogoutButton") {
             direction=-1;
         }
-        else if(this->sender()->objectName()=="registerText") {
+        else if(this->sender()->objectName()=="registerText" || this->sender()->objectName()=="registerInformationButton") {
             direction=1;
         }
     }
@@ -79,6 +87,13 @@ void LoginWindow::switchFrame(int direction)
     switchAnimation->setStartValue(ui->formFrame->geometry());
     switchAnimation->setEndValue(frameGeometry);
 
+    if(this->sender()->objectName()=="registerInformationButton") {
+        connect(switchAnimation,&QPropertyAnimation::finished,this,[&](){
+            ui->registerWhiteFrame->setVisible(false);
+            disconnect(ui->registerInformationButton,&QPushButton::clicked,this,nullptr);
+        });
+    }
+    connect(switchAnimation,&QPropertyAnimation::finished,this,&LoginWindow::resetInputFields);
     switchAnimation->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
@@ -191,6 +206,9 @@ void LoginWindow::tryLogin()
     ui->loginErrorLabel->setVisible(true);
 }
 
+//TODO: check on empty fields
+//TODO: check on the email validity
+//TODO: (optional) first check email and username on DB, if ok let choose an image
 void LoginWindow::tryRegister()
 {
     QString email(ui->registerEmailInput->text());
@@ -220,6 +238,25 @@ void LoginWindow::tryRegister()
     sender->start();
 }
 
+void LoginWindow::getRegisterResponse(bool good_response, QString response_text)
+{
+    ui->registerInformationLabel->setText(response_text);
+    if(good_response) {
+        connect(ui->registerInformationButton,&QPushButton::clicked,this,&LoginWindow::switchFrame);
+        ui->registerInformationLabel->setStyleSheet("color:green;");
+        ui->registerInformationButton->setText("Go to Login");
+    }
+    else {
+        connect(ui->registerInformationButton,&QPushButton::clicked,this,[&](){
+            ui->registerWhiteFrame->setVisible(false);
+            disconnect(ui->registerInformationButton,&QPushButton::clicked,this,nullptr);
+        });
+        ui->registerInformationLabel->setStyleSheet("color:red;");
+        ui->registerInformationButton->setText("Try Again");
+    }
+    ui->registerWhiteFrame->setVisible(true);
+}
+
 QString LoginWindow::generateBlob(const QString& avatar_path) {
 
     QString format(avatar_path.split('.').last().toUpper());
@@ -229,7 +266,7 @@ QString LoginWindow::generateBlob(const QString& avatar_path) {
     QBuffer buffer(&blobAvatar);
     buffer.open(QIODevice::WriteOnly);
     avatar.save(&buffer, "PNG"); //format.toStdString().c_str()
-    QString encodedAvatar = buffer.data().toBase64();
+    QString encodedAvatar = buffer.data().toBase64(QByteArray::Base64UrlEncoding);
 
     return encodedAvatar;
 }

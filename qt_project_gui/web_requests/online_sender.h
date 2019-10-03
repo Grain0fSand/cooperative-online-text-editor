@@ -24,11 +24,15 @@ public slots:
     void pushCrdtRequest();
     void tryRegistrationRequest();
     void tryLoginRequest();
-    void checkReply(QNetworkReply *reply);
+    void checkPushCrdtReply(QNetworkReply *reply);
+    void checkTryRegistrationReply(QNetworkReply *reply);
+    void checkTryLoginReply(QNetworkReply *reply);
 
  signals:
-    void request_time();
-    void response_arrived(std::string response);
+    void prepareRequest();
+    void responsePushCrdtArrived(std::string response);
+    void responseTryRegistrationArrived(bool good_response, QString response_text);
+    void responseTryLoginArrived(bool good_response, QString response_text);
 
 private:
     std::string json_to_send;

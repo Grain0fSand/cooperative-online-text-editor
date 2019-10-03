@@ -1,5 +1,6 @@
 #include <iostream>
 #include <QEventLoop>
+#include <forms/loginwindow.h>
 #include "online_sender.h"
 
 #define IP_ADDRESS "192.168.1.114"
@@ -10,12 +11,12 @@ OnlineSender::OnlineSender(std::string json_to_send,std::string docId,std::strin
     token(token)
 {
     // because the background thread cannot communicate with the gui thread
-    connect(this,&OnlineSender::request_time,this,&OnlineSender::pushCrdtRequest);
+    connect(this,&OnlineSender::prepareRequest,this,&OnlineSender::pushCrdtRequest);
 
     // the QTObj must be always be manipulated only by
     // the QThread that create the obj, so all the code must be
     // in the same thread: the run() method
-    connect(&manager, &QNetworkAccessManager::finished, this, &OnlineSender::checkReply);
+    connect(&manager, &QNetworkAccessManager::finished, this, &OnlineSender::checkPushCrdtReply);
 }
 
 OnlineSender::OnlineSender(QString email, QString username, QString password, QString avatar) :
@@ -25,39 +26,25 @@ OnlineSender::OnlineSender(QString email, QString username, QString password, QS
     avatar(avatar)
 {
     moveToThread(this);
-    connect(this,&OnlineSender::request_time,this,&OnlineSender::tryRegistrationRequest);
-    connect(&manager, &QNetworkAccessManager::finished, this, &OnlineSender::checkReply);
-    connect(this, &OnlineSender::response_arrived, this, &OnlineSender::quit);
+    connect(this,&OnlineSender::prepareRequest,this,&OnlineSender::tryRegistrationRequest);
+    connect(&manager,&QNetworkAccessManager::finished,this,&OnlineSender::checkTryRegistrationReply);
+    connect(this,&OnlineSender::responseTryRegistrationArrived,&LoginWindow::getInstance(),&LoginWindow::getRegisterResponse);
+    connect(this,&OnlineSender::responseTryRegistrationArrived,this,&OnlineSender::quit,Qt::QueuedConnection);
 }
 
 OnlineSender::OnlineSender(QString username, QString password) :
-        username(username),
-        password(password)
+    username(username),
+    password(password)
 {
     moveToThread(this);
-    connect(this,&OnlineSender::request_time,this,&OnlineSender::tryLoginRequest);
-    connect(&manager, &QNetworkAccessManager::finished, this, &OnlineSender::checkReply);
-    connect(this, &OnlineSender::response_arrived, this, &OnlineSender::quit);
+    connect(this,&OnlineSender::prepareRequest,this,&OnlineSender::tryLoginRequest);
+    connect(&manager,&QNetworkAccessManager::finished,this,&OnlineSender::checkTryLoginReply);
+    connect(this,&OnlineSender::responseTryLoginArrived,this,&OnlineSender::quit,Qt::QueuedConnection);
 }
 
 void OnlineSender::run()
 {
-    emit request_time();
-}
-
-void OnlineSender::checkReply(QNetworkReply *reply)
-{
-    if (reply->error()) {
-        QString err = reply->errorString();
-        std::cout << err.toStdString();
-        return;
-    }
-
-    std::string answer = reply->readAll().toStdString();
-    if (answer != "1")
-        std::cout << "error: the server is not reachable";
-    // TODO: remove comment here
-    //emit response_arrived(answer);
+    emit prepareRequest();
 }
 
 void OnlineSender::pushCrdtRequest()
@@ -115,4 +102,74 @@ void OnlineSender::tryLoginRequest()
 
     QEventLoop loop(this);
     loop.exec();
+}
+
+void OnlineSender::checkPushCrdtReply(QNetworkReply *reply)
+{
+    if (reply->error()) {
+        QString err = reply->errorString();
+        qDebug() << err;
+        return;
+    }
+
+    std::string answer = reply->readAll().toStdString();
+    std::cout << answer;
+    if (answer != "1")
+        std::cout << "error: the server is not reachable";
+    // TODO: remove comment here
+    //emit responsePushCrdtArrived(answer);
+}
+
+void OnlineSender::checkTryRegistrationReply(QNetworkReply *reply)
+{
+    QString response_text;
+    bool good_response = false;
+
+    if (reply->error()) {
+        qDebug() << reply->errorString();
+        if(reply->error() == QNetworkReply::UnknownNetworkError)
+            response_text = "Cannot connect to the server.\n"
+                            "Check your Internet connection\n"
+                            "and try again.";
+        else if(reply->error() == QNetworkReply::ConnectionRefusedError || reply->error() == QNetworkReply::UnknownServerError)
+            response_text = "Server not responding.\n"
+                            "Please, try again later";
+        else
+            response_text = "Unknown connection error.\n"
+                            "Please, contact the developers.";
+    }
+    else {
+        int replyCode = reply->readAll().toInt();
+
+        switch(replyCode) {
+            case 0:
+                response_text = "Account registered successfully!";
+                good_response = true;
+                break;
+            case 1:
+                response_text = "Email address already in use";
+                break;
+            case 2:
+                response_text = "Username already in use\n"
+                                "Please, choose another one";
+                break;
+            default:
+                break;
+        }
+    }
+    emit responseTryRegistrationArrived(good_response, response_text);
+}
+
+void OnlineSender::checkTryLoginReply(QNetworkReply *reply)
+{
+    if (reply->error()) {
+        QString err = reply->errorString();
+        std::cout << err.toStdString();
+        return;
+    }
+
+    std::string answer = reply->readAll().toStdString();
+    std::cout << answer;
+
+    //emit responseTryLoginArrived(answer);
 }
