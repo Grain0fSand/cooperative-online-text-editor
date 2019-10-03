@@ -83,7 +83,7 @@ void OnlineQuery::checkReply(QNetworkReply *reply) {
 
 
     emit update_id(lastCrdtId);
-    emit send_actions(actions);
+    emit send_actions(actions);  //TODO pass reference
 
     // TODO: remove comment here
     //emit response_arrived(answer);

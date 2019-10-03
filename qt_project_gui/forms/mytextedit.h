@@ -26,7 +26,7 @@ public:
     void addAction(int cursorPos, int numChars, ActionType = Deletion);
     void addAction(int cursorPos, int numChars, bool bold, bool italic, bool underlined, ActionType = TextFormatting);
     void addAction(int cursorPos, int numChars, BlockFormatType, ActionType = BlockFormatting);
-    void doReceivedAction(Action& action, std::vector<int>& all_pos);
+    void doReceivedAction(const Action& action, const std::vector<int>& all_pos);
 
     std::list<Action> toDoList;
     QStringList getFontSizes() const;

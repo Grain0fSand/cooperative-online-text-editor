@@ -186,21 +186,22 @@ std::vector<int> Crdt::symbolInsertionExt(const std::pair<int,int>& left_sym, in
             ++j;
         ++it;
     }
-    ++it;
-    ++j;
+
 
     //must check that doing it once is sufficient
-    {
-        while (it != list.end() && it->getSymbolId() > symbol) {  //skip symbols with greater ID
-            ++it;
-            ++j;
-        }
+    if (it == list.end())
+        throw "Error in database";
+    ++it;
+    ++j;
+    while (it != list.end() && it->getSymbolId() > symbol) {  //skip symbols with greater ID
+        ++it;
+        ++j;
     }
 
     //insert symbols
     SymbolId tmp_arr[n];
     for (int i = 0; i < n; ++i) {
-        tmp_arr[i] = SymbolId(symbol.first, i + symbol.second);
+        tmp_arr[i] = SymbolId(symbol.first, symbol.second);
         if (chars[i] == '\n')
             tmp_arr[i].setBlockStart();
     }
@@ -255,7 +256,7 @@ std::vector<int> Crdt::formattingExt(const std::pair<int,int>& rel_symbol, const
 
 void Crdt::update_income(std::vector<ActionWrapper> actions){
     for(ActionWrapper action_wrapper : actions) {
-        Action action = action_wrapper.action;
+        Action& action = action_wrapper.action;
         std::vector<int> all_pos;
         switch (action.getActionType()) {
             case Insertion:
@@ -273,6 +274,7 @@ void Crdt::update_income(std::vector<ActionWrapper> actions){
                 break;
         }
         MyTextEdit::getInstance().doReceivedAction(action, all_pos);
+        qDebug("XD");
     }
 //    for (SymbolId s : list)
 //        std::cout << s.getIncId() << s.getUsrId() << s.is_hidden() << ' ';
