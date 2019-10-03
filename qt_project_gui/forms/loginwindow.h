@@ -28,6 +28,7 @@ public:
 public slots:
     void tryLogin();
     void tryRegister();
+    void getRegisterResponse(bool,QString);
     void slowClose();
     void switchFrame(int direction=0);
     void changeYourUsername();
@@ -35,6 +36,7 @@ public slots:
     void createDocument();
     void openDocument();
     void requestURI();
+    void resetInputFields();
 
 private:
     explicit LoginWindow(QWidget *parent = nullptr);
