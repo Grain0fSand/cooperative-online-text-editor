@@ -1,5 +1,5 @@
 #include "online_query.h"
-
+#include <thread>
 #define IP_ADDRESS "localhost"
 
 OnlineQuery::OnlineQuery(std::string docId,std::string token,QObject* m) :
@@ -80,6 +80,7 @@ void OnlineQuery::checkReply(QNetworkReply *reply) {
         ActionWrapper::action_from_json(w,json::parse(act.crdt));
         actions.push_back(w);
     }
+
 
     emit update_id(lastCrdtId);
     emit send_actions(actions);

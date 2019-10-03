@@ -191,7 +191,7 @@ std::vector<int> Crdt::symbolInsertionExt(const std::pair<int,int>& left_sym, in
 
     //must check that doing it once is sufficient
     {
-        while (it->getSymbolId() > symbol) {  //skip symbols with greater ID
+        while (it != list.end() && it->getSymbolId() > symbol) {  //skip symbols with greater ID
             ++it;
             ++j;
         }
@@ -253,25 +253,27 @@ std::vector<int> Crdt::formattingExt(const std::pair<int,int>& rel_symbol, const
     return ret;
 }
 
-void Crdt::receiveActionFromServer(ActionWrapper& action_wrapper) {
-    Action action = action_wrapper.action;
-    std::vector<int> all_pos;
-    switch (action.getActionType()) {
-        case Insertion:
-            all_pos = symbolInsertionExt(action_wrapper.rel_symbol, action.getChars().size(), action_wrapper.symbol.front(), action.getChars());
-            break;
-        case Deletion:
-            all_pos = symbolDeletionExt(action_wrapper.symbol);
-            break;
-        case TextFormatting:
-        case BlockFormatting:
-            all_pos = formattingExt(action_wrapper.rel_symbol, action_wrapper.symbol, action.getSelection());
-            break;
-        default:
-            break;
+void Crdt::update_income(std::vector<ActionWrapper> actions){
+    for(ActionWrapper action_wrapper : actions) {
+        Action action = action_wrapper.action;
+        std::vector<int> all_pos;
+        switch (action.getActionType()) {
+            case Insertion:
+                all_pos = symbolInsertionExt(action_wrapper.rel_symbol, action.getChars().size(),
+                                             action_wrapper.symbol.front(), action.getChars());
+                break;
+            case Deletion:
+                all_pos = symbolDeletionExt(action_wrapper.symbol);
+                break;
+            case TextFormatting:
+            case BlockFormatting:
+                all_pos = formattingExt(action_wrapper.rel_symbol, action_wrapper.symbol, action.getSelection());
+                break;
+            default:
+                break;
+        }
+        MyTextEdit::getInstance().doReceivedAction(action, all_pos);
     }
-   // MyTextEdit::getInstance()->doReceivedAction(action, all_pos);
-
 //    for (SymbolId s : list)
 //        std::cout << s.getIncId() << s.getUsrId() << s.is_hidden() << ' ';
 //    std::cout << std::endl;
