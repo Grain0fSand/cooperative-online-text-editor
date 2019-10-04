@@ -5,6 +5,7 @@
 #include <QTimer>
 
 #define IP_ADDRESS "192.168.1.114"
+#define PORT "8081"
 
 OnlineSender::OnlineSender(std::string json_to_send,std::string docId,std::string token) :
     json_to_send(json_to_send),
@@ -40,7 +41,8 @@ OnlineSender::OnlineSender(QString username, QString password) :
     moveToThread(this);
     connect(this,&OnlineSender::prepareRequest,this,&OnlineSender::tryLoginRequest);
     connect(&manager,&QNetworkAccessManager::finished,this,&OnlineSender::checkTryLoginReply);
-    connect(this,&OnlineSender::responseTryLoginArrived,this,&OnlineSender::quit,Qt::QueuedConnection);
+    connect(this,&OnlineSender::responseTryLoginArrived,&LoginWindow::getInstance(),&LoginWindow::showLoginResponse);
+    connect(this,&OnlineSender::responseTryLoginArrived,this,&OnlineSender::quit);
 }
 
 void OnlineSender::run()
@@ -51,7 +53,8 @@ void OnlineSender::run()
 void OnlineSender::pushCrdtRequest()
 {
     QString ip_address = IP_ADDRESS;
-    QString location = "http://" + ip_address + ":8080/";
+    QString port = PORT;
+    QString location = "http://" + ip_address + ":" + PORT + "/";
     QString request = "push_crdt";
     QString params = "?";
     params += "token=" + QString::fromStdString(token);
@@ -68,7 +71,8 @@ void OnlineSender::pushCrdtRequest()
 void OnlineSender::tryRegistrationRequest()
 {
     QString ip_address = IP_ADDRESS;
-    QString location = "http://" + ip_address + ":8080/";
+    QString port = PORT;
+    QString location = "http://" + ip_address + ":" + PORT + "/";
     QString request = "try_registration";
     QString params = "?";
     params += "email=" + email;
@@ -95,7 +99,8 @@ void OnlineSender::tryRegistrationRequest()
 void OnlineSender::tryLoginRequest()
 {
     QString ip_address = IP_ADDRESS;
-    QString location = "http://" + ip_address + ":8080/";
+    QString port = PORT;
+    QString location = "http://" + ip_address + ":" + PORT + "/";
     QString request = "try_login";
     QString params = "?";
     params += "username=" + username;
@@ -104,9 +109,15 @@ void OnlineSender::tryLoginRequest()
 
     url.setUrl(location+request+params);
     req.setUrl(url);
-    manager.get(req);
+    QNetworkReply *reply = manager.get(req);
 
     QEventLoop loop(this);
+    QTimer timeout;
+
+    timeout.setSingleShot(true);
+    connect(&timeout,&QTimer::timeout,&loop,&QEventLoop::quit);
+    connect(&timeout,&QTimer::timeout,[&](){manager.finished(reply);});
+    timeout.start(3000);
     loop.exec();
 }
 
@@ -137,20 +148,7 @@ void OnlineSender::checkTryRegistrationReply(QNetworkReply *reply)
 
     if (reply->error()) {
         qDebug() << reply->errorString();
-        if(reply->error() == QNetworkReply::UnknownNetworkError)
-            response_text = "Cannot connect to the server.\n"
-                            "Check your Internet connection\n"
-                            "and try again.";
-        else if(reply->error() == QNetworkReply::UnknownServerError)
-            response_text = "Cannot connect to the server.\n"
-                            "Check your firewall settings\n"
-                            "and try again.";
-        else if(reply->error() == QNetworkReply::OperationCanceledError || reply->error() == QNetworkReply::ConnectionRefusedError)
-            response_text = "Server not responding.\n"
-                            "Please, try again later";
-        else
-            response_text = "Unknown connection error.\n"
-                            "Please, contact the developers.";
+        response_text = checkConnection(reply->error());
     }
     else {
         int replyCode = reply->readAll().toInt();
@@ -164,8 +162,7 @@ void OnlineSender::checkTryRegistrationReply(QNetworkReply *reply)
                 response_text = "Email address already in use";
                 break;
             case 2:
-                response_text = "Username already in use\n"
-                                "Please, choose another one";
+                response_text = "Username already in use";
                 break;
             default:
                 qDebug() << reply->errorString();
@@ -177,14 +174,48 @@ void OnlineSender::checkTryRegistrationReply(QNetworkReply *reply)
 
 void OnlineSender::checkTryLoginReply(QNetworkReply *reply)
 {
-    if (reply->error()) {
-        QString err = reply->errorString();
-        std::cout << err.toStdString();
-        return;
+    QString response_text;
+    bool good_response = false;
+
+    if(!reply->isFinished()) {
+        reply->abort();
     }
 
-    std::string answer = reply->readAll().toStdString();
-    std::cout << answer;
+    if (reply->error()) {
+        qDebug() << reply->errorString();
+        response_text = checkConnection(reply->error());
+    }
+    else {
+        int replyCode = reply->readAll().toInt();
+        switch(replyCode) {
+            case 0:
+                response_text = "Login failed!\n"
+                                "Wrong username or password\n";
+                break;
+            case 1:
+                response_text = "Login successful!";
+                good_response = true;
+                break;
+            default:
+                qDebug() << reply->errorString();
+                break;
+        }
+    }
+    emit responseTryLoginArrived(good_response, response_text);
+}
 
-    //emit responseTryLoginArrived(answer);
+QString OnlineSender::checkConnection(QNetworkReply::NetworkError error)
+{
+    if(error == QNetworkReply::UnknownNetworkError)
+        return "Cannot connect to the server\n"
+               "Check your Internet connection\n";
+    else if(error == QNetworkReply::UnknownServerError)
+        return "Cannot connect to the server\n"
+               "Check your firewall settings\n";
+    else if(error == QNetworkReply::OperationCanceledError || error == QNetworkReply::ConnectionRefusedError)
+        return "Server not responding\n"
+               "Please, try again later\n";
+    else
+        return "Unknown connection error\n"
+               "Please, contact the developers.\n";
 }

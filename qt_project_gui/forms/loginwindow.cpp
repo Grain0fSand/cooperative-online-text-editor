@@ -26,6 +26,9 @@ LoginWindow::LoginWindow(QWidget *parent) :
     ui->loggedSettingsButton->setMenu(settingsMenu);
     ui->informationWhiteFrame->setVisible(false);
     ui->informationImage->setMovie(loader);
+    ui->loginButton->setAutoDefault(false);
+    connect(ui->loginButton,&QPushButton::clicked,[&](){qDebug() << "ecco";});
+    connect(ui->informationButton,&QPushButton::clicked,[](){qDebug() << "qui";});
 
     connect(ui->loginButton,&QPushButton::clicked,this,&LoginWindow::tryLogin);
     connect(ui->closeButton,&QPushButton::pressed,this,&LoginWindow::slowClose);
@@ -66,11 +69,29 @@ bool LoginWindow::isLoginCorrect() {
     return this->loginCorrect;
 }
 
-void LoginWindow::showLoading() {
+void LoginWindow::showLoading(Frame frame) {
+
+    int xPos=0;
+    QString text;
+    if(frame == Frame::Login) {
+        xPos=320;
+        text = "Logging in...";
+        ui->loginUsernameInput->clearFocus();
+        ui->loginPasswordInput->clearFocus();
+    }
+    else if(frame == Frame::Registration) {
+        xPos=640;
+        text = "Signing up...";
+        ui->registerEmailInput->clearFocus();
+        ui->registerUsernameInput->clearFocus();
+        ui->registerPasswordInput->clearFocus();
+    }
+
+    ui->informationWhiteFrame->setGeometry(xPos,0,320,480);
 
     ui->informationButton->setVisible(false);
     ui->informationLabel->setStyleSheet("color:darkblue");
-    ui->informationLabel->setText("Connecting to the server...");
+    ui->informationLabel->setText(text);
     ui->informationImage->movie()->setFileName(":/resources/loader.gif");
     ui->informationImage->setGeometry(QRect(110, 270, 100, 100));
     ui->informationImage->movie()->start();
@@ -102,6 +123,23 @@ void LoginWindow::slowClose()
     connect(a,&QPropertyAnimation::finished,this,&LoginWindow::close);
 }
 
+LoginWindow::Frame LoginWindow::currentVisibleFrame()
+{
+    int x = ui->informationWhiteFrame->x();
+
+    switch(x) {
+        case 0:
+            return Frame::PersonalPage;
+        case 320:
+            return Frame::Login;
+        case 640:
+            return Frame::Registration;
+        default:
+            break;
+    }
+    return Frame::Login;
+};
+
 void LoginWindow::switchFrame(int direction)
 {
     if(direction==0) {
@@ -129,14 +167,11 @@ void LoginWindow::switchFrame(int direction)
         connect(switchAnimation,&QPropertyAnimation::finished,this,[&](){
             ui->informationWhiteFrame->setVisible(false);
             disconnect(ui->informationButton,&QPushButton::clicked,this,nullptr);
-        });
-        connect(switchAnimation,&QPropertyAnimation::finished,this,[&](){
             ui->loginUsernameInput->setText(ui->registerUsernameInput->text());
             ui->registerUsernameInput->clear();
+            ui->informationButton->setGeometry(110, 350, 101, 31);
         });
-        ui->informationButton->setDefault(false);
     }
-
     switchAnimation->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
@@ -234,23 +269,21 @@ void LoginWindow::tryLogin()
     else if(password.isEmpty()) {
         ui->loginErrorLabel->setText("Password field is empty");
     }
-    else if(username!="test" || password!="test") {
-        ui->loginErrorLabel->setText("Login failed\nWrong username or password");
-    }
-    else {
-        QThread* sender = new OnlineSender(username, password);
-        sender->start();
-
+    else if(username=="test2" && password=="test2") {
         this->loginCorrect=true;
         ui->loggedUsernameLabel->setText(username);
         ui->loggedAvatar->setPixmap(QPixmap(":/resources/avatar.png"));
         this->switchFrame(1);
     }
+    else {
+        QThread* sender = new OnlineSender(username, password);
+        sender->start();
+
+        showLoading(Frame::Login);
+    }
     ui->loginErrorLabel->setVisible(true);
 }
 
-//TODO: check on empty fields
-//TODO: check on the email validity
 //TODO: (optional) first check email and username on DB, if ok let choose an image
 void LoginWindow::tryRegister()
 {
@@ -292,7 +325,7 @@ void LoginWindow::tryRegister()
         QThread* sender = new OnlineSender(email, username, password, encodedAvatar);
         sender->start();
 
-        showLoading();
+        showLoading(Frame::Registration);
     }
 }
 
@@ -301,28 +334,27 @@ void LoginWindow::showRegisterResponse(bool good_response, QString response_text
     ui->informationImage->movie()->stop();
     ui->informationLabel->setText(response_text);
     ui->informationButton->setDefault(true);
+    ui->informationImage->setGeometry(QRect(140, 284, 40, 40));
 
     if(good_response) {
         connect(ui->informationButton,&QPushButton::clicked,this,&LoginWindow::switchFrame);
         ui->informationLabel->setStyleSheet("color:darkgreen;");
         ui->informationButton->setText("Go to Login");
-        ui->informationImage->setGeometry(QRect(140, 285, 40, 40));
         ui->informationImage->movie()->setFileName(":/resources/correct_icon.gif");
     }
     else {
         connect(ui->informationButton,&QPushButton::clicked,this,[&](){
             ui->informationWhiteFrame->setVisible(false);
+            ui->registerPasswordInput->setFocus();
             disconnect(ui->informationButton,&QPushButton::clicked,this,nullptr);
-            ui->informationButton->setAutoDefault(false);
         });
         ui->informationLabel->setStyleSheet("color:darkred;");
         ui->informationButton->setText("Try Again");
-        ui->informationImage->setGeometry(QRect(140, 285, 40, 40));
         ui->informationImage->movie()->setFileName(":/resources/error_icon.gif");
     }
     ui->informationButton->setVisible(true);
-    ui->informationButton->setVisible(true);
     ui->informationImage->movie()->start();
+    ui->informationLabel->setVisible(true);
     ui->informationWhiteFrame->setVisible(true);
 }
 
@@ -338,4 +370,34 @@ QString LoginWindow::generateBlob(const QString& avatar_path) {
     QString encodedAvatar = buffer.data().toBase64(QByteArray::Base64UrlEncoding);
 
     return encodedAvatar;
+}
+
+void LoginWindow::showLoginResponse(bool good_response, QString response_text)
+{
+    ui->informationImage->movie()->stop();
+    ui->informationLabel->setText(response_text);
+    ui->informationButton->setDefault(true);
+    ui->informationImage->setGeometry(QRect(140, 284, 40, 40));
+
+    if(good_response) {
+        connect(ui->informationButton,&QPushButton::clicked,this,&LoginWindow::switchFrame);
+        ui->informationLabel->setStyleSheet("color:darkgreen;");
+        ui->informationButton->setText("Go to your page");
+        ui->informationButton->setGeometry(100,350,121,31);
+        ui->informationImage->movie()->setFileName(":/resources/correct_icon.gif");
+    }
+    else {
+        connect(ui->informationButton,&QPushButton::clicked,this,[&](){
+            ui->informationWhiteFrame->setVisible(false);
+            ui->loginPasswordInput->setFocus();
+            disconnect(ui->informationButton,&QPushButton::clicked,this,nullptr);
+        });
+        ui->informationLabel->setStyleSheet("color:darkred;");
+        ui->informationButton->setText("Try Again");
+        ui->informationImage->movie()->setFileName(":/resources/error_icon.gif");
+    }
+    ui->informationButton->setVisible(true);
+    ui->informationImage->movie()->start();
+    ui->informationLabel->setVisible(true);
+    ui->informationWhiteFrame->setVisible(true);
 }

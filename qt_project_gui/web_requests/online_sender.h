@@ -19,6 +19,7 @@ public:
     OnlineSender(QString username,QString password); //for login
 
     void run() override;
+    static QString checkConnection(QNetworkReply::NetworkError error);
 
 public slots:
     void pushCrdtRequest();

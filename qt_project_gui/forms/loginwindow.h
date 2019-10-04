@@ -23,15 +23,23 @@ public:
         return instance;
     }
 
+    enum Frame {
+        Registration,
+        Login,
+        PersonalPage
+    };
+
     bool validateEmail(QString email);
     bool isLoginCorrect();
-    void showLoading();
+    void showLoading(Frame frame);
     static QString generateBlob(const QString& avatar_path);
+    Frame currentVisibleFrame();
 
 public slots:
     void tryLogin();
     void tryRegister();
     void showRegisterResponse(bool good_response, QString response_text);
+    void showLoginResponse(bool good_response, QString response_text);
     void slowClose();
     void switchFrame(int direction=0);
     void changeYourUsername();

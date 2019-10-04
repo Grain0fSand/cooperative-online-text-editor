@@ -1,6 +1,8 @@
 #include "online_query.h"
 #include <thread>
+
 #define IP_ADDRESS "localhost"
+#define PORT "8081"
 
 OnlineQuery::OnlineQuery(std::string docId,std::string token,QObject* m) :
     docId(docId),
@@ -31,7 +33,8 @@ void OnlineQuery::getCrdtRequest() {
     // body of webrequest and json decode/unmarshaling
 
     QString ip_address = IP_ADDRESS;
-    QString location = "http://" + ip_address + ":8080/";
+    QString port = PORT;
+    QString location = "http://" + ip_address + ":" + PORT + "/";
     QString request = "get_crdt";
     QString params = "?";
     params += "token=" + QString::fromStdString(token);
