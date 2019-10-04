@@ -82,16 +82,16 @@ void MyTextEdit::addCursor(RemoteCursor *cursor)
     this->cursorsList.push_back(cursor);
 }
 
-void MyTextEdit::doReceivedAction(Action& action, std::vector<int>& all_pos )
+void MyTextEdit::doReceivedAction(const Action& action, const std::vector<int>& all_pos )
 {
    // this->document()->blockSignals(true);
-        int ptr_start, ptr_end = 0, n = all_pos.size();    //ptr start and ptr end are for calculating ranges of subsequent positions in all_pos
+        int ptr_start = 0, ptr_end, n = all_pos.size();    //ptr start and ptr end are for calculating ranges of subsequent positions in all_pos
 
         while (ptr_start < n) {
             //find range of subsequent positions and apply the action (for efficiency)
-            ptr_start = ptr_end;
+            ptr_end = ptr_start;
             this->hiddenCursor->setPosition(all_pos[ptr_start]);
-            while (ptr_end < n && all_pos[ptr_end] == all_pos[ptr_end + 1] - 1)
+            while (ptr_end < n - 1 && all_pos[ptr_end] == all_pos[ptr_end + 1] - 1)
                 ++ptr_end;
 
             switch(action.getActionType())
@@ -146,7 +146,7 @@ void MyTextEdit::doReceivedAction(Action& action, std::vector<int>& all_pos )
                     break;
                 }
             }
-            ++ptr_end;
+            ptr_start = ptr_end + 1;
         }
         MainWindow::getInstance().checkTextProperty();
 }
