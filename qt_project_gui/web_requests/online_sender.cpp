@@ -2,6 +2,7 @@
 #include <QEventLoop>
 #include <forms/loginwindow.h>
 #include "online_sender.h"
+#include <QTimer>
 
 #define IP_ADDRESS "192.168.1.114"
 
@@ -28,8 +29,8 @@ OnlineSender::OnlineSender(QString email, QString username, QString password, QS
     moveToThread(this);
     connect(this,&OnlineSender::prepareRequest,this,&OnlineSender::tryRegistrationRequest);
     connect(&manager,&QNetworkAccessManager::finished,this,&OnlineSender::checkTryRegistrationReply);
-    connect(this,&OnlineSender::responseTryRegistrationArrived,&LoginWindow::getInstance(),&LoginWindow::getRegisterResponse);
-    connect(this,&OnlineSender::responseTryRegistrationArrived,this,&OnlineSender::quit,Qt::QueuedConnection);
+    connect(this,&OnlineSender::responseTryRegistrationArrived,&LoginWindow::getInstance(),&LoginWindow::showRegisterResponse);
+    connect(this,&OnlineSender::responseTryRegistrationArrived,this,&OnlineSender::quit);
 }
 
 OnlineSender::OnlineSender(QString username, QString password) :
@@ -80,9 +81,14 @@ void OnlineSender::tryRegistrationRequest()
 
     url.setUrl(location+request+params);
     req.setUrl(url);
-    manager.get(req);
+    QNetworkReply *reply = manager.get(req);
 
     QEventLoop loop(this);
+    QTimer timeout;
+    timeout.setSingleShot(true);
+    connect(&timeout,&QTimer::timeout,&loop,&QEventLoop::quit);
+    connect(&timeout,&QTimer::timeout,[&](){manager.finished(reply);});
+    timeout.start(5000);
     loop.exec();
 }
 
@@ -125,13 +131,21 @@ void OnlineSender::checkTryRegistrationReply(QNetworkReply *reply)
     QString response_text;
     bool good_response = false;
 
+    if(!reply->isFinished()) {
+        reply->abort();
+    }
+
     if (reply->error()) {
         qDebug() << reply->errorString();
         if(reply->error() == QNetworkReply::UnknownNetworkError)
             response_text = "Cannot connect to the server.\n"
                             "Check your Internet connection\n"
                             "and try again.";
-        else if(reply->error() == QNetworkReply::ConnectionRefusedError || reply->error() == QNetworkReply::UnknownServerError)
+        else if(reply->error() == QNetworkReply::UnknownServerError)
+            response_text = "Cannot connect to the server.\n"
+                            "Check your firewall settings\n"
+                            "and try again.";
+        else if(reply->error() == QNetworkReply::OperationCanceledError || reply->error() == QNetworkReply::ConnectionRefusedError)
             response_text = "Server not responding.\n"
                             "Please, try again later";
         else
@@ -154,6 +168,7 @@ void OnlineSender::checkTryRegistrationReply(QNetworkReply *reply)
                                 "Please, choose another one";
                 break;
             default:
+                qDebug() << reply->errorString();
                 break;
         }
     }

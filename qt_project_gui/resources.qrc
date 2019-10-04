@@ -31,5 +31,8 @@
         <file>resources/arrow_up.png</file>
         <file>resources/font_icon.png</file>
         <file>resources/colorButtonIcon.png</file>
+        <file>resources/loader.gif</file>
+        <file>resources/correct_icon.gif</file>
+        <file>resources/error_icon.gif</file>
     </qresource>
 </RCC>

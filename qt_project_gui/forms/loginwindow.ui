@@ -290,7 +290,7 @@ border-color: #00559B;
     <property name="geometry">
      <rect>
       <x>700</x>
-      <y>180</y>
+      <y>173</y>
       <width>151</width>
       <height>21</height>
      </rect>
@@ -312,7 +312,7 @@ border-color: #00559B;
     <property name="geometry">
      <rect>
       <x>700</x>
-      <y>202</y>
+      <y>195</y>
       <width>201</width>
       <height>31</height>
      </rect>
@@ -342,7 +342,7 @@ border-color: #00559B;
     <property name="geometry">
      <rect>
       <x>700</x>
-      <y>238</y>
+      <y>228</y>
       <width>151</width>
       <height>21</height>
      </rect>
@@ -364,7 +364,7 @@ border-color: #00559B;
     <property name="geometry">
      <rect>
       <x>700</x>
-      <y>260</y>
+      <y>250</y>
       <width>201</width>
       <height>31</height>
      </rect>
@@ -394,7 +394,7 @@ border-color: #00559B;
     <property name="geometry">
      <rect>
       <x>700</x>
-      <y>298</y>
+      <y>283</y>
       <width>151</width>
       <height>21</height>
      </rect>
@@ -416,7 +416,7 @@ border-color: #00559B;
     <property name="geometry">
      <rect>
       <x>700</x>
-      <y>320</y>
+      <y>305</y>
       <width>201</width>
       <height>31</height>
      </rect>
@@ -446,7 +446,7 @@ background-color: white;</string>
     <property name="geometry">
      <rect>
       <x>750</x>
-      <y>370</y>
+      <y>350</y>
       <width>101</width>
       <height>31</height>
      </rect>
@@ -488,6 +488,31 @@ border-color: #00559B;
     </property>
     <property name="text">
      <string>Register</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="registerErrorLabel">
+    <property name="geometry">
+     <rect>
+      <x>700</x>
+      <y>390</y>
+      <width>201</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Myanmar Text</family>
+      <pointsize>9</pointsize>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color:red</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
     </property>
    </widget>
    <widget class="QPushButton" name="loggedNewButton">
@@ -767,7 +792,7 @@ QPushButton:hover {
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="QFrame" name="registerWhiteFrame">
+   <widget class="QFrame" name="informationWhiteFrame">
     <property name="geometry">
      <rect>
       <x>640</x>
@@ -785,7 +810,7 @@ QPushButton:hover {
     <property name="frameShadow">
      <enum>QFrame::Plain</enum>
     </property>
-    <widget class="QLabel" name="registerInformationLabel">
+    <widget class="QLabel" name="informationLabel">
      <property name="geometry">
       <rect>
        <x>40</x>
@@ -809,7 +834,7 @@ QPushButton:hover {
       <set>Qt::AlignCenter</set>
      </property>
     </widget>
-    <widget class="QPushButton" name="registerInformationButton">
+    <widget class="QPushButton" name="informationButton">
      <property name="geometry">
       <rect>
        <x>110</x>
@@ -858,6 +883,22 @@ QPushButton:hover {
      </property>
     </widget>
    </widget>
+   <widget class="QLabel" name="informationImage">
+    <property name="geometry">
+     <rect>
+      <x>110</x>
+      <y>270</y>
+      <width>100</width>
+      <height>100</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="scaledContents">
+     <bool>true</bool>
+    </property>
+   </widget>
    <zorder>loginUsernameLabel</zorder>
    <zorder>loginUsernameInput</zorder>
    <zorder>loginPasswordInput</zorder>
@@ -873,7 +914,8 @@ QPushButton:hover {
    <zorder>registerPasswordLabel</zorder>
    <zorder>registerPasswordInput</zorder>
    <zorder>registerButton</zorder>
-   <zorder>registerWhiteFrame</zorder>
+   <zorder>registerErrorLabel</zorder>
+   <zorder>informationWhiteFrame</zorder>
    <zorder>loggedNewButton</zorder>
    <zorder>loggedOpenButton</zorder>
    <zorder>loggedLogoutButton</zorder>

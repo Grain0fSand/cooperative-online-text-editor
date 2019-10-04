@@ -2,6 +2,7 @@
 #define LOGINWINDOW_H
 
 #include <QDialog>
+#include <QMovie>
 #include "mainwindow.h"
 
 namespace Ui {
@@ -22,13 +23,15 @@ public:
         return instance;
     }
 
+    bool validateEmail(QString email);
     bool isLoginCorrect();
+    void showLoading();
     static QString generateBlob(const QString& avatar_path);
 
 public slots:
     void tryLogin();
     void tryRegister();
-    void getRegisterResponse(bool,QString);
+    void showRegisterResponse(bool good_response, QString response_text);
     void slowClose();
     void switchFrame(int direction=0);
     void changeYourUsername();
@@ -43,7 +46,7 @@ private:
     ~LoginWindow();
 
     Ui::LoginWindow *ui;
-    bool loginCorrect=false;
+    bool loginCorrect;
 };
 
 #endif // LOGINWINDOW_H
