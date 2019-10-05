@@ -6,7 +6,7 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-   // LoginWindow::getInstance().exec();
+    //LoginWindow::getInstance().exec();
     //if(LoginWindow::getInstance().isLoginCorrect()) {
         MainWindow::getInstance().show();
 

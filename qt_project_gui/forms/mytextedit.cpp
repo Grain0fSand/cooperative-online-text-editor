@@ -84,71 +84,72 @@ void MyTextEdit::addCursor(RemoteCursor *cursor)
 
 void MyTextEdit::doReceivedAction(const Action& action, const std::vector<int>& all_pos )
 {
-   // this->document()->blockSignals(true);
-        int ptr_start = 0, ptr_end, n = all_pos.size();    //ptr start and ptr end are for calculating ranges of subsequent positions in all_pos
+    int ptr_start = 0, ptr_end, n = all_pos.size();    //ptr start and ptr end are for calculating ranges of subsequent positions in all_pos
 
-        while (ptr_start < n) {
-            //find range of subsequent positions and apply the action (for efficiency)
-            ptr_end = ptr_start;
-            this->hiddenCursor->setPosition(all_pos[ptr_start]);
-            while (ptr_end < n - 1 && all_pos[ptr_end] == all_pos[ptr_end + 1] - 1)
-                ++ptr_end;
+    while (ptr_start < n) {
+        //find range of subsequent positions and apply the action (for efficiency)
+        ptr_end = ptr_start;
+        this->hiddenCursor->setPosition(all_pos[ptr_start]);
+        while (ptr_end < n - 1 && all_pos[ptr_end] == all_pos[ptr_end + 1] - 1)
+            ++ptr_end;
 
-            switch(action.getActionType())
+        this->document()->blockSignals(true);
+        switch(action.getActionType())
+        {
+            case NoActionType:
+                qDebug() << "Invalid action to do";
+                break;
+            case Insertion:
+                this->hiddenCursor->insertText(action.getChars().mid(ptr_start, ptr_end + 1 - ptr_start));
+                this->hiddenCursor->setPosition(all_pos[ptr_start]);
+                [[fallthrough]];
+            case TextFormatting:  //no break, insertion does formatting too
             {
-                case NoActionType:
-                    qDebug() << "Invalid action to do";
-                    break;
-                case Insertion:
-                    this->hiddenCursor->insertText(action.getChars().mid(ptr_start, ptr_end + 1 - ptr_start));
-                    this->hiddenCursor->setPosition(all_pos[ptr_start]);
-                    [[fallthrough]];
-                case TextFormatting:  //no break, insertion does formatting too
-                {
-                    this->hiddenCursor->movePosition(QTextCursor::Right,QTextCursor::KeepAnchor, ptr_end + 1 - ptr_start);
-                    QTextCharFormat format;
+                this->hiddenCursor->movePosition(QTextCursor::Right,QTextCursor::KeepAnchor, ptr_end + 1 - ptr_start);
+                QTextCharFormat format;
 
-                    action.getBold() ? format.setFontWeight(QFont::Bold) : format.setFontWeight(QFont::Normal);
-                    format.setFontItalic(action.getItalic());
-                    format.setFontUnderline(action.getUnderlined());
-                    format.setFontFamily(this->fontFamilies.at(action.getComboFontIndex()));
-                    format.setFontPointSize(this->fontSizes.at(action.getComboFontIndex()).toInt());
-                    this->hiddenCursor->setCharFormat(format);
-                    break;
-                }
-                case Deletion:
-                    this->hiddenCursor->movePosition(QTextCursor::Right,QTextCursor::KeepAnchor,ptr_end + 1 - ptr_start);
-                    this->hiddenCursor->removeSelectedText();
-                    break;
-                case BlockFormatting:
-                {
-                    this->hiddenCursor->movePosition(QTextCursor::Right,QTextCursor::KeepAnchor,ptr_end + 1 - ptr_start);
-                    QTextBlockFormat format;
-                    switch(action.getBlockFormat())
-                    {
-                        case NoBlockFormatType:
-                            qDebug()  << "Invalid block formatting to do";
-                            break;
-                        case AlignLeft:
-                            format.setAlignment(Qt::AlignLeft);
-                            break;
-                        case AlignCenter:
-                            format.setAlignment(Qt::AlignCenter);
-                            break;
-                        case AlignRight:
-                            format.setAlignment(Qt::AlignRight);
-                            break;
-                        case AlignJustify:
-                            format.setAlignment(Qt::AlignJustify);
-                            break;
-                    }
-                    this->hiddenCursor->setBlockFormat(format);
-                    break;
-                }
+                action.getBold() ? format.setFontWeight(QFont::Bold) : format.setFontWeight(QFont::Normal);
+                format.setFontItalic(action.getItalic());
+                format.setFontUnderline(action.getUnderlined());
+                format.setFontFamily(this->fontFamilies.at(action.getComboFontIndex()));
+                format.setFontPointSize(this->fontSizes.at(action.getComboFontIndex()).toInt());
+                this->hiddenCursor->setCharFormat(format);
+                break;
             }
-            ptr_start = ptr_end + 1;
+            case Deletion:
+                this->hiddenCursor->movePosition(QTextCursor::Right,QTextCursor::KeepAnchor,ptr_end + 1 - ptr_start);
+                this->hiddenCursor->removeSelectedText();
+                break;
+            case BlockFormatting:
+            {
+                this->hiddenCursor->movePosition(QTextCursor::Right,QTextCursor::KeepAnchor,ptr_end + 1 - ptr_start);
+                QTextBlockFormat format;
+                switch(action.getBlockFormat())
+                {
+                    case NoBlockFormatType:
+                        qDebug()  << "Invalid block formatting to do";
+                        break;
+                    case AlignLeft:
+                        format.setAlignment(Qt::AlignLeft);
+                        break;
+                    case AlignCenter:
+                        format.setAlignment(Qt::AlignCenter);
+                        break;
+                    case AlignRight:
+                        format.setAlignment(Qt::AlignRight);
+                        break;
+                    case AlignJustify:
+                        format.setAlignment(Qt::AlignJustify);
+                        break;
+                }
+                this->hiddenCursor->setBlockFormat(format);
+                break;
+            }
         }
-        MainWindow::getInstance().checkTextProperty();
+        this->document()->blockSignals(false);
+        ptr_start = ptr_end + 1;
+    }
+    MainWindow::getInstance().checkTextProperty();
 }
 
 QStringList MyTextEdit::getFontSizes() const

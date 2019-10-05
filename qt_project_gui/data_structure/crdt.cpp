@@ -274,7 +274,6 @@ void Crdt::update_income(std::vector<ActionWrapper> actions){
                 break;
         }
         MyTextEdit::getInstance().doReceivedAction(action, all_pos);
-        qDebug("XD");
     }
 //    for (SymbolId s : list)
 //        std::cout << s.getIncId() << s.getUsrId() << s.is_hidden() << ' ';

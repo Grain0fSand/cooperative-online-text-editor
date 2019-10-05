@@ -2,7 +2,7 @@
 #include <thread>
 
 #define IP_ADDRESS "localhost"
-#define PORT "8081"
+#define PORT "6969"
 
 OnlineQuery::OnlineQuery(std::string docId,std::string token,QObject* m) :
     docId(docId),

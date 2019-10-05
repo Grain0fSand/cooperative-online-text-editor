@@ -29,8 +29,8 @@ MainWindow::MainWindow(QWidget *parent) :
     // TODO: remove after login are setted correctly, this
     // TODO: structure are necessary for the correct web request
 
-    //query = new OnlineQuery{this->sessionData.docId,this->sessionData.token,this};
-    //query->start();
+    query = new OnlineQuery{this->sessionData.docId,this->sessionData.token,this};
+    query->start();
 
     ui->setupUi(this);
     ui->myUsername->setText(QString::fromStdString(sessionData.username));
