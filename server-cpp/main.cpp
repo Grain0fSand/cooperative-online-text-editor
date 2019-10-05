@@ -76,11 +76,11 @@ int main() {
 
 
                         // TODO: replace the simple id to the hashmap of token
-                        std::string uid = params.get("token");
+                        std::string token = params.get("token");
                         std::string lastcrdt = params.get("lastcrdt");
                         std::string docId = params.get("docId");
 
-                        int idUser = db.userLogged(uid);
+                        int idUser = 2;docId='1';//db.userLogged(token);
                         if(idUser<0)
                             return crow::response(403);
 
