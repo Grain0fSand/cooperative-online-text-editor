@@ -58,7 +58,7 @@ public:
     MainWindow(const MainWindow&) = delete;
     MainWindow& operator=(const MainWindow&) = delete;
 
-    static MainWindow& getInstance(){
+    static MainWindow& getInstance() {
         static MainWindow instance;
         return instance;
     }
@@ -106,7 +106,6 @@ private:
     void addUserTag(QString username, bool status, QPixmap avatar, QColor color);
     Ui::MainWindow *ui;
     Periodic_task background_task;
-    QClipboard *clipboard;
     std::list<UserTag*> usersList;
     OnlineQuery* query; // for online updates of crdt
 };

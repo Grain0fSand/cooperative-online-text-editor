@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "loginwindow.h"
 #include "ui_mainwindow.h"
 #include "../utility/shared_editor.h"
 #include "mytextedit.h"
@@ -27,24 +28,17 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     // TODO: remove after login are setted correctly, this
     // TODO: structure are necessary for the correct web request
-    // TODO: but need to be getted as reply of requests, now for mocking
-    // TODO: are saved as constant but need to be replaced in the future!
-    this->sessionData.token = std::string("2"); // change for changing the user
-    this->sessionData.docId = std::string("1"); // change for changing document
 
-    query = new OnlineQuery{this->sessionData.docId,this->sessionData.token,this};
-    query->start();
+    //query = new OnlineQuery{this->sessionData.docId,this->sessionData.token,this};
+    //query->start();
 
     ui->setupUi(this);
+    ui->myUsername->setText(QString::fromStdString(sessionData.username));
+    ui->myAvatar->setPixmap(sessionData.avatar);
     ui->textEditShared->setAcceptRichText(false); //this needs to be false to avoid pasting formatted text with CTRL+V
-
-    // for web request
-    //OnlineSynchronizer* synk = new OnlineSynchronizer{};
 
     ui->textEditShared->installEventFilter(this);
     Shared_editor::getInstance().initString(ui->textEditShared->toHtml());
-
-    this->clipboard = QApplication::clipboard();
 
     ui->sideLayout->layout()->setAlignment(Qt::AlignTop);
 
@@ -377,7 +371,6 @@ void MainWindow::reqInvitationEmailAddress()
             else {
                 QRegExp mailRegex("\\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}\\b");
                 mailRegex.setCaseSensitivity(Qt::CaseInsensitive);
-                //mailRegex.setPatternSyntax(QRegExp::RegExp);
                 if(!mailRegex.exactMatch(dialog.textValue())) {
                     error=true;
                     message = "Email address not valid\n"

@@ -86,6 +86,11 @@ void UserTag::chooseAvatar()
     //to implement?
 }
 
+void UserTag::setAvatar(QPixmap avatar)
+{
+    this->userAvatar = avatar;
+}
+
 void UserTag::setUserStatus(bool newStatus)
 {
     this->userStatus = newStatus;
@@ -99,6 +104,11 @@ QString UserTag::getUsername()
 QPixmap UserTag::getAvatar()
 {
     return this->userAvatar;
+}
+
+QString UserTag::getUserColor()
+{
+    return this->userColor;
 }
 
 bool UserTag::getStatus()

@@ -15,12 +15,15 @@ public:
     QSize sizeHint ( const QStyleOptionViewItem & option, const QModelIndex & index ) const;
 
     void setUsername(QString);
-    void chooseAvatar();
+    void setAvatar(QPixmap);
     void setUserStatus(bool);
     void setUserColor(QString);
     QString getUsername();
     QPixmap getAvatar();
     bool getStatus();
+    QString getUserColor();
+
+    void chooseAvatar(); //TODO: to implement
 
 signals:
 

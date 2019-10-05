@@ -496,7 +496,6 @@ public:
         loggedSettingsButton->setText(QString());
         loggedWelcomeLabel->setText(QCoreApplication::translate("LoginWindow", "Welcome", nullptr));
         loggedAvatar->setText(QString());
-        loggedUsernameLabel->setText(QCoreApplication::translate("LoginWindow", "dario.patti90", nullptr));
         loggedURIButton->setText(QCoreApplication::translate("LoginWindow", " Open From URI", nullptr));
         informationLabel->setText(QCoreApplication::translate("LoginWindow", "", nullptr));
         informationButton->setText(QCoreApplication::translate("LoginWindow", "", nullptr));

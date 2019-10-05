@@ -14,6 +14,9 @@ public:
     std::string docId;
     std::string token;
     std::string lastCrdtId;
+    std::string username;
+    QPixmap avatar;
+    bool status;
     // TODO: add list of user
     // TODO: add list of cursor
     // TODO: add list of online user

@@ -27,8 +27,6 @@ LoginWindow::LoginWindow(QWidget *parent) :
     ui->informationWhiteFrame->setVisible(false);
     ui->informationImage->setMovie(loader);
     ui->loginButton->setAutoDefault(false);
-    connect(ui->loginButton,&QPushButton::clicked,[&](){qDebug() << "ecco";});
-    connect(ui->informationButton,&QPushButton::clicked,[](){qDebug() << "qui";});
 
     connect(ui->loginButton,&QPushButton::clicked,this,&LoginWindow::tryLogin);
     connect(ui->closeButton,&QPushButton::pressed,this,&LoginWindow::slowClose);
@@ -221,16 +219,14 @@ void LoginWindow::createDocument()
                 advice.exec();
             } else {
                 MyTextEdit::getInstance().setDocumentName(dialog.textValue());
-                QMessageBox advice(this);
-                advice.setText("New document created on the server!");
-                advice.setIcon(QMessageBox::Information);
-                advice.exec();
+
+                QThread* sender = new OnlineSender(personalToken.toStdString(), dialog.textValue().toStdString());
+                sender->start();
                 break;
             }
         }
         else return;
     }
-    close();
 }
 
 void LoginWindow::openDocument()
@@ -320,23 +316,24 @@ void LoginWindow::tryRegister()
             }
         }
 
-        QString encodedAvatar = LoginWindow::generateBlob(avatar_path);
+        QString encodedAvatar = LoginWindow::generateEncodedImage(avatar_path);
 
         QThread* sender = new OnlineSender(email, username, password, encodedAvatar);
         sender->start();
 
         showLoading(Frame::Registration);
     }
+    ui->registerErrorLabel->setVisible(true);
 }
 
-void LoginWindow::showRegisterResponse(bool good_response, QString response_text)
+void LoginWindow::showRegisterResponse(bool goodResponse, QString responseText)
 {
     ui->informationImage->movie()->stop();
-    ui->informationLabel->setText(response_text);
+    ui->informationLabel->setText(responseText);
     ui->informationButton->setDefault(true);
     ui->informationImage->setGeometry(QRect(140, 284, 40, 40));
 
-    if(good_response) {
+    if(goodResponse) {
         connect(ui->informationButton,&QPushButton::clicked,this,&LoginWindow::switchFrame);
         ui->informationLabel->setStyleSheet("color:darkgreen;");
         ui->informationButton->setText("Go to Login");
@@ -358,33 +355,30 @@ void LoginWindow::showRegisterResponse(bool good_response, QString response_text
     ui->informationWhiteFrame->setVisible(true);
 }
 
-QString LoginWindow::generateBlob(const QString& avatar_path) {
-
-    QString format(avatar_path.split('.').last().toUpper());
-    QPixmap avatar(avatar_path);
-    avatar = avatar.scaled(71,71);
-    QByteArray blobAvatar;
-    QBuffer buffer(&blobAvatar);
-    buffer.open(QIODevice::WriteOnly);
-    avatar.save(&buffer, "PNG"); //format.toStdString().c_str()
-    QString encodedAvatar = buffer.data().toBase64(QByteArray::Base64UrlEncoding);
-
-    return encodedAvatar;
-}
-
-void LoginWindow::showLoginResponse(bool good_response, QString response_text)
+void LoginWindow::showLoginResponse(bool goodResponse, QString responseText,  QString replyString)
 {
     ui->informationImage->movie()->stop();
-    ui->informationLabel->setText(response_text);
+    ui->informationLabel->setText(responseText);
     ui->informationButton->setDefault(true);
     ui->informationImage->setGeometry(QRect(140, 284, 40, 40));
 
-    if(good_response) {
+    if(goodResponse) {
         connect(ui->informationButton,&QPushButton::clicked,this,&LoginWindow::switchFrame);
         ui->informationLabel->setStyleSheet("color:darkgreen;");
         ui->informationButton->setText("Go to your page");
         ui->informationButton->setGeometry(100,350,121,31);
         ui->informationImage->movie()->setFileName(":/resources/correct_icon.gif");
+
+        QStringList replyParts = replyString.split(":");
+        this->personalAvatar = recoverImageFromEncodedString(replyParts[0]);
+        this->personalToken = replyParts[1];
+        this->docsList = replyParts[2].split("|",QString::SkipEmptyParts);
+        MainWindow::getInstance().sessionData.token = this->personalToken.toStdString();
+        MainWindow::getInstance().sessionData.avatar = this->personalAvatar;
+        MainWindow::getInstance().sessionData.username = ui->loginUsernameInput->text().toStdString();
+
+        ui->loggedUsernameLabel->setText(ui->loginUsernameInput->text());
+        ui->loggedAvatar->setPixmap(this->personalAvatar);
     }
     else {
         connect(ui->informationButton,&QPushButton::clicked,this,[&](){
@@ -400,4 +394,44 @@ void LoginWindow::showLoginResponse(bool good_response, QString response_text)
     ui->informationImage->movie()->start();
     ui->informationLabel->setVisible(true);
     ui->informationWhiteFrame->setVisible(true);
+}
+
+void LoginWindow::showNewDocResponse(bool goodResponse, QString responseText)
+{
+    QMessageBox advice(this);
+    advice.setText(responseText);
+    if(goodResponse)
+        advice.setIcon(QMessageBox::Warning);
+    else
+        advice.setIcon(QMessageBox::Information);
+
+    advice.exec();
+
+    if(goodResponse) {
+        this->loginCorrect=true;
+        close();
+    }
+}
+
+QString LoginWindow::generateEncodedImage(const QString& avatar_path) {
+
+    QString format(avatar_path.split('.').last().toUpper());
+    QPixmap avatar(avatar_path);
+    avatar = avatar.scaled(71,71);
+    QByteArray blobAvatar;
+    QBuffer buffer(&blobAvatar);
+    buffer.open(QIODevice::WriteOnly);
+    avatar.save(&buffer, "PNG"); //format.toStdString().c_str()
+    QString encodedAvatar = buffer.data().toBase64(QByteArray::Base64UrlEncoding);
+
+    return encodedAvatar;
+}
+
+QPixmap LoginWindow::recoverImageFromEncodedString(const QString& code) {
+
+    QByteArray array = QByteArray::fromBase64(code.toUtf8(),QByteArray::Base64UrlEncoding);
+    QPixmap avatar;
+    avatar.loadFromData(array);
+
+    return avatar;
 }

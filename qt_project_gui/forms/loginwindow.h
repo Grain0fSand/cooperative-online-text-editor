@@ -29,17 +29,19 @@ public:
         PersonalPage
     };
 
-    bool validateEmail(QString email);
+    static bool validateEmail(QString email);
     bool isLoginCorrect();
     void showLoading(Frame frame);
-    static QString generateBlob(const QString& avatar_path);
+    static QString generateEncodedImage(const QString& avatar_path);
+    static QPixmap recoverImageFromEncodedString(const QString& code);
     Frame currentVisibleFrame();
 
 public slots:
     void tryLogin();
     void tryRegister();
-    void showRegisterResponse(bool good_response, QString response_text);
-    void showLoginResponse(bool good_response, QString response_text);
+    void showRegisterResponse(bool goodResponse, QString responseText);
+    void showLoginResponse(bool goodResponse, QString responseText, QString replyString);
+    void showNewDocResponse(bool goodResponse, QString responseText);
     void slowClose();
     void switchFrame(int direction=0);
     void changeYourUsername();
@@ -55,6 +57,9 @@ private:
 
     Ui::LoginWindow *ui;
     bool loginCorrect;
+    QStringList docsList;
+    QString personalToken;
+    QPixmap personalAvatar;
 };
 
 #endif // LOGINWINDOW_H

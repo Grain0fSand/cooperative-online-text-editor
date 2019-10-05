@@ -5,7 +5,7 @@
 #include <QTimer>
 
 #define IP_ADDRESS "192.168.1.114"
-#define PORT "8081"
+#define PORT "6969"
 
 OnlineSender::OnlineSender(std::string json_to_send,std::string docId,std::string token) :
     json_to_send(json_to_send),
@@ -43,6 +43,17 @@ OnlineSender::OnlineSender(QString username, QString password) :
     connect(&manager,&QNetworkAccessManager::finished,this,&OnlineSender::checkTryLoginReply);
     connect(this,&OnlineSender::responseTryLoginArrived,&LoginWindow::getInstance(),&LoginWindow::showLoginResponse);
     connect(this,&OnlineSender::responseTryLoginArrived,this,&OnlineSender::quit);
+}
+
+OnlineSender::OnlineSender(std::string token,std::string filename) :
+    token(token),
+    filename(filename)
+{
+    moveToThread(this);
+    connect(this,&OnlineSender::prepareRequest,this,&OnlineSender::newDocRequest);
+    connect(&manager,&QNetworkAccessManager::finished,this,&OnlineSender::checkNewDocReply);
+    connect(this,&OnlineSender::responseNewDocArrived,&LoginWindow::getInstance(),&LoginWindow::showNewDocResponse);
+    connect(this,&OnlineSender::responseNewDocArrived,this,&OnlineSender::quit);
 }
 
 void OnlineSender::run()
@@ -121,6 +132,31 @@ void OnlineSender::tryLoginRequest()
     loop.exec();
 }
 
+void OnlineSender::newDocRequest()
+{
+    QString ip_address = IP_ADDRESS;
+    QString port = PORT;
+    QString location = "http://" + ip_address + ":" + PORT + "/";
+    QString request = "new_doc";
+    QString params = "?";
+    params += "token=" + QString::fromStdString(token);
+    params += "&";
+    params += "filename=" + QString::fromStdString(filename);
+
+    url.setUrl(location+request+params);
+    req.setUrl(url);
+    QNetworkReply *reply = manager.get(req);
+
+    QEventLoop loop(this);
+    QTimer timeout;
+
+    timeout.setSingleShot(true);
+    connect(&timeout,&QTimer::timeout,&loop,&QEventLoop::quit);
+    connect(&timeout,&QTimer::timeout,[&](){manager.finished(reply);});
+    timeout.start(3000);
+    loop.exec();
+}
+
 void OnlineSender::checkPushCrdtReply(QNetworkReply *reply)
 {
     if (reply->error()) {
@@ -139,8 +175,8 @@ void OnlineSender::checkPushCrdtReply(QNetworkReply *reply)
 
 void OnlineSender::checkTryRegistrationReply(QNetworkReply *reply)
 {
-    QString response_text;
-    bool good_response = false;
+    QString responseText;
+    bool goodResponse = false;
 
     if(!reply->isFinished()) {
         reply->abort();
@@ -148,34 +184,35 @@ void OnlineSender::checkTryRegistrationReply(QNetworkReply *reply)
 
     if (reply->error()) {
         qDebug() << reply->errorString();
-        response_text = checkConnection(reply->error());
+        responseText = checkConnection(reply->error());
     }
     else {
         int replyCode = reply->readAll().toInt();
 
         switch(replyCode) {
             case 0:
-                response_text = "Account registered successfully!";
-                good_response = true;
+                responseText = "Account registered successfully!";
+                goodResponse = true;
                 break;
             case 1:
-                response_text = "Email address already in use";
+                responseText = "Email address already in use";
                 break;
             case 2:
-                response_text = "Username already in use";
+                responseText = "Username already in use";
                 break;
             default:
                 qDebug() << reply->errorString();
                 break;
         }
     }
-    emit responseTryRegistrationArrived(good_response, response_text);
+    emit responseTryRegistrationArrived(goodResponse, responseText);
 }
 
 void OnlineSender::checkTryLoginReply(QNetworkReply *reply)
 {
-    QString response_text;
-    bool good_response = false;
+    QString responseText;
+    bool goodResponse = false;
+    QString replyString;
 
     if(!reply->isFinished()) {
         reply->abort();
@@ -183,25 +220,63 @@ void OnlineSender::checkTryLoginReply(QNetworkReply *reply)
 
     if (reply->error()) {
         qDebug() << reply->errorString();
-        response_text = checkConnection(reply->error());
+        responseText = checkConnection(reply->error());
     }
     else {
-        int replyCode = reply->readAll().toInt();
+        replyString = reply->readAll();
+        int replyCode = replyString.left(1).toInt();
+
         switch(replyCode) {
             case 0:
-                response_text = "Login failed!\n"
-                                "Wrong username or password\n";
+                responseText = "Login failed!\n"
+                               "Wrong username or password\n";
                 break;
             case 1:
-                response_text = "Login successful!";
-                good_response = true;
+                responseText = "Login successful!";
+                goodResponse = true;
+                replyString.remove(0,2);
                 break;
             default:
                 qDebug() << reply->errorString();
                 break;
         }
     }
-    emit responseTryLoginArrived(good_response, response_text);
+    emit responseTryLoginArrived(goodResponse, responseText, replyString);
+}
+
+void OnlineSender::checkNewDocReply(QNetworkReply *reply)
+{
+    QString responseText;
+    bool goodResponse = false;
+    QStringList replyParts;
+
+    if(!reply->isFinished()) {
+        reply->abort();
+    }
+
+    if (reply->error()) {
+        qDebug() << reply->errorString();
+        responseText = checkConnection(reply->error());
+    }
+    else {
+        replyParts = QString(reply->readAll()).split("|");
+
+        switch(replyParts[0].toInt()) {
+            case 0:
+                responseText = "A document with this name already exist!\n";
+                break;
+            case 1:
+                responseText = "New document created on server!";
+                MainWindow::getInstance().sessionData.docId = replyParts[1].toStdString();
+                MainWindow::getInstance().sessionData.status = true;
+                goodResponse = true;
+                break;
+            default:
+                qDebug() << reply->errorString();
+                break;
+        }
+    }
+    emit responseNewDocArrived(goodResponse, responseText);
 }
 
 QString OnlineSender::checkConnection(QNetworkReply::NetworkError error)
