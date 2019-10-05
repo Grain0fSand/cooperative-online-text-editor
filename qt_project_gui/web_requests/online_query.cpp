@@ -1,5 +1,5 @@
 #include "online_query.h"
-
+#include <thread>
 #define IP_ADDRESS "localhost"
 
 OnlineQuery::OnlineQuery(std::string docId,std::string token,QObject* m) :
@@ -81,8 +81,9 @@ void OnlineQuery::checkReply(QNetworkReply *reply) {
         actions.push_back(w);
     }
 
+
     emit update_id(lastCrdtId);
-    emit send_actions(actions);
+    emit send_actions(actions);  //TODO pass reference
 
     // TODO: remove comment here
     //emit response_arrived(answer);
