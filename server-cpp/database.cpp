@@ -17,29 +17,44 @@ int Database::userLogged(std::string token)
     return -1;
 }
 
-bool Database::userLogin(std::string username,std::string password)
+std::string Database::userLogin(std::string username,std::string password)
 {
     std::string hashedPass = hashed_pass(password);
     bool isLoginCorrect;
+    std::string response = "0";
 
     std::string sql = "SELECT * FROM users WHERE username='" + username + "' AND password='" + hashedPass + "'";
-
+    SQLite::Statement query(db, sql);
     try {
-        SQLite::Statement query(db, sql);
         isLoginCorrect = query.executeStep();
     } catch (SQLite::Exception &error) {
         std::cout << error.getExtendedErrorCode() << " - " << error.what();
         throw;
     }
 
-    if (isLoginCorrect) {
+    if (isLoginCorrect)
+    {
+        response = "1";
+
+        int userId = query.getColumn(0);
+        std::string encodedUserAvatar = query.getColumn(4);
         std::string token = random_string(40);
-        int id = 15;
 
-        sessionLogged[token] = id;
+        response += ":" + encodedUserAvatar;
+        response += ":" + token;
+        response += ":";
+
+        sql = "SELECT name FROM document";
+
+        SQLite::Statement getDocsName(db, sql);
+        while(getDocsName.executeStep()) {
+            std::string docName = getDocsName.getColumn(0);
+            response += docName + "|";
+        }
+
+        sessionLogged[token] = userId;
     }
-
-    return isLoginCorrect;
+    return response;
 }
 
 int Database::userRegistration(std::string email,std::string username,std::string password,std::string image)
@@ -47,8 +62,8 @@ int Database::userRegistration(std::string email,std::string username,std::strin
     std::string hashedPass = hashed_pass(password);
 
     std::string sql = "INSERT INTO users(email,username,password,image) VALUES('" + email + "','" + username + "','" + hashedPass + "','" + image + "')";
+    SQLite::Statement query(db, sql);
     try {
-        SQLite::Statement query(db, sql);
         query.exec();
     } catch (SQLite::Exception &error) {
         if(error.getExtendedErrorCode()==2067) { //UNIQUE CONSTRAINT
@@ -62,6 +77,29 @@ int Database::userRegistration(std::string email,std::string username,std::strin
         else throw;
     }
     return 0;
+}
+
+std::string Database::newDocument(std::string token,std::string docName) {
+    std::string query = "INSERT INTO document(name) VALUES('" + docName + "')";
+    SQLite::Statement insertStat(db,query);
+
+    try {
+        insertStat.exec();
+    } catch (SQLite::Exception &error) {
+        if(error.getExtendedErrorCode()==2067) { //UNIQUE CONSTRAINT
+            return "0";
+        }
+        else throw;
+    }
+    query = "SELECT id FROM document WHERE name='" + docName + "'";
+    SQLite::Statement selectStat(db,query);
+    selectStat.executeStep();
+
+    std::string docId = selectStat.getColumn(0);
+    int uid = userLogged(token);
+
+    addPartecipant(docId,std::to_string(uid));
+    return "1|" + docId;
 }
 
 //TODO: ricordati di inviare tutto lo storico dei crdt

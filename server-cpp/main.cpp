@@ -24,6 +24,19 @@ int main() {
                     return crow::response{std::to_string(replyCode)};
                 });
 
+    CROW_ROUTE(app,"/new_doc")
+            .methods("GET"_method)
+                    ([&](const crow::request& req){
+                        auto params = req.url_params;
+
+                        std::string token = params.get("token");
+                        std::string filename = params.get("filename");
+
+                        std::string replyString = db.newDocument(token,filename);
+
+                        return crow::response{replyString};
+                    });
+
     CROW_ROUTE(app,"/try_login")
             .methods("GET"_method)
                     ([&](const crow::request& req){
@@ -32,9 +45,9 @@ int main() {
                         std::string username = params.get("username");
                         std::string password = params.get("password");
 
-                        bool replyCode = db.userLogin(username,password);
+                        std::string dbReply = db.userLogin(username,password);
 
-                        return crow::response{std::to_string(replyCode)};
+                        return crow::response{dbReply};
                     });
 
     CROW_ROUTE(app,"/update_user")
@@ -112,7 +125,7 @@ int main() {
                         return crow::response{os.str()};
                     });
 
-    app.port(8080)
+    app.port(6969)
     //.multithreaded() // active only if you need more performance
     .run();
 

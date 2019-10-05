@@ -9,7 +9,7 @@ set(Boost_USE_STATIC_RUNTIME OFF)
 set(SQLITE_DIR library)
 set(nlohmann_DIR library/nlohmann_json)
 
-find_package(Boost 1.45.0 COMPONENTS filesystem regex system thread system)
+find_package(Boost 1.45.0 COMPONENTS filesystem regex system thread)
 
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${nlohmann_DIR})
