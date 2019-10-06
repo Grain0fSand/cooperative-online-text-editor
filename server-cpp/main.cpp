@@ -14,6 +14,10 @@ int main() {
                 ([&](const crow::request& req){
                     auto params = req.url_params;
 
+                    if(params.get("email") == nullptr || params.get("username") == nullptr
+                       || params.get("password") == nullptr || params.get("image")==nullptr)
+                        return crow::response(500);
+
                     std::string email = params.get("email");
                     std::string username = params.get("username");
                     std::string password = params.get("password");
@@ -29,6 +33,9 @@ int main() {
                     ([&](const crow::request& req){
                         auto params = req.url_params;
 
+                        if(params.get("token") == nullptr || params.get("filename") == nullptr)
+                            return crow::response(500);
+
                         std::string token = params.get("token");
                         std::string filename = params.get("filename");
 
@@ -42,6 +49,9 @@ int main() {
                     ([&](const crow::request& req){
                         auto params = req.url_params;
 
+                        if(params.get("username") == nullptr || params.get("password") == nullptr)
+                            return crow::response(500);
+
                         std::string username = params.get("username");
                         std::string password = params.get("password");
 
@@ -50,18 +60,25 @@ int main() {
                         return crow::response{dbReply};
                     });
 
-    CROW_ROUTE(app,"/update_user")
+    CROW_ROUTE(app,"/update_user_data")
            .methods("GET"_method)
                 ([&](const crow::request& req){
-                    return "bello stai calmo che non ho ancora finito! torna più tardi";
+
+                    auto params = req.url_params;
+
+                    if(params.get("token") == nullptr || params.get("username") == nullptr
+                       || params.get("avatar") == nullptr)
+                        return crow::response(500);
+
+                    std::string token = params.get("token");
+                    std::string username = params.get("username");
+                    std::string avatar = params.get("avatar");
+
+                    int dbReply = db.updateUserData(token,username,avatar);
+
+                    return crow::response{std::to_string(dbReply)};
+
                 });
-
-
-    CROW_ROUTE(app,"/get_image_user")
-    .methods("GET"_method)
-            ([&](const crow::request& req){
-                return "senti mettici dentro la foto di un cazzo  tanto a cabodi piace perfino di più";
-            });
 
     // to test launch and open
     // http://localhost:8080/get_crdt?token=1&lastcrdt=&docId=1

@@ -102,6 +102,24 @@ std::string Database::newDocument(std::string token,std::string docName) {
     return "1|" + docId;
 }
 
+int Database::updateUserData(std::string token,std::string username,std::string image)
+{
+    int userId = userLogged(token);
+    //userId = 14;
+
+    std::string sql = "UPDATE users SET username='" + username + "', image='" + image + "' WHERE id='" + std::to_string(userId) + "'";
+    SQLite::Statement query(db, sql);
+    try {
+        query.exec();
+    } catch (SQLite::Exception &error) {
+        if(error.getExtendedErrorCode()==2067) { //UNIQUE CONSTRAINT
+            return 0;
+        }
+        else throw;
+    }
+    return 1;
+}
+
 //TODO: ricordati di inviare tutto lo storico dei crdt
 void Database::addPartecipant(std::string docId,std::string uid)
 {
@@ -193,6 +211,7 @@ std::vector<exchangeable_data::send_data> Database::getCrdtUser(std::string last
 
 std::string Database::hashed_pass(std::string pass)
 {
+    //TODO: io dico che questo ci dimentichiamo di modificarlo
     return sha256(pass + "my crazy random salt porcamadonna PDS");
 }
 
