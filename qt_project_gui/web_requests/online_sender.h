@@ -19,6 +19,7 @@ public:
     OnlineSender(QString email,QString username,QString password,QString encodedAvatar); //for registration
     OnlineSender(QString username,QString password); //for login
     OnlineSender(std::string token,std::string filename); //for new doc creation
+    OnlineSender(std::string token, QString username, QString encodedAvatar); //for updating user data
 
     void run() override;
     static QString checkConnection(QNetworkReply::NetworkError error);
@@ -28,10 +29,12 @@ public slots:
     void tryRegistrationRequest();
     void tryLoginRequest();
     void newDocRequest();
+    void updateUserDataRequest();
     void checkPushCrdtReply(QNetworkReply *reply);
     void checkTryRegistrationReply(QNetworkReply *reply);
     void checkTryLoginReply(QNetworkReply *reply);
     void checkNewDocReply(QNetworkReply *reply);
+    void checkUpdateUserDataReply(QNetworkReply *reply);
 
 signals:
     void prepareRequest();
@@ -39,6 +42,7 @@ signals:
     void responseTryRegistrationArrived(bool goodResponse, QString responseText);
     void responseTryLoginArrived(bool goodResponse, QString responseText, QString replyString);
     void responseNewDocArrived(bool goodResponse, QString responseText, QString replyString);
+    void responseUpdateUserDataArrived(bool goodResponse, QString responseText);
 
 private:
     std::string json_to_send;

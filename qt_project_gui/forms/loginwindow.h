@@ -33,7 +33,7 @@ public:
     static bool validateEmail(QString email);
     bool isLoginCorrect();
     void showLoading(Frame frame);
-    static QString generateEncodedImage(const QString& avatar_path);
+    static QString generateEncodedImage(QPixmap avatar);
     static QPixmap recoverImageFromEncodedString(const QString& code);
     Frame currentVisibleFrame();
 
@@ -43,6 +43,7 @@ public slots:
     void showRegisterResponse(bool goodResponse, QString responseText);
     void showLoginResponse(bool goodResponse, QString responseText, QString replyString);
     void showNewDocResponse(bool goodResponse, QString responseText, QString replyString);
+    void showUpdateUserDataResponse(bool goodResponse, QString responseText);
     void slowClose();
     void switchFrame(int direction=0);
     void changeYourUsername();

@@ -180,28 +180,40 @@ void LoginWindow::changeYourUsername()
     dialog.setTextValue(ui->loggedUsernameLabel->text());
     dialog.setModal(true);
     while(true) {
-        if(dialog.exec()==QDialog::Accepted && dialog.textValue()=="") {
-            QMessageBox advice(this);
-            advice.setText("Username field empty!\nEnter a valid username");
-            advice.setIcon(QMessageBox::Critical);
-            advice.exec();
+        if(dialog.exec()==QDialog::Accepted) {
+            if(dialog.textValue()=="") {
+                QMessageBox advice(this);
+                advice.setText("Username field empty!\nEnter a valid username");
+                advice.setIcon(QMessageBox::Critical);
+                advice.exec();
+            }
+            else {
+                this->sessionData.username = dialog.textValue().toStdString();
+                QString encodedAvatar = LoginWindow::generateEncodedImage(this->sessionData.avatar);
+                QString username = dialog.textValue();
+
+                QThread* sender = new OnlineSender(this->sessionData.token, username, encodedAvatar);
+                sender->start();
+
+                break;
+            }
         }
-        else {
-            ui->loggedUsernameLabel->setText(dialog.textValue());
-            break;
-        }
+
     }
 }
 
 void LoginWindow::changeYourAvatar()
 {
-    QString file_path = QFileDialog::getOpenFileName(nullptr,"Choose your own avatar..");
-    if(file_path!="") {
-        QString file_name = file_path.split("/").last();
-        QString new_file_path = ":/resources/"+file_name;
-        QFile::copy(file_path,new_file_path);
+    QString avatar_path = QFileDialog::getOpenFileName(nullptr,"Choose your own avatar..");
+    if(avatar_path!="") {
 
-        ui->loggedAvatar->setPixmap(QPixmap(new_file_path));
+        QPixmap avatar(avatar_path);
+        this->sessionData.avatar = avatar;
+        QString encodedAvatar = LoginWindow::generateEncodedImage(avatar);
+        QString username = ui->loggedUsernameLabel->text();
+
+        QThread* sender = new OnlineSender(this->sessionData.token, username, encodedAvatar);
+        sender->start();
     }
 }
 
@@ -315,8 +327,8 @@ void LoginWindow::tryRegister()
                 advice.exec();
             }
         }
-
-        QString encodedAvatar = LoginWindow::generateEncodedImage(avatar_path);
+        QPixmap avatar(avatar_path);
+        QString encodedAvatar = LoginWindow::generateEncodedImage(avatar);
 
         QThread* sender = new OnlineSender(email, username, password, encodedAvatar);
         sender->start();
@@ -399,9 +411,9 @@ void LoginWindow::showNewDocResponse(bool goodResponse, QString responseText, QS
     QMessageBox advice(this);
     advice.setText(responseText);
     if(goodResponse)
-        advice.setIcon(QMessageBox::Warning);
-    else
         advice.setIcon(QMessageBox::Information);
+    else
+        advice.setIcon(QMessageBox::Warning);
 
     advice.exec();
 
@@ -415,15 +427,34 @@ void LoginWindow::showNewDocResponse(bool goodResponse, QString responseText, QS
     }
 }
 
-QString LoginWindow::generateEncodedImage(const QString& avatar_path) {
+void LoginWindow::showUpdateUserDataResponse(bool goodResponse, QString responseText)
+{
+    QMessageBox advice(this);
+    advice.setText(responseText);
+    if(goodResponse)
+        advice.setIcon(QMessageBox::Information);
+    else
+        advice.setIcon(QMessageBox::Warning);
 
-    QString format(avatar_path.split('.').last().toUpper());
-    QPixmap avatar(avatar_path);
+    advice.exec();
+
+    if(goodResponse) {
+        ui->loggedUsernameLabel->setText(QString::fromStdString(this->sessionData.username));
+        ui->loggedAvatar->setPixmap(this->sessionData.avatar);
+    }
+    else {
+        this->sessionData.username = ui->loggedUsernameLabel->text().toStdString();
+        this->sessionData.avatar = *ui->loggedAvatar->pixmap();
+    }
+}
+
+QString LoginWindow::generateEncodedImage(QPixmap avatar) {
+
     avatar = avatar.scaled(71,71);
     QByteArray blobAvatar;
     QBuffer buffer(&blobAvatar);
     buffer.open(QIODevice::WriteOnly);
-    avatar.save(&buffer, "PNG"); //format.toStdString().c_str()
+    avatar.save(&buffer, "PNG");
     QString encodedAvatar = buffer.data().toBase64(QByteArray::Base64UrlEncoding);
 
     return encodedAvatar;

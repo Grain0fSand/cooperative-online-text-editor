@@ -21,11 +21,11 @@ OnlineSender::OnlineSender(std::string json_to_send,std::string docId,std::strin
     connect(&manager, &QNetworkAccessManager::finished, this, &OnlineSender::checkPushCrdtReply);
 }
 
-OnlineSender::OnlineSender(QString email, QString username, QString password, QString avatar) :
+OnlineSender::OnlineSender(QString email, QString username, QString password, QString encodedAvatar) :
     email(email),
     username(username),
     password(password),
-    avatar(avatar)
+    avatar(encodedAvatar)
 {
     moveToThread(this);
     connect(this,&OnlineSender::prepareRequest,this,&OnlineSender::tryRegistrationRequest);
@@ -54,6 +54,18 @@ OnlineSender::OnlineSender(std::string token,std::string filename) :
     connect(&manager,&QNetworkAccessManager::finished,this,&OnlineSender::checkNewDocReply);
     connect(this,&OnlineSender::responseNewDocArrived,&LoginWindow::getInstance(),&LoginWindow::showNewDocResponse);
     connect(this,&OnlineSender::responseNewDocArrived,this,&OnlineSender::quit);
+}
+
+OnlineSender::OnlineSender(std::string token, QString username, QString encodedAvatar) :
+    token(token),
+    username(username),
+    avatar(encodedAvatar)
+{
+    moveToThread(this);
+    connect(this,&OnlineSender::prepareRequest,this,&OnlineSender::updateUserDataRequest);
+    connect(&manager,&QNetworkAccessManager::finished,this,&OnlineSender::checkUpdateUserDataReply);
+    connect(this,&OnlineSender::responseUpdateUserDataArrived,&LoginWindow::getInstance(),&LoginWindow::showUpdateUserDataResponse);
+    connect(this,&OnlineSender::responseUpdateUserDataArrived,this,&OnlineSender::quit);
 }
 
 void OnlineSender::run()
@@ -142,6 +154,33 @@ void OnlineSender::newDocRequest()
     params += "token=" + QString::fromStdString(token);
     params += "&";
     params += "filename=" + QString::fromStdString(filename);
+
+    url.setUrl(location+request+params);
+    req.setUrl(url);
+    QNetworkReply *reply = manager.get(req);
+
+    QEventLoop loop(this);
+    QTimer timeout;
+
+    timeout.setSingleShot(true);
+    connect(&timeout,&QTimer::timeout,&loop,&QEventLoop::quit);
+    connect(&timeout,&QTimer::timeout,[&](){manager.finished(reply);});
+    timeout.start(3000);
+    loop.exec();
+}
+
+void OnlineSender::updateUserDataRequest()
+{
+    QString ip_address = IP_ADDRESS;
+    QString port = PORT;
+    QString location = "http://" + ip_address + ":" + PORT + "/";
+    QString request = "update_user_data";
+    QString params = "?";
+    params += "token=" + QString::fromStdString(token);
+    params += "&";
+    params += "username=" + username;
+    params += "&";
+    params += "avatar=" + avatar;
 
     url.setUrl(location+request+params);
     req.setUrl(url);
@@ -277,6 +316,39 @@ void OnlineSender::checkNewDocReply(QNetworkReply *reply)
         }
     }
     emit responseNewDocArrived(goodResponse, responseText, replyString);
+}
+
+void OnlineSender::checkUpdateUserDataReply(QNetworkReply *reply)
+{
+    QString responseText;
+    bool goodResponse = false;
+
+    if(!reply->isFinished()) {
+        reply->abort();
+    }
+
+    if (reply->error()) {
+        qDebug() << reply->errorString();
+        responseText = checkConnection(reply->error());
+    }
+    else {
+        int replyCode = QString(reply->readAll()).toInt();
+
+        switch(replyCode) {
+            case 0:
+                responseText = "This username already exists!\n"
+                               "Please, choose another one";
+                break;
+            case 1:
+                responseText = "User account updated successfully!";
+                goodResponse = true;
+                break;
+            default:
+                qDebug() << reply->errorString();
+                break;
+        }
+    }
+    emit responseUpdateUserDataArrived(goodResponse, responseText);
 }
 
 QString OnlineSender::checkConnection(QNetworkReply::NetworkError error)
