@@ -26,8 +26,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow),
     background_task(200)
 {
-    // TODO: remove after login are setted correctly, this
-    // TODO: structure are necessary for the correct web request
+    getSessionDataFromLogin();
 
     query = new OnlineQuery{this->sessionData.docId,this->sessionData.token,this};
     query->start();
@@ -36,8 +35,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->myUsername->setText(QString::fromStdString(sessionData.username));
     ui->myAvatar->setPixmap(sessionData.avatar);
     ui->textEditShared->setAcceptRichText(false); //this needs to be false to avoid pasting formatted text with CTRL+V
-
     ui->textEditShared->installEventFilter(this);
+    ui->textEditShared->setDocumentName(QString::fromStdString(sessionData.docName));
     Shared_editor::getInstance().initString(ui->textEditShared->toHtml());
 
     ui->sideLayout->layout()->setAlignment(Qt::AlignTop);
@@ -79,6 +78,10 @@ MainWindow::~MainWindow()
     background_task.cancel();
     background_task.wait();
     delete ui;
+}
+
+void MainWindow::getSessionDataFromLogin() {
+    this->sessionData = LoginWindow::getInstance().sessionData;
 }
 
 void MainWindow::update_id(std::string id){
@@ -482,17 +485,17 @@ void MainWindow::setupFontComboBoxes(QComboBox* comboSize, QComboBox* comboFamil
 
 void MainWindow::setupStatusBar()
 {
-    QLabel *filename = new QLabel("Document: "+ui->textEditShared->getDocumentName()+".txt");
+    auto *filename = new QLabel("Document: "+ui->textEditShared->getDocumentName()+".sim");
     filename->setObjectName("filename");
-    QLabel *charCount = new QLabel("Chars: "+QString::number(ui->textEditShared->document()->characterCount()));
+    auto *charCount = new QLabel("Chars: "+QString::number(ui->textEditShared->document()->characterCount()-1));
     charCount->setObjectName("charCount");
-    QLabel *lineCount = new QLabel("Lines: "+QString::number(ui->textEditShared->document()->lineCount()));
+    auto *lineCount = new QLabel("Lines: "+QString::number(ui->textEditShared->document()->lineCount()));
     lineCount->setObjectName("lineCount");
-    QLabel *cursorPos = new QLabel("pos: "+QString::number(ui->textEditShared->textCursor().position()));
+    auto *cursorPos = new QLabel("pos: "+QString::number(ui->textEditShared->textCursor().position()));
     cursorPos->setObjectName("cursorPos");
-    QLabel *cursorColumn = new QLabel("col: "+QString::number(ui->textEditShared->textCursor().columnNumber()));
+    auto *cursorColumn = new QLabel("col: "+QString::number(ui->textEditShared->textCursor().columnNumber()));
     cursorColumn->setObjectName("cursorColumn");
-    QLabel *cursorSelectionCount = new QLabel("sel: "+QString::number(ui->textEditShared->textCursor().selectedText().length()));
+    auto *cursorSelectionCount = new QLabel("sel: "+QString::number(ui->textEditShared->textCursor().selectedText().length()));
     cursorSelectionCount->setObjectName("cursorSelectionCount");
 
     ui->statusBar->addWidget(filename, 2);

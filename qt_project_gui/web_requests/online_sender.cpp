@@ -248,7 +248,7 @@ void OnlineSender::checkNewDocReply(QNetworkReply *reply)
 {
     QString responseText;
     bool goodResponse = false;
-    QStringList replyParts;
+    QString replyString;
 
     if(!reply->isFinished()) {
         reply->abort();
@@ -259,24 +259,24 @@ void OnlineSender::checkNewDocReply(QNetworkReply *reply)
         responseText = checkConnection(reply->error());
     }
     else {
-        replyParts = QString(reply->readAll()).split("|");
+        replyString = QString(reply->readAll());
+        int replyCode = replyString.left(1).toInt();
 
-        switch(replyParts[0].toInt()) {
+        switch(replyCode) {
             case 0:
                 responseText = "A document with this name already exist!\n";
                 break;
             case 1:
                 responseText = "New document created on server!";
-                MainWindow::getInstance().sessionData.docId = replyParts[1].toStdString();
-                MainWindow::getInstance().sessionData.status = true;
                 goodResponse = true;
+                replyString.remove(0,2);
                 break;
             default:
                 qDebug() << reply->errorString();
                 break;
         }
     }
-    emit responseNewDocArrived(goodResponse, responseText);
+    emit responseNewDocArrived(goodResponse, responseText, replyString);
 }
 
 QString OnlineSender::checkConnection(QNetworkReply::NetworkError error)

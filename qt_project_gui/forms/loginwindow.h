@@ -14,6 +14,7 @@ class LoginWindow : public QDialog
     Q_OBJECT
 
 public:
+    SessionData sessionData;
     LoginWindow(const LoginWindow&) = delete;
     LoginWindow& operator=(const LoginWindow&) = delete;
 
@@ -41,7 +42,7 @@ public slots:
     void tryRegister();
     void showRegisterResponse(bool goodResponse, QString responseText);
     void showLoginResponse(bool goodResponse, QString responseText, QString replyString);
-    void showNewDocResponse(bool goodResponse, QString responseText);
+    void showNewDocResponse(bool goodResponse, QString responseText, QString replyString);
     void slowClose();
     void switchFrame(int direction=0);
     void changeYourUsername();
@@ -58,8 +59,6 @@ private:
     Ui::LoginWindow *ui;
     bool loginCorrect;
     QStringList docsList;
-    QString personalToken;
-    QPixmap personalAvatar;
 };
 
 #endif // LOGINWINDOW_H

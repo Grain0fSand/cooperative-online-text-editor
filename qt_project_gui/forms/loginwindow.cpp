@@ -218,9 +218,9 @@ void LoginWindow::createDocument()
                 advice.setIcon(QMessageBox::Critical);
                 advice.exec();
             } else {
-                MyTextEdit::getInstance().setDocumentName(dialog.textValue());
+                this->sessionData.docName = dialog.textValue().toStdString();
 
-                QThread* sender = new OnlineSender(personalToken.toStdString(), dialog.textValue().toStdString());
+                QThread* sender = new OnlineSender(this->sessionData.token, this->sessionData.docName);
                 sender->start();
                 break;
             }
@@ -370,15 +370,13 @@ void LoginWindow::showLoginResponse(bool goodResponse, QString responseText,  QS
         ui->informationImage->movie()->setFileName(":/resources/correct_icon.gif");
 
         QStringList replyParts = replyString.split(":");
-        this->personalAvatar = recoverImageFromEncodedString(replyParts[0]);
-        this->personalToken = replyParts[1];
+        this->sessionData.avatar = recoverImageFromEncodedString(replyParts[0]);
+        this->sessionData.token = replyParts[1].toStdString();
         this->docsList = replyParts[2].split("|",QString::SkipEmptyParts);
-        MainWindow::getInstance().sessionData.token = this->personalToken.toStdString();
-        MainWindow::getInstance().sessionData.avatar = this->personalAvatar;
-        MainWindow::getInstance().sessionData.username = ui->loginUsernameInput->text().toStdString();
 
+        this->sessionData.username = ui->loginUsernameInput->text().toStdString();
         ui->loggedUsernameLabel->setText(ui->loginUsernameInput->text());
-        ui->loggedAvatar->setPixmap(this->personalAvatar);
+        ui->loggedAvatar->setPixmap(this->sessionData.avatar);
     }
     else {
         connect(ui->informationButton,&QPushButton::clicked,this,[&](){
@@ -396,7 +394,7 @@ void LoginWindow::showLoginResponse(bool goodResponse, QString responseText,  QS
     ui->informationWhiteFrame->setVisible(true);
 }
 
-void LoginWindow::showNewDocResponse(bool goodResponse, QString responseText)
+void LoginWindow::showNewDocResponse(bool goodResponse, QString responseText, QString replyString)
 {
     QMessageBox advice(this);
     advice.setText(responseText);
@@ -408,7 +406,11 @@ void LoginWindow::showNewDocResponse(bool goodResponse, QString responseText)
     advice.exec();
 
     if(goodResponse) {
+        QStringList replyParts = replyString.split("|");
+        this->sessionData.docId = replyParts[0].toStdString();
+        this->sessionData.status = true;
         this->loginCorrect=true;
+
         close();
     }
 }

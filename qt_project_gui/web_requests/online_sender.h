@@ -38,7 +38,7 @@ signals:
     void responsePushCrdtArrived(std::string response);
     void responseTryRegistrationArrived(bool goodResponse, QString responseText);
     void responseTryLoginArrived(bool goodResponse, QString responseText, QString replyString);
-    void responseNewDocArrived(bool goodResponse, QString responseText);
+    void responseNewDocArrived(bool goodResponse, QString responseText, QString replyString);
 
 private:
     std::string json_to_send;

@@ -12,6 +12,7 @@
 class SessionData {
 public:
     std::string docId;
+    std::string docName;
     std::string token;
     std::string lastCrdtId;
     std::string username;

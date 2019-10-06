@@ -69,6 +69,7 @@ public:
     void sendInvitationEmail(QString destEmailAddress);
     void setupFontComboBoxes(QComboBox *comboSize, QComboBox *comboFamily);
     void setupStatusBar();
+    void getSessionDataFromLogin();
 
 public slots:
     void update_id(std::string id);
