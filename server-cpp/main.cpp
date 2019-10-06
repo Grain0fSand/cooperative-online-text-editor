@@ -74,13 +74,15 @@ int main() {
                         || params.get("docId") == nullptr)
                             return crow::response(500);
 
-
-                        // TODO: replace the simple id to the hashmap of token
                         std::string token = params.get("token");
                         std::string lastcrdt = params.get("lastcrdt");
                         std::string docId = params.get("docId");
 
-                        int idUser = 2;docId='1';//db.userLogged(token);
+
+                        //TODO: only for test on crdt, change these values if necessary
+                        int idUser = 2; docId='1';
+                        //db.userLogged(token);
+
                         if(idUser<0)
                             return crow::response(403);
 
