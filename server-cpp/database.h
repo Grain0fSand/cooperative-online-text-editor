@@ -18,7 +18,7 @@ public:
     std::string userLogin(std::string username,std::string password);
     int userRegistration(std::string email,std::string username,std::string password,std::string image);
     std::string newDocument(std::string uid,std::string docName);
-    int updateUserData(std::string token,std::string username,std::string image);
+    int updateUserData(std::string token,std::string username,std::string image,std::string password);
     void addPartecipant(std::string docId,std::string uid);
     void updateTimestamp(std::string docId,std::string uid);
     void insertCrdt(std::string crdt_json,std::string uid,std::string docId);

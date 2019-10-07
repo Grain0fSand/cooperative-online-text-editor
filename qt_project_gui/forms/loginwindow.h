@@ -48,6 +48,7 @@ public slots:
     void switchFrame(int direction=0);
     void changeYourUsername();
     void changeYourAvatar();
+    void changeYourPassword();
     void createDocument();
     void openDocument();
     void requestURI();

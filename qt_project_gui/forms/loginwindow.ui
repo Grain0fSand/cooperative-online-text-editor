@@ -1033,6 +1033,11 @@ QPushButton:hover {
     <string>Change your username</string>
    </property>
   </action>
+  <action name="actionChangePassword">
+   <property name="text">
+    <string>Change your password</string>
+   </property>
+  </action>
   <action name="actionChangeAvatar">
    <property name="text">
     <string>Change your avatar</string>

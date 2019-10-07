@@ -22,6 +22,7 @@ LoginWindow::LoginWindow(QWidget *parent) :
     QMenu* settingsMenu = new QMenu;
     QMovie* loader = new QMovie();
     settingsMenu->addAction(ui->actionChangeUsername);
+    settingsMenu->addAction(ui->actionChangePassword);
     settingsMenu->addAction(ui->actionChangeAvatar);
     ui->loggedSettingsButton->setMenu(settingsMenu);
     ui->informationWhiteFrame->setVisible(false);
@@ -37,6 +38,7 @@ LoginWindow::LoginWindow(QWidget *parent) :
     connect(ui->loggedLogoutButton,&QPushButton::clicked,[&](){this->loginCorrect=false;});
     connect(ui->loggedLogoutButton,&QPushButton::clicked,this,&LoginWindow::switchFrame);
     connect(ui->actionChangeUsername,&QAction::triggered,this,&LoginWindow::changeYourUsername);
+    connect(ui->actionChangePassword,&QAction::triggered,this,&LoginWindow::changeYourPassword);
     connect(ui->actionChangeAvatar,&QAction::triggered,this,&LoginWindow::changeYourAvatar);
     connect(ui->loggedNewButton,&QPushButton::clicked,this,&LoginWindow::createDocument);
     connect(ui->loggedOpenButton,&QPushButton::clicked,this,&LoginWindow::openDocument);
@@ -183,7 +185,7 @@ void LoginWindow::changeYourUsername()
         if(dialog.exec()==QDialog::Accepted) {
             if(dialog.textValue()=="") {
                 QMessageBox advice(this);
-                advice.setText("Username field empty!\nEnter a valid username");
+                advice.setText("You left the field empty!\nEnter a valid username");
                 advice.setIcon(QMessageBox::Critical);
                 advice.exec();
             }
@@ -191,14 +193,14 @@ void LoginWindow::changeYourUsername()
                 this->sessionData.username = dialog.textValue().toStdString();
                 QString encodedAvatar = LoginWindow::generateEncodedImage(this->sessionData.avatar);
                 QString username = dialog.textValue();
+                QString password = QString::fromStdString(this->sessionData.password);
 
-                QThread* sender = new OnlineSender(this->sessionData.token, username, encodedAvatar);
+                QThread* sender = new OnlineSender(this->sessionData.token, username, encodedAvatar, password);
                 sender->start();
 
                 break;
             }
         }
-
     }
 }
 
@@ -211,9 +213,38 @@ void LoginWindow::changeYourAvatar()
         this->sessionData.avatar = avatar;
         QString encodedAvatar = LoginWindow::generateEncodedImage(avatar);
         QString username = ui->loggedUsernameLabel->text();
+        QString password = QString::fromStdString(this->sessionData.password);
 
-        QThread* sender = new OnlineSender(this->sessionData.token, username, encodedAvatar);
+        QThread* sender = new OnlineSender(this->sessionData.token, username, encodedAvatar, password);
         sender->start();
+    }
+}
+
+void LoginWindow::changeYourPassword()
+{
+    QInputDialog dialog(this);
+    dialog.setLabelText("Insert a new password:");
+    dialog.setTextEchoMode(QLineEdit::Password);
+    dialog.setModal(true);
+    while(true) {
+        if(dialog.exec()==QDialog::Accepted) {
+            if(dialog.textValue()=="") {
+                QMessageBox advice(this);
+                advice.setText("You left the field empty!\nEnter a valid password");
+                advice.setIcon(QMessageBox::Critical);
+                advice.exec();
+            }
+            else {
+                QString username = QString::fromStdString(this->sessionData.username);
+                QString encodedAvatar = LoginWindow::generateEncodedImage(this->sessionData.avatar);
+                QString password = dialog.textValue();
+
+                QThread* sender = new OnlineSender(this->sessionData.token, username, encodedAvatar, password);
+                sender->start();
+
+                break;
+            }
+        }
     }
 }
 

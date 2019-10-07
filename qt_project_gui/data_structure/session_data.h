@@ -16,6 +16,7 @@ public:
     std::string token;
     std::string lastCrdtId;
     std::string username;
+    std::string password;
     QPixmap avatar;
     bool status;
     // TODO: add list of user

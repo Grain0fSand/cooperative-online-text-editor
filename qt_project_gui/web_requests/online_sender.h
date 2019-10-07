@@ -19,7 +19,7 @@ public:
     OnlineSender(QString email,QString username,QString password,QString encodedAvatar); //for registration
     OnlineSender(QString username,QString password); //for login
     OnlineSender(std::string token,std::string filename); //for new doc creation
-    OnlineSender(std::string token, QString username, QString encodedAvatar); //for updating user data
+    OnlineSender(std::string token, QString username, QString encodedAvatar, QString password); //for updating user data
 
     void run() override;
     static QString checkConnection(QNetworkReply::NetworkError error);

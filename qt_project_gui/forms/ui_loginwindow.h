@@ -26,6 +26,7 @@ class Ui_LoginWindow
 {
 public:
     QAction *actionChangeUsername;
+    QAction *actionChangePassword;
     QAction *actionChangeAvatar;
     QLabel *banner;
     QFrame *formFrame;
@@ -74,6 +75,8 @@ public:
         LoginWindow->setAutoFillBackground(false);
         actionChangeUsername = new QAction(LoginWindow);
         actionChangeUsername->setObjectName(QString::fromUtf8("actionChangeUsername"));
+        actionChangePassword = new QAction(LoginWindow);
+        actionChangePassword->setObjectName(QString::fromUtf8("actionChangePassword"));
         actionChangeAvatar = new QAction(LoginWindow);
         actionChangeAvatar->setObjectName(QString::fromUtf8("actionChangeAvatar"));
         banner = new QLabel(LoginWindow);
@@ -472,6 +475,7 @@ public:
     void retranslateUi(QWidget *LoginWindow)
     {
         actionChangeUsername->setText(QCoreApplication::translate("LoginWindow", "Change your username", nullptr));
+        actionChangePassword->setText(QCoreApplication::translate("LoginWindow", "Change your password", nullptr));
         actionChangeAvatar->setText(QCoreApplication::translate("LoginWindow", "Change your avatar", nullptr));
         banner->setText(QString());
         loginUsernameLabel->setText(QCoreApplication::translate("LoginWindow", "Username", nullptr));

@@ -56,9 +56,10 @@ OnlineSender::OnlineSender(std::string token,std::string filename) :
     connect(this,&OnlineSender::responseNewDocArrived,this,&OnlineSender::quit);
 }
 
-OnlineSender::OnlineSender(std::string token, QString username, QString encodedAvatar) :
+OnlineSender::OnlineSender(std::string token, QString username, QString encodedAvatar, QString password) :
     token(token),
     username(username),
+    password(password),
     avatar(encodedAvatar)
 {
     moveToThread(this);
@@ -181,6 +182,8 @@ void OnlineSender::updateUserDataRequest()
     params += "username=" + username;
     params += "&";
     params += "avatar=" + avatar;
+    params += "&";
+    params += "password=" + password;
 
     url.setUrl(location+request+params);
     req.setUrl(url);

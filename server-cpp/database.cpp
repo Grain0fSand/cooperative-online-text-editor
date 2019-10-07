@@ -102,12 +102,11 @@ std::string Database::newDocument(std::string token,std::string docName) {
     return "1|" + docId;
 }
 
-int Database::updateUserData(std::string token,std::string username,std::string image)
+int Database::updateUserData(std::string token,std::string username,std::string image,std::string password)
 {
     int userId = userLogged(token);
-    //userId = 14;
 
-    std::string sql = "UPDATE users SET username='" + username + "', image='" + image + "' WHERE id='" + std::to_string(userId) + "'";
+    std::string sql = "UPDATE users SET username='" + username + "', image='" + image + "', password='" + hashed_pass(password) + "' WHERE id='" + std::to_string(userId) + "'";
     SQLite::Statement query(db, sql);
     try {
         query.exec();

@@ -67,14 +67,15 @@ int main() {
                     auto params = req.url_params;
 
                     if(params.get("token") == nullptr || params.get("username") == nullptr
-                       || params.get("avatar") == nullptr)
+                       || params.get("avatar") == nullptr || params.get("password") == nullptr)
                         return crow::response(500);
 
                     std::string token = params.get("token");
                     std::string username = params.get("username");
                     std::string avatar = params.get("avatar");
+                    std::string avatar = params.get("password");
 
-                    int dbReply = db.updateUserData(token,username,avatar);
+                    int dbReply = db.updateUserData(token,username,avatar,password);
 
                     return crow::response{std::to_string(dbReply)};
 
