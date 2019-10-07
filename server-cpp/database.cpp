@@ -102,6 +102,11 @@ std::string Database::newDocument(std::string token,std::string docName) {
     return "1|" + docId;
 }
 
+std::string Database::openDocument(std::string token,std::string docId)
+{
+    return "0";
+}
+
 int Database::updateUserData(std::string token,std::string username,std::string image,std::string password)
 {
     int userId = userLogged(token);

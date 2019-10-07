@@ -44,22 +44,6 @@ int main() {
                         return crow::response{replyString};
                     });
 
-    CROW_ROUTE(app,"/new_doc")
-            .methods("GET"_method)
-                    ([&](const crow::request& req){
-                        auto params = req.url_params;
-
-                        if(params.get("token") == nullptr || params.get("filename") == nullptr)
-                            return crow::response(500);
-
-                        std::string token = params.get("token");
-                        std::string filename = params.get("filename");
-
-                        std::string replyString = db.newDocument(token,filename);
-
-                        return crow::response{replyString};
-                    });
-
     CROW_ROUTE(app,"/open_doc")
             .methods("GET"_method)
                     ([&](const crow::request& req){
@@ -72,6 +56,22 @@ int main() {
                         std::string docId = params.get("docId");
 
                         std::string dbReply = db.openDocument(token,docId);
+
+                        return crow::response{dbReply};
+                    });
+
+    CROW_ROUTE(app,"/try_login")
+            .methods("GET"_method)
+                    ([&](const crow::request& req){
+                        auto params = req.url_params;
+
+                        if(params.get("username") == nullptr || params.get("password") == nullptr)
+                            return crow::response(500);
+
+                        std::string username = params.get("username");
+                        std::string password = params.get("password");
+
+                        std::string dbReply = db.userLogin(username,password);
 
                         return crow::response{dbReply};
                     });
