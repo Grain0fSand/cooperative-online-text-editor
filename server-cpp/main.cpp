@@ -44,18 +44,34 @@ int main() {
                         return crow::response{replyString};
                     });
 
-    CROW_ROUTE(app,"/try_login")
+    CROW_ROUTE(app,"/new_doc")
             .methods("GET"_method)
                     ([&](const crow::request& req){
                         auto params = req.url_params;
 
-                        if(params.get("username") == nullptr || params.get("password") == nullptr)
+                        if(params.get("token") == nullptr || params.get("filename") == nullptr)
                             return crow::response(500);
 
-                        std::string username = params.get("username");
-                        std::string password = params.get("password");
+                        std::string token = params.get("token");
+                        std::string filename = params.get("filename");
 
-                        std::string dbReply = db.userLogin(username,password);
+                        std::string replyString = db.newDocument(token,filename);
+
+                        return crow::response{replyString};
+                    });
+
+    CROW_ROUTE(app,"/open_doc")
+            .methods("GET"_method)
+                    ([&](const crow::request& req){
+                        auto params = req.url_params;
+
+                        if(params.get("token") == nullptr || params.get("docId") == nullptr)
+                            return crow::response(500);
+
+                        std::string token = params.get("token");
+                        std::string docId = params.get("docId");
+
+                        std::string dbReply = db.openDocument(token,docId);
 
                         return crow::response{dbReply};
                     });
@@ -73,7 +89,7 @@ int main() {
                     std::string token = params.get("token");
                     std::string username = params.get("username");
                     std::string avatar = params.get("avatar");
-                    std::string avatar = params.get("password");
+                    std::string password = params.get("password");
 
                     int dbReply = db.updateUserData(token,username,avatar,password);
 
