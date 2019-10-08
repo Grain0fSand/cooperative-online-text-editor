@@ -18,6 +18,7 @@ public:
     std::string username;
     std::string password;
     QPixmap avatar;
+    std::vector<UserTag> usersList;
     bool status;
     // TODO: add list of user
     // TODO: add list of cursor

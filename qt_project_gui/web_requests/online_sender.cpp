@@ -56,6 +56,17 @@ OnlineSender::OnlineSender(std::string token,std::string filename) :
     connect(this,&OnlineSender::responseNewDocArrived,this,&OnlineSender::quit);
 }
 
+OnlineSender::OnlineSender(std::string token,QString docIndex) :
+    token(token),
+    docId(docIndex.toStdString())
+{
+    moveToThread(this);
+    connect(this,&OnlineSender::prepareRequest,this,&OnlineSender::openDocRequest);
+    connect(&manager,&QNetworkAccessManager::finished,this,&OnlineSender::checkOpenDocReply);
+    connect(this,&OnlineSender::responseOpenDocArrived,&LoginWindow::getInstance(),&LoginWindow::showOpenDocResponse);
+    connect(this,&OnlineSender::responseOpenDocArrived,this,&OnlineSender::quit);
+}
+
 OnlineSender::OnlineSender(std::string token, QString username, QString encodedAvatar, QString password) :
     token(token),
     username(username),
@@ -155,6 +166,31 @@ void OnlineSender::newDocRequest()
     params += "token=" + QString::fromStdString(token);
     params += "&";
     params += "filename=" + QString::fromStdString(filename);
+
+    url.setUrl(location+request+params);
+    req.setUrl(url);
+    QNetworkReply *reply = manager.get(req);
+
+    QEventLoop loop(this);
+    QTimer timeout;
+
+    timeout.setSingleShot(true);
+    connect(&timeout,&QTimer::timeout,&loop,&QEventLoop::quit);
+    connect(&timeout,&QTimer::timeout,[&](){manager.finished(reply);});
+    timeout.start(3000);
+    loop.exec();
+}
+
+void OnlineSender::openDocRequest()
+{
+    QString ip_address = IP_ADDRESS;
+    QString port = PORT;
+    QString location = "http://" + ip_address + ":" + PORT + "/";
+    QString request = "open_doc";
+    QString params = "?";
+    params += "token=" + QString::fromStdString(token);
+    params += "&";
+    params += "docId=" + QString::fromStdString(docId);
 
     url.setUrl(location+request+params);
     req.setUrl(url);
@@ -319,6 +355,25 @@ void OnlineSender::checkNewDocReply(QNetworkReply *reply)
         }
     }
     emit responseNewDocArrived(goodResponse, responseText, replyString);
+}
+
+void OnlineSender::checkOpenDocReply(QNetworkReply *reply)
+{
+    QString responseText;
+    QString replyString;
+
+    if(!reply->isFinished()) {
+        reply->abort();
+    }
+
+    if (reply->error()) {
+        qDebug() << reply->errorString();
+        responseText = checkConnection(reply->error());
+    }
+    else {
+        replyString = QString(reply->readAll());
+    }
+    emit responseOpenDocArrived(replyString);
 }
 
 void OnlineSender::checkUpdateUserDataReply(QNetworkReply *reply)

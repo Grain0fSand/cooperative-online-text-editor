@@ -35,6 +35,7 @@ public:
     void showLoading(Frame frame);
     static QString generateEncodedImage(QPixmap avatar);
     static QPixmap recoverImageFromEncodedString(const QString& code);
+    static QColor chooseColorFromString(QString string);
     Frame currentVisibleFrame();
 
 public slots:
@@ -43,6 +44,7 @@ public slots:
     void showRegisterResponse(bool goodResponse, QString responseText);
     void showLoginResponse(bool goodResponse, QString responseText, QString replyString);
     void showNewDocResponse(bool goodResponse, QString responseText, QString replyString);
+    void showOpenDocResponse(QString responseString);
     void showUpdateUserDataResponse(bool goodResponse, QString responseText);
     void slowClose();
     void switchFrame(int direction=0);

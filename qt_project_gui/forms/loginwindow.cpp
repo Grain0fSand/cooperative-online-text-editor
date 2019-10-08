@@ -8,7 +8,9 @@
 #include <QInputDialog>
 #include <QMessageBox>
 #include <QFileDialog>
-#include <QtSvg/qsvgwidget.h>
+#include <QListView>
+#include <QStringListModel>
+#include <QLayout>
 
 LoginWindow::LoginWindow(QWidget *parent) :
     QDialog(parent),
@@ -19,8 +21,8 @@ LoginWindow::LoginWindow(QWidget *parent) :
     ui->loginErrorLabel->setVisible(false);
     this->setWindowFlag(Qt::FramelessWindowHint);
 
-    QMenu* settingsMenu = new QMenu;
-    QMovie* loader = new QMovie();
+    auto settingsMenu = new QMenu;
+    auto loader = new QMovie();
     settingsMenu->addAction(ui->actionChangeUsername);
     settingsMenu->addAction(ui->actionChangePassword);
     settingsMenu->addAction(ui->actionChangeAvatar);
@@ -114,7 +116,7 @@ void LoginWindow::resetInputFields()
 
 void LoginWindow::slowClose()
 {
-    QPropertyAnimation* a = new QPropertyAnimation(this, "windowOpacity");
+    auto a = new QPropertyAnimation(this, "windowOpacity");
     a->setDuration(500);
     a->setStartValue(this->windowOpacity());
     a->setEndValue(0.0);
@@ -155,7 +157,7 @@ void LoginWindow::switchFrame(int direction)
 
     QRect frameGeometry = ui->formFrame->geometry();
     frameGeometry.setX(frameGeometry.x()+320*direction);
-    QPropertyAnimation* switchAnimation = new QPropertyAnimation(ui->formFrame, "geometry");
+    auto switchAnimation = new QPropertyAnimation(ui->formFrame, "geometry");
     switchAnimation->setObjectName("switchAnimation");
     switchAnimation->setDuration(400);
     switchAnimation->setStartValue(ui->formFrame->geometry());
@@ -274,8 +276,57 @@ void LoginWindow::createDocument()
 
 void LoginWindow::openDocument()
 {
-    //i have to show a simple list received from db:
-    //filename | creation data | last mod data | num of users
+    auto docListDialog = new QDialog(this);
+    auto vertLayout= new QVBoxLayout(docListDialog);
+    docListDialog->setLayout(vertLayout);
+    auto docListView = new QListView(docListDialog);
+    docListDialog->layout()->addWidget(docListView);
+    auto widget = new QWidget(docListDialog);
+    docListDialog->layout()->addWidget(widget);
+    auto horizLayout = new QHBoxLayout(widget);
+    widget->setLayout(horizLayout);
+    auto okButton = new QPushButton(widget);
+    auto cancButton = new QPushButton(widget);
+    widget->layout()->addWidget(okButton);
+    widget->layout()->addWidget(cancButton);
+
+    QStringList list;
+    list << "Nome1" << "Nome2" << "molto bene!";
+    auto model = new QStringListModel(this);
+    model->setStringList(list);
+    docListView->setModel(model);
+
+    //docListDialog->setWindowFlags(Qt::FramelessWindowHint);
+    docListDialog->setGeometry(this->x()+320,this->y()+240,320,240);
+    docListDialog->autoFillBackground();
+    okButton->setText("Ok");
+    cancButton->setText("Cancel");
+
+    QModelIndex fakeIndex;
+    docListView->setCurrentIndex(fakeIndex);
+
+    connect(okButton,&QPushButton::clicked,this,[&](){
+        if(!docListView->currentIndex().isValid()) {
+            QMessageBox advice(this);
+            advice.setText("You have not selected any document!");
+            advice.setIcon(QMessageBox::Critical);
+            advice.exec();
+        }
+        else {
+            //richiedi documento al server
+
+            //richiedi lista partecipanti
+            QThread* sender = new OnlineSender(this->sessionData.token, QString::number(docListView->currentIndex().row()+1));
+            sender->start();
+
+            docListDialog->close();
+        }
+    });
+    connect(cancButton,&QPushButton::clicked,docListDialog,&QDialog::close);
+
+    docListDialog->exec();
+
+    //delete docListDialog;
 }
 
 void LoginWindow::requestURI()
@@ -458,6 +509,38 @@ void LoginWindow::showNewDocResponse(bool goodResponse, QString responseText, QS
     }
 }
 
+void LoginWindow::showOpenDocResponse(QString responseString)
+{
+    //TODO: fake response, remove when it's time
+    responseString = "1"
+                     "|dario:iVBORwAAAACXBIWXMAAC4jAAAuIwF4pT92AAAFzUlEQoge1ZW28bRRT:1"
+                     "|inanimat:iVBORw0KGgoAAAIWXMAAC4jAAAF4pT92AzUlEQVRoge1ZW28bRRT:0"
+                     "|eliax1996:iVBORw0KGgoAA0jAAAuIwF4pT92AAAFzUlEQVRoge1ZW28bRRT:0";
+
+    if(responseString[0]=='1') {
+        responseString = responseString.remove(0, 2);
+        QStringList users = responseString.split("|");
+        for (QString user : users) {
+            QStringList userElements = user.split(":");
+            UserTag userTag;
+            userTag.setUsername(userElements[0]);
+
+            //TODO: also remove this, and uncomment the last row
+            QPixmap fakePixmap = this->sessionData.avatar;
+            userTag.setAvatar(fakePixmap);
+            //userTag.setAvatar(recoverImageFromEncodedString(userElements[1]));
+
+            userTag.setUserStatus(userElements[2].toInt() != 0);
+            userTag.setUserColor(chooseColorFromString(userElements[0]));
+            this->sessionData.usersList.push_back(userTag);
+        }
+        this->sessionData.status = true;
+        this->loginCorrect=true;
+
+        close();
+    }
+}
+
 void LoginWindow::showUpdateUserDataResponse(bool goodResponse, QString responseText)
 {
     QMessageBox advice(this);
@@ -498,4 +581,19 @@ QPixmap LoginWindow::recoverImageFromEncodedString(const QString& code) {
     avatar.loadFromData(array);
 
     return avatar;
+}
+
+QColor LoginWindow::chooseColorFromString(QString string) {
+
+    std::hash<std::string> hash;
+    auto hashed = hash(string.toStdString());
+    QString colorString = QString::number(((hashed>>24)&0xFF),16)+
+                          QString::number(((hashed>>16)&0xFF),16)+
+                          QString::number(((hashed>>8)&0xFF),16)+
+                          QString::number((hashed&0xFF),16);
+
+    //QColor color("#"+colorString);
+    QColor color = QColor::fromCmyk((hashed>>24)&0xFF,(hashed>>16)&0xFF,(hashed>>8)&0xFF,(hashed>>0)&0xFF);
+
+    return color;
 }

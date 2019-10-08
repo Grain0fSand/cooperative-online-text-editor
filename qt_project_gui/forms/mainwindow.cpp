@@ -44,8 +44,9 @@ MainWindow::MainWindow(QWidget *parent) :
     auto comboSize = new QComboBox(ui->mainToolBar);
     auto comboFamily = new QComboBox(ui->mainToolBar);
     setupFontComboBoxes(comboSize, comboFamily);
-
     setupStatusBar();
+
+    populateUserTagList();
 
     // setting up my connect event
     connect(ui->actionCopy,&QAction::triggered,ui->textEditShared,&QTextEdit::copy);
@@ -68,7 +69,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionExport_to_PDF,&QAction::triggered,this,&MainWindow::exportPDF);
     connect(ui->actionInvite,&QAction::triggered,this,&MainWindow::reqInvitationEmailAddress);
     connect(ui->actionTestCursor,&QAction::triggered,this,&MainWindow::insertRemoteCursor); //only for test
-    connect(ui->actionTestTag,&QAction::triggered,this,&MainWindow::newUserTag);    //only for test
     connect(ui->actionTestDisconnect,&QAction::triggered,this,&MainWindow::disableEditor); //only for test
     connect(ui->actionTestColor,&QAction::toggled,ui->textEditShared,&MyTextEdit::colorText);
 }
@@ -82,6 +82,38 @@ MainWindow::~MainWindow()
 
 void MainWindow::getSessionDataFromLogin() {
     this->sessionData = LoginWindow::getInstance().sessionData;
+}
+
+void MainWindow::populateUserTagList()
+{
+    QString statusLabel;
+    QPixmap led;
+    for(auto &tag : this->sessionData.usersList) {
+        auto item = new QListWidgetItem();
+        if(tag.getStatus()) {
+            led.load(":/resources/greenLed.png");
+            statusLabel = "Online";
+            ui->listOnlineUsers->setItemDelegate(&tag);
+            ui->listOnlineUsers->addItem(item);
+        }
+        else {
+            led.load(":/resources/redLed.png");
+            statusLabel = "Offline";
+            ui->listOfflineUsers->setItemDelegate(&tag);
+            ui->listOfflineUsers->addItem(item);
+        }
+
+        std::default_random_engine generator(std::chrono::system_clock::now().time_since_epoch().count());
+        std::uniform_int_distribution<int> distribution(0,255);
+        auto random_value = std::bind(distribution, generator);
+        QColor color(random_value(),random_value(),random_value());
+
+        item->setData(Qt::UserRole + 1, tag.getUsername());
+        item->setData(Qt::UserRole + 2, statusLabel);
+        item->setData(Qt::UserRole + 3, tag.getAvatar());
+        item->setData(Qt::UserRole + 4, led);
+        item->setData(Qt::UserRole + 5, tag.getUserColor());
+    }
 }
 
 void MainWindow::update_id(std::string id){
@@ -396,49 +428,6 @@ void MainWindow::reqInvitationEmailAddress()
     }
 }
 
-void MainWindow::newUserTag() {
-    //receive informations on the partecipants from db
-    QString username("dario");
-    QPixmap avatar(":/resources/avatar.png");
-    bool status = false;
-
-    std::default_random_engine generator(std::chrono::system_clock::now().time_since_epoch().count());
-    std::uniform_int_distribution<int> distribution(0,255);
-    auto random_value = std::bind(distribution, generator);
-
-    QColor color(random_value(),random_value(),random_value());
-
-    addUserTag(username, status, avatar, color);
-}
-
-void MainWindow::addUserTag(QString username, bool status, QPixmap avatar, QColor color)
-{
-    auto tag = new UserTag();
-    this->usersList.push_back(tag);
-
-    QPixmap led;
-    QString statusLabel;
-    if(status) {
-        led.load(":/resources/greenLed.png");
-        statusLabel = "Online";
-    }
-    else {
-        led.load(":/resources/redLed.png");
-        statusLabel = "Offline";
-    }
-
-    ui->listOfflineUsers->setItemDelegate(tag);
-    QListWidgetItem *item = new QListWidgetItem();
-    item->setData(Qt::UserRole + 1, username);
-    item->setData(Qt::UserRole + 2, statusLabel);
-    item->setData(Qt::UserRole + 3, avatar);
-    item->setData(Qt::UserRole + 4, led);
-    item->setData(Qt::UserRole + 5, color);
-    ui->listOfflineUsers->addItem(item);
-
-    qDebug() << this->usersList.size();
-}
-
 void MainWindow::disableEditor()
 {
     ui->textEditShared->setEnabled(!ui->textEditShared->isEnabled());
@@ -485,17 +474,17 @@ void MainWindow::setupFontComboBoxes(QComboBox* comboSize, QComboBox* comboFamil
 
 void MainWindow::setupStatusBar()
 {
-    auto *filename = new QLabel("Document: "+ui->textEditShared->getDocumentName()+".sim");
+    auto filename = new QLabel("Document: "+ui->textEditShared->getDocumentName()+".sim");
     filename->setObjectName("filename");
-    auto *charCount = new QLabel("Chars: "+QString::number(ui->textEditShared->document()->characterCount()-1));
+    auto charCount = new QLabel("Chars: "+QString::number(ui->textEditShared->document()->characterCount()-1));
     charCount->setObjectName("charCount");
-    auto *lineCount = new QLabel("Lines: "+QString::number(ui->textEditShared->document()->lineCount()));
+    auto lineCount = new QLabel("Lines: "+QString::number(ui->textEditShared->document()->lineCount()));
     lineCount->setObjectName("lineCount");
-    auto *cursorPos = new QLabel("pos: "+QString::number(ui->textEditShared->textCursor().position()));
+    auto cursorPos = new QLabel("pos: "+QString::number(ui->textEditShared->textCursor().position()));
     cursorPos->setObjectName("cursorPos");
-    auto *cursorColumn = new QLabel("col: "+QString::number(ui->textEditShared->textCursor().columnNumber()));
+    auto cursorColumn = new QLabel("col: "+QString::number(ui->textEditShared->textCursor().columnNumber()));
     cursorColumn->setObjectName("cursorColumn");
-    auto *cursorSelectionCount = new QLabel("sel: "+QString::number(ui->textEditShared->textCursor().selectedText().length()));
+    auto cursorSelectionCount = new QLabel("sel: "+QString::number(ui->textEditShared->textCursor().selectedText().length()));
     cursorSelectionCount->setObjectName("cursorSelectionCount");
 
     ui->statusBar->addWidget(filename, 2);
