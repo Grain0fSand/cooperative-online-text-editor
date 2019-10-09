@@ -105,7 +105,7 @@ int main() {
                         auto params = req.url_params;
 
                         if(params.get("token") == nullptr || params.get("lastcrdt") == nullptr
-                        || params.get("docId") == nullptr || params.get("remoteCursor"))
+                            || params.get("docId") == nullptr || params.get("remoteCursor") == nullptr)
                             // TODO: see remoteCursor param
                             return crow::response(500);
 
@@ -114,10 +114,7 @@ int main() {
                         std::string docId = params.get("docId");
                         std::string remoteCursor = params.get("remoteCursor");
 
-
-                        //TODO: only for test on crdt, change these values if necessary
-                        int idUser = 2; docId='1';
-                        //db.userLogged(token);
+                        int idUser = db.userLogged(token);
 
                         if(idUser<0)
                             return crow::response(403);

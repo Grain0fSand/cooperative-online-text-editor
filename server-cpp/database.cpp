@@ -155,8 +155,8 @@ int Database::updateUserData(std::string token,std::string username,std::string 
 
 void Database::addPartecipant(std::string docId,std::string uid)
 {
-    std::string sql = "INSERT OR IGNORE INTO user_document_request "
-                      "VALUES(" + uid + "," + docId + ",datetime('now','localitime'),'')";
+    std::string sql = "INSERT OR IGNORE INTO user_document_request(idUser,idDocument,lastReq) "
+                      "VALUES(" + uid + "," + docId + ",datetime('now','localitime'))";
 
     SQLite::Statement query(db,sql);
     query.exec();
@@ -167,14 +167,14 @@ void Database::addPartecipant(std::string docId,std::string uid)
 void Database::updateTimestamp(std::string docId,std::string uid)
 {
     std::string sql = "UPDATE user_document_request SET lastReq = datetime('now','localtime') "
-                      "WHERE idUser = " + uid + " AND idDocument = " + docId + ";)";
+                      "WHERE idUser = " + uid + " AND idDocument = " + docId;
     SQLite::Statement query(db,sql);
     query.exec();
 }
 
 void Database::updateTimestamp(std::string docId,std::string uid,std::string remoteCursor)
 {
-    std::string sql = "UPDATE user_document_request SET lastReq = datetime('now'), cursor_position_json = " + remoteCursor + " WHERE idUser = " + uid + " AND idDocument = " + docId + ";)";
+    std::string sql = "UPDATE user_document_request SET lastReq = datetime('now'), cursor_position_json = " + remoteCursor + " WHERE idUser = " + uid + " AND idDocument = " + docId;
     SQLite::Statement query(db,sql);
     query.exec();
 }
@@ -230,7 +230,7 @@ std::vector<exchangeable_data::send_data> Database::getCrdtUser(std::string last
 
     std::string sql;
 
-    if (lastCrdtId.compare("")!=0){
+    if (lastCrdtId!=""){
         sql = "UPDATE crdt_delvery SET delivered = '1' WHERE idDoc=" + docId + " AND idCrdt <=" + lastCrdtId + " AND idUser = " + uid + ";";
 
         SQLite::Statement queryUpdate(db,sql);
@@ -241,8 +241,6 @@ std::vector<exchangeable_data::send_data> Database::getCrdtUser(std::string last
     } else {
         sql = "SELECT id,crdt_json FROM crdt WHERE id IN (SELECT idCrdt from crdt_delvery WHERE idUser=" + uid + " AND idDoc=" + docId + ")";
     }
-
-    std::cout << sql;
 
     SQLite::Statement query(db, sql);
     std::vector<exchangeable_data::send_data> vect;
