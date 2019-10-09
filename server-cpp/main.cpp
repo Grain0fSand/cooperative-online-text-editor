@@ -33,29 +33,29 @@ int main() {
                     ([&](const crow::request& req){
                         auto params = req.url_params;
 
-                        if(params.get("token") == nullptr || params.get("filename") == nullptr)
+                        if(params.get("token") == nullptr || params.get("docName") == nullptr)
                             return crow::response(500);
 
                         std::string token = params.get("token");
-                        std::string filename = params.get("filename");
+                        std::string docName = params.get("docName");
 
-                        std::string replyString = db.newDocument(token,filename);
+                        std::string replyString = db.newDocument(token,docName);
 
                         return crow::response{replyString};
                     });
 
-    CROW_ROUTE(app,"/open_doc")
+    CROW_ROUTE(app,"/get_partecipants")
             .methods("GET"_method)
                     ([&](const crow::request& req){
                         auto params = req.url_params;
 
-                        if(params.get("token") == nullptr || params.get("docId") == nullptr)
+                        if(params.get("token") == nullptr || params.get("docName") == nullptr)
                             return crow::response(500);
 
                         std::string token = params.get("token");
-                        std::string docId = params.get("docId");
+                        std::string docName = params.get("docName");
 
-                        std::string dbReply = db.openDocument(token,docId);
+                        std::string dbReply = db.getPartecipants(token,docName);
 
                         return crow::response{dbReply};
                     });

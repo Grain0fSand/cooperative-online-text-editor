@@ -40,8 +40,9 @@ std::string Database::userLogin(std::string username,std::string password)
         std::string encodedUserAvatar = query.getColumn(4);
         std::string token = random_string(40);
 
-        response += ":" + encodedUserAvatar;
+        response += ":" + std::to_string(userId);
         response += ":" + token;
+        response += ":" + encodedUserAvatar;
         response += ":";
 
         sql = "SELECT name FROM document";
@@ -102,9 +103,37 @@ std::string Database::newDocument(std::string token,std::string docName) {
     return "1|" + docId;
 }
 
-std::string Database::openDocument(std::string token,std::string docId)
+std::string Database::getPartecipants(std::string token,std::string docName)
 {
-    return "0";
+    int uid = userLogged(token);
+
+    std::string query = "SELECT id FROM document WHERE name='" + docName + "'";
+    SQLite::Statement findDocId(db,query);
+    findDocId.executeStep();
+
+    std::string docId = findDocId.getColumn(0);
+
+    addPartecipant(docId,std::to_string(uid));
+
+    query = "SELECT id,email,username,image FROM users WHERE id IN "
+            "(SELECT idUser FROM user_document_request WHERE idDocument=" + docId + ")";
+    SQLite::Statement findUsers(db,query);
+
+    std::string id,email,username,image;
+    std::string reply = docId;
+
+    while(findUsers.executeStep()) {
+        id = findUsers.getColumn(0).getString();
+        email = findUsers.getColumn(1).getString();
+        username = findUsers.getColumn(2).getString();
+        image = findUsers.getColumn(3).getString();
+
+        reply += "|" + id + ":" + email + ":" + username + ":" + image;
+    }
+    if(reply.length()==docId.length())
+        reply = "0";
+
+    return reply;
 }
 
 int Database::updateUserData(std::string token,std::string username,std::string image,std::string password)
@@ -127,14 +156,19 @@ int Database::updateUserData(std::string token,std::string username,std::string 
 //TODO: ricordati di inviare tutto lo storico dei crdt
 void Database::addPartecipant(std::string docId,std::string uid)
 {
-    std::string sql = "INSERT INTO user_document_request VALUES(" + uid + "," + docId + ",datetime('now'))";
+    std::string sql = "INSERT OR IGNORE INTO user_document_request "
+                      "VALUES(" + uid + "," + docId + ",datetime('now','localitime'));";
+
     SQLite::Statement query(db,sql);
     query.exec();
+
+    updateTimestamp(docId,uid);
 }
 
 void Database::updateTimestamp(std::string docId,std::string uid)
 {
-    std::string sql = "UPDATE user_document_request SET lastReq = datetime('now') WHERE idUser = " + uid + " AND idDocument = " + docId + ";)";
+    std::string sql = "UPDATE user_document_request SET lastReq = datetime('now','localtime') "
+                      "WHERE idUser = " + uid + " AND idDocument = " + docId + ";)";
     SQLite::Statement query(db,sql);
     query.exec();
 }

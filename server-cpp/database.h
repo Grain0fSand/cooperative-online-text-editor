@@ -18,7 +18,7 @@ public:
     std::string userLogin(std::string username,std::string password);
     int userRegistration(std::string email,std::string username,std::string password,std::string image);
     std::string newDocument(std::string uid,std::string docName);
-    std::string openDocument(std::string token,std::string docId);
+    std::string getPartecipants(std::string token,std::string docName);
     int updateUserData(std::string token,std::string username,std::string image,std::string password);
     void addPartecipant(std::string docId,std::string uid);
     void updateTimestamp(std::string docId,std::string uid);
