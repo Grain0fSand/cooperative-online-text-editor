@@ -28,6 +28,8 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     getSessionDataFromLogin();
 
+    Crdt::getInstance().init(std::stoi(this->sessionData.userId));
+
     query = new OnlineQuery{this->sessionData.docId,this->sessionData.token,this};
     query->start();
 
@@ -474,8 +476,8 @@ void MainWindow::setupFontComboBoxes(QComboBox* comboSize, QComboBox* comboFamil
 
 void MainWindow::setupStatusBar()
 {
-    auto filename = new QLabel("Document: "+ui->textEditShared->getDocumentName()+".sim");
-    filename->setObjectName("filename");
+    auto docName = new QLabel("Document: "+ui->textEditShared->getDocumentName()+".sim");
+    docName->setObjectName("docName");
     auto charCount = new QLabel("Chars: "+QString::number(ui->textEditShared->document()->characterCount()-1));
     charCount->setObjectName("charCount");
     auto lineCount = new QLabel("Lines: "+QString::number(ui->textEditShared->document()->lineCount()));
@@ -487,7 +489,7 @@ void MainWindow::setupStatusBar()
     auto cursorSelectionCount = new QLabel("sel: "+QString::number(ui->textEditShared->textCursor().selectedText().length()));
     cursorSelectionCount->setObjectName("cursorSelectionCount");
 
-    ui->statusBar->addWidget(filename, 2);
+    ui->statusBar->addWidget(docName, 2);
     ui->statusBar->addWidget(charCount, 0);
     ui->statusBar->addWidget(lineCount, 1);
     ui->statusBar->addWidget(cursorPos, 0);

@@ -45,9 +45,9 @@ OnlineSender::OnlineSender(QString username, QString password) :
     connect(this,&OnlineSender::responseTryLoginArrived,this,&OnlineSender::quit);
 }
 
-OnlineSender::OnlineSender(std::string token,std::string filename) :
+OnlineSender::OnlineSender(std::string token,std::string newDocName) :
     token(token),
-    filename(filename)
+    docName(newDocName)
 {
     moveToThread(this);
     connect(this,&OnlineSender::prepareRequest,this,&OnlineSender::newDocRequest);
@@ -56,15 +56,15 @@ OnlineSender::OnlineSender(std::string token,std::string filename) :
     connect(this,&OnlineSender::responseNewDocArrived,this,&OnlineSender::quit);
 }
 
-OnlineSender::OnlineSender(std::string token,QString docIndex) :
+OnlineSender::OnlineSender(std::string token,QString existingDocName) :
     token(token),
-    docId(docIndex.toStdString())
+    docName(existingDocName.toStdString())
 {
     moveToThread(this);
-    connect(this,&OnlineSender::prepareRequest,this,&OnlineSender::openDocRequest);
-    connect(&manager,&QNetworkAccessManager::finished,this,&OnlineSender::checkOpenDocReply);
-    connect(this,&OnlineSender::responseOpenDocArrived,&LoginWindow::getInstance(),&LoginWindow::showOpenDocResponse);
-    connect(this,&OnlineSender::responseOpenDocArrived,this,&OnlineSender::quit);
+    connect(this,&OnlineSender::prepareRequest,this,&OnlineSender::getPartecipantsRequest);
+    connect(&manager,&QNetworkAccessManager::finished,this,&OnlineSender::checkGetPartecipantsReply);
+    connect(this,&OnlineSender::responseGetPartecipantsArrived,&LoginWindow::getInstance(),&LoginWindow::getPartecipantsResponse);
+    connect(this,&OnlineSender::responseGetPartecipantsArrived,this,&OnlineSender::quit);
 }
 
 OnlineSender::OnlineSender(std::string token, QString username, QString encodedAvatar, QString password) :
@@ -165,7 +165,7 @@ void OnlineSender::newDocRequest()
     QString params = "?";
     params += "token=" + QString::fromStdString(token);
     params += "&";
-    params += "filename=" + QString::fromStdString(filename);
+    params += "docName=" + QString::fromStdString(docName);
 
     url.setUrl(location+request+params);
     req.setUrl(url);
@@ -181,16 +181,16 @@ void OnlineSender::newDocRequest()
     loop.exec();
 }
 
-void OnlineSender::openDocRequest()
+void OnlineSender::getPartecipantsRequest()
 {
     QString ip_address = IP_ADDRESS;
     QString port = PORT;
     QString location = "http://" + ip_address + ":" + PORT + "/";
-    QString request = "open_doc";
+    QString request = "get_partecipants";
     QString params = "?";
     params += "token=" + QString::fromStdString(token);
     params += "&";
-    params += "docId=" + QString::fromStdString(docId);
+    params += "docName=" + QString::fromStdString(docName);
 
     url.setUrl(location+request+params);
     req.setUrl(url);
@@ -357,7 +357,7 @@ void OnlineSender::checkNewDocReply(QNetworkReply *reply)
     emit responseNewDocArrived(goodResponse, responseText, replyString);
 }
 
-void OnlineSender::checkOpenDocReply(QNetworkReply *reply)
+void OnlineSender::checkGetPartecipantsReply(QNetworkReply *reply)
 {
     QString responseText;
     QString replyString;
@@ -373,7 +373,7 @@ void OnlineSender::checkOpenDocReply(QNetworkReply *reply)
     else {
         replyString = QString(reply->readAll());
     }
-    emit responseOpenDocArrived(replyString);
+    emit responseGetPartecipantsArrived(replyString);
 }
 
 void OnlineSender::checkUpdateUserDataReply(QNetworkReply *reply)

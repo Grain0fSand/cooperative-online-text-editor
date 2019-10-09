@@ -19,26 +19,6 @@ MyTextEdit::MyTextEdit(QWidget *parent)
                           "Consolas" << "Constantia" << "Freestyle Script" << "Georgia" << "Gill Sans MT" <<
                           "Informal Roman" << "Lucida Calligraphy" << "MS Shell Dlg 2" <<
                           "Palatino Linotype" << "Tahoma" << "Times New Roman" << "Verdana" << "Vivaldi";
-    this->user_id = 0;
-    //testing the coloring feature
-    this->textColorsList.emplace_back("#61E761");
-    this->textColorsList.emplace_back("#61E761");
-    this->textColorsList.emplace_back("#61E761");
-    this->textColorsList.emplace_back("#61E761");
-    this->textColorsList.emplace_back("#4C331C");
-    this->textColorsList.emplace_back("#4C331C");
-    this->textColorsList.emplace_back("#4C331C");
-    this->textColorsList.emplace_back("#4C331C");
-    this->textColorsList.emplace_back("#EFB66F");
-    this->textColorsList.emplace_back("#EFB66F");
-    this->textColorsList.emplace_back("#EFB66F");
-    this->textColorsList.emplace_back("#EFB66F");
-    this->textColorsList.emplace_back("#D20E38");
-    this->textColorsList.emplace_back("#D20E38");
-    this->textColorsList.emplace_back("#D20E38");
-    this->textColorsList.emplace_back("#D20E38");
-
-    Crdt::getInstance().init(user_id);
 }
 
 //TODO: check delete hiddenCursor
@@ -165,22 +145,45 @@ QStringList MyTextEdit::getFontFamilies() const
 void MyTextEdit::colorText(bool checked)
 {
     if(checked) {
-        int size = this->textColorsList.size();
-        for(int i=0; i<size; i++) {
-            int n = i;
-            this->hiddenCursor->setPosition(i);
-            QString currentColor = this->textColorsList.at(i);
-            while(this->textColorsList.at(i+1) == currentColor) {
-                i++;
-                if(i==(size-1)) break;
+        std::vector<SymbolId> *list = &Crdt::getInstance().getSymbolList();
+        int myId = std::stoi(MainWindow::getInstance().sessionData.userId);
+        int size = MyTextEdit::getInstance().document()->characterCount()-1;
+        QColor color;
+        int start=0, end=0;
+
+        std::vector<SymbolId>::iterator it;
+        for(it=list->begin()+1; it<list->end(); it++) {
+            int uid = it->getSymbolId().second;
+            if(uid==myId) {
+                start++;
+                end++;
+                continue;
             }
-            this->hiddenCursor->movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, i-n+1);
-            QColor color(this->textColorsList.at(n));
-            QTextCharFormat format;
-            format.setBackground(QBrush(color));
-            if((color.red()*299 + color.green()*587 + color.blue()*114)/1000 < 123)
-                format.setForeground(QBrush(QColor(Qt::white)));
-            this->hiddenCursor->mergeCharFormat(format);
+            else if(it->is_hidden()) {
+                continue;
+            }
+            else {
+                end = start;
+                this->hiddenCursor->setPosition(start);
+                color = (MainWindow::getInstance().sessionData.userColorMap[uid]);
+                while(it->getSymbolId().second == uid) {
+                    if(!it->is_hidden()) {
+                        end++;
+                        if(end==(size-1)) break;
+                    }
+                    it++;
+                }
+                this->hiddenCursor->movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, end-start);
+
+                QTextCharFormat format;
+                format.setBackground(QBrush(color));
+                if((color.red()*299 + color.green()*587 + color.blue()*114)/1000 < 123)
+                    format.setForeground(QBrush(QColor(Qt::white)));
+                this->hiddenCursor->mergeCharFormat(format);
+
+                start=end;
+                it--;
+            }
         }
     }
     else {

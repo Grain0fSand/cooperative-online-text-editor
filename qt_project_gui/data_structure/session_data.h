@@ -13,12 +13,14 @@ class SessionData {
 public:
     std::string docId;
     std::string docName;
+    std::string userId;
     std::string token;
     std::string lastCrdtId;
     std::string username;
     std::string password;
     QPixmap avatar;
     std::vector<UserTag> usersList;
+    std::map<int,QColor> userColorMap;
     bool status;
     // TODO: add list of user
     // TODO: add list of cursor

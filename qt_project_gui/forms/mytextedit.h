@@ -41,7 +41,6 @@ private:
 
     std::list<RemoteCursor*> cursorsList;
   //  std::list<Action> toSendList;
-    std::vector<QString> textColorsList;
     QStringList fontSizes;
     QStringList fontFamilies;
     QTextCursor* hiddenCursor;

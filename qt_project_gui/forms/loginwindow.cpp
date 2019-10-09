@@ -253,13 +253,13 @@ void LoginWindow::changeYourPassword()
 void LoginWindow::createDocument()
 {
     QInputDialog dialog(this);
-    dialog.setLabelText("Insert filename:");
+    dialog.setLabelText("Insert new document name:");
 
     while(true) {
         if(dialog.exec()==QDialog::Accepted) {
             if(dialog.textValue()=="") {
                 QMessageBox advice(this);
-                advice.setText("Filename field empty!\nEnter a valid one");
+                advice.setText("Document name field empty!\nEnter a valid one");
                 advice.setIcon(QMessageBox::Critical);
                 advice.exec();
             } else {
@@ -290,10 +290,8 @@ void LoginWindow::openDocument()
     widget->layout()->addWidget(okButton);
     widget->layout()->addWidget(cancButton);
 
-    QStringList list;
-    list << "Nome1" << "Nome2" << "molto bene!";
     auto model = new QStringListModel(this);
-    model->setStringList(list);
+    model->setStringList(this->docsList);
     docListView->setModel(model);
 
     //docListDialog->setWindowFlags(Qt::FramelessWindowHint);
@@ -313,10 +311,8 @@ void LoginWindow::openDocument()
             advice.exec();
         }
         else {
-            //richiedi documento al server
 
-            //richiedi lista partecipanti
-            QThread* sender = new OnlineSender(this->sessionData.token, QString::number(docListView->currentIndex().row()+1));
+            QThread* sender = new OnlineSender(this->sessionData.token, docListView->currentIndex().data(Qt::DisplayRole).toString());
             sender->start();
 
             docListDialog->close();
@@ -464,9 +460,10 @@ void LoginWindow::showLoginResponse(bool goodResponse, QString responseText,  QS
         ui->informationImage->movie()->setFileName(":/resources/correct_icon.gif");
 
         QStringList replyParts = replyString.split(":");
-        this->sessionData.avatar = recoverImageFromEncodedString(replyParts[0]);
+        this->sessionData.userId = replyParts[0].toStdString();
         this->sessionData.token = replyParts[1].toStdString();
-        this->docsList = replyParts[2].split("|",QString::SkipEmptyParts);
+        this->sessionData.avatar = recoverImageFromEncodedString(replyParts[2]);
+        this->docsList = replyParts[3].split("|",QString::SkipEmptyParts);
 
         this->sessionData.username = ui->loginUsernameInput->text().toStdString();
         ui->loggedUsernameLabel->setText(ui->loginUsernameInput->text());
@@ -509,30 +506,26 @@ void LoginWindow::showNewDocResponse(bool goodResponse, QString responseText, QS
     }
 }
 
-void LoginWindow::showOpenDocResponse(QString responseString)
+void LoginWindow::getPartecipantsResponse(QString responseString)
 {
-    //TODO: fake response, remove when it's time
-    responseString = "1"
-                     "|dario:iVBORwAAAACXBIWXMAAC4jAAAuIwF4pT92AAAFzUlEQoge1ZW28bRRT:1"
-                     "|inanimat:iVBORw0KGgoAAAIWXMAAC4jAAAF4pT92AzUlEQVRoge1ZW28bRRT:0"
-                     "|eliax1996:iVBORw0KGgoAA0jAAAuIwF4pT92AAAFzUlEQVRoge1ZW28bRRT:0";
+    if(responseString[0]!='0') {
+        this->sessionData.docId = responseString.left(responseString.indexOf('|')).toStdString();
+        responseString.remove(0,this->sessionData.docId.length()+1);
 
-    if(responseString[0]=='1') {
-        responseString = responseString.remove(0, 2);
         QStringList users = responseString.split("|");
         for (QString user : users) {
             QStringList userElements = user.split(":");
-            UserTag userTag;
-            userTag.setUsername(userElements[0]);
 
-            //TODO: also remove this, and uncomment the last row
-            QPixmap fakePixmap = this->sessionData.avatar;
-            userTag.setAvatar(fakePixmap);
-            //userTag.setAvatar(recoverImageFromEncodedString(userElements[1]));
+            if(userElements[2].toStdString()!=this->sessionData.username) {
+                UserTag userTag;
+                userTag.setUserColor(chooseColorFromString(userElements[1]));
+                userTag.setUsername(userElements[2]);
+                userTag.setAvatar(recoverImageFromEncodedString(userElements[3]));
+                userTag.setUserStatus(false);
 
-            userTag.setUserStatus(userElements[2].toInt() != 0);
-            userTag.setUserColor(chooseColorFromString(userElements[0]));
-            this->sessionData.usersList.push_back(userTag);
+                this->sessionData.usersList.push_back(userTag);
+                this->sessionData.userColorMap[userElements[0].toInt()] = userTag.getUserColor();
+            }
         }
         this->sessionData.status = true;
         this->loginCorrect=true;
