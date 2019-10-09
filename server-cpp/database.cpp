@@ -174,7 +174,7 @@ void Database::updateTimestamp(std::string docId,std::string uid)
 
 void Database::updateTimestamp(std::string docId,std::string uid,std::string remoteCursor)
 {
-    std::string sql = "UPDATE user_document_request SET lastReq = datetime('now'), cursor_position_json = " + remoteCursor + " WHERE idUser = " + uid + " AND idDocument = " + docId;
+    std::string sql = "UPDATE user_document_request SET lastReq = datetime('now','localtime'), cursor_position_json = '" + remoteCursor + "' WHERE idUser = " + uid + " AND idDocument = " + docId;
     SQLite::Statement query(db,sql);
     query.exec();
 }
