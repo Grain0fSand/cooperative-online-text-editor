@@ -42,6 +42,8 @@ void OnlineQuery::getCrdtRequest() {
     params += "lastcrdt=" + QString::fromStdString(lastCrdtId);
     params += "&";
     params += "docId=" + QString::fromStdString(docId);
+    params += "&";
+    params += "remoteCursor="; //TODO: add the crdt symbol relative to cursor position
 
     url.setUrl(location+request+params);
     req.setUrl(url);
