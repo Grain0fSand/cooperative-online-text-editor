@@ -24,7 +24,6 @@ add_executable(
         main.cpp
         sha256.cpp
         sha256.h
-        exchangeable_data.cpp
         exchangeable_data.h
         database.cpp
         database.h)

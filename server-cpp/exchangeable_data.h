@@ -17,13 +17,31 @@ namespace exchangeable_data {
         std::string id;
         std::string crdt;
 
-        send_data(std::string id,std::string crdt) : crdt(crdt),id(id) {}
+        send_data(std::string id,std::string crdt) :id(id),  crdt(crdt) {}
+
+        json get_json() {
+            return json{{"id", this->id}, {"crdt", this->crdt}};
+        }
+
+        static void from_json(send_data& d,const json& j){
+            d.id = j.at("id").get<std::string>();
+            d.crdt = j.at("crdt").get<std::string>();
+        }
     };
 
+    class user {
+    public:
+        user(){}
+        user(std::string id,std::string username,
+                std::string image,std::string lastCursorPositionJson): id(id),
+                username(username),image(image),lastCursorPositionJson(lastCursorPositionJson)
+                {}
 
-    void to_json(json& j, const send_data& d);
-
-    void from_json(const json& j, send_data& d);
+        std::string id;
+        std::string username;
+        std::string image;
+        std::string lastCursorPositionJson;
+    };
 
 }
 
