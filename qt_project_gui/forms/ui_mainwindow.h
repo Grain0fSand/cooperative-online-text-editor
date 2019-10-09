@@ -48,7 +48,6 @@ public:
     QAction *actionAlignJustify;
     QAction *actionInvite;
     QAction *actionTestCursor;
-    QAction *actionTestTag;
     QAction *actionTestDisconnect;
     QAction *actionTestColor;
     QWidget *centralWidget;
@@ -154,8 +153,6 @@ public:
         actionInvite->setObjectName(QString::fromUtf8("actionInvite"));
         actionTestCursor = new QAction(MainWindow);
         actionTestCursor->setObjectName(QString::fromUtf8("actionTestCursor"));
-        actionTestTag = new QAction(MainWindow);
-        actionTestTag->setObjectName(QString::fromUtf8("actionTestTag"));
         actionTestDisconnect = new QAction(MainWindow);
         actionTestDisconnect->setObjectName(QString::fromUtf8("actionTestDisconnect"));
         actionTestColor = new QAction(MainWindow);
@@ -347,7 +344,6 @@ public:
         mainToolBar->addSeparator();
         mainToolBar->addAction(actionTestColor);
         mainToolBar->addAction(actionTestCursor);
-        mainToolBar->addAction(actionTestTag);
         mainToolBar->addAction(actionTestDisconnect);
         menuBar->addAction(menuMain->menuAction());
         menuBar->addAction(menuAbout->menuAction());
@@ -380,7 +376,6 @@ public:
         actionAlignJustify->setText(QCoreApplication::translate("MainWindow", "AlignJustify", nullptr));
         actionInvite->setText(QCoreApplication::translate("MainWindow", "Invite to Collaborate", nullptr));
         actionTestCursor->setText(QCoreApplication::translate("MainWindow", "TestCursor", nullptr));
-        actionTestTag->setText(QCoreApplication::translate("MainWindow", "TestTag", nullptr));
         actionTestDisconnect->setText(QCoreApplication::translate("MainWindow", "TestDisconnect", nullptr));
 #if QT_CONFIG(tooltip)
         actionTestDisconnect->setToolTip(QCoreApplication::translate("MainWindow", "TestDisconnect", nullptr));

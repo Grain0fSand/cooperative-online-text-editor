@@ -69,6 +69,7 @@ public:
     void sendInvitationEmail(QString destEmailAddress);
     void setupFontComboBoxes(QComboBox *comboSize, QComboBox *comboFamily);
     void setupStatusBar();
+    void getSessionDataFromLogin();
 
 public slots:
     void update_id(std::string id);
@@ -86,7 +87,7 @@ public slots:
     void insertRemoteCursor();
     void reqInvitationEmailAddress();
     void disableEditor();
-    void newUserTag();
+    void populateUserTagList();
 
 protected slots:
     void textChanged(int, int, int);
@@ -106,7 +107,6 @@ private:
     void addUserTag(QString username, bool status, QPixmap avatar, QColor color);
     Ui::MainWindow *ui;
     Periodic_task background_task;
-    std::list<UserTag*> usersList;
     OnlineQuery* query; // for online updates of crdt
 };
 

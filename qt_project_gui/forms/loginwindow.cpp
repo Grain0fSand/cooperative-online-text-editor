@@ -8,7 +8,9 @@
 #include <QInputDialog>
 #include <QMessageBox>
 #include <QFileDialog>
-#include <QtSvg/qsvgwidget.h>
+#include <QListView>
+#include <QStringListModel>
+#include <QLayout>
 
 LoginWindow::LoginWindow(QWidget *parent) :
     QDialog(parent),
@@ -19,9 +21,10 @@ LoginWindow::LoginWindow(QWidget *parent) :
     ui->loginErrorLabel->setVisible(false);
     this->setWindowFlag(Qt::FramelessWindowHint);
 
-    QMenu* settingsMenu = new QMenu;
-    QMovie* loader = new QMovie();
+    auto settingsMenu = new QMenu;
+    auto loader = new QMovie();
     settingsMenu->addAction(ui->actionChangeUsername);
+    settingsMenu->addAction(ui->actionChangePassword);
     settingsMenu->addAction(ui->actionChangeAvatar);
     ui->loggedSettingsButton->setMenu(settingsMenu);
     ui->informationWhiteFrame->setVisible(false);
@@ -37,6 +40,7 @@ LoginWindow::LoginWindow(QWidget *parent) :
     connect(ui->loggedLogoutButton,&QPushButton::clicked,[&](){this->loginCorrect=false;});
     connect(ui->loggedLogoutButton,&QPushButton::clicked,this,&LoginWindow::switchFrame);
     connect(ui->actionChangeUsername,&QAction::triggered,this,&LoginWindow::changeYourUsername);
+    connect(ui->actionChangePassword,&QAction::triggered,this,&LoginWindow::changeYourPassword);
     connect(ui->actionChangeAvatar,&QAction::triggered,this,&LoginWindow::changeYourAvatar);
     connect(ui->loggedNewButton,&QPushButton::clicked,this,&LoginWindow::createDocument);
     connect(ui->loggedOpenButton,&QPushButton::clicked,this,&LoginWindow::openDocument);
@@ -112,7 +116,7 @@ void LoginWindow::resetInputFields()
 
 void LoginWindow::slowClose()
 {
-    QPropertyAnimation* a = new QPropertyAnimation(this, "windowOpacity");
+    auto a = new QPropertyAnimation(this, "windowOpacity");
     a->setDuration(500);
     a->setStartValue(this->windowOpacity());
     a->setEndValue(0.0);
@@ -153,7 +157,7 @@ void LoginWindow::switchFrame(int direction)
 
     QRect frameGeometry = ui->formFrame->geometry();
     frameGeometry.setX(frameGeometry.x()+320*direction);
-    QPropertyAnimation* switchAnimation = new QPropertyAnimation(ui->formFrame, "geometry");
+    auto switchAnimation = new QPropertyAnimation(ui->formFrame, "geometry");
     switchAnimation->setObjectName("switchAnimation");
     switchAnimation->setDuration(400);
     switchAnimation->setStartValue(ui->formFrame->geometry());
@@ -180,47 +184,88 @@ void LoginWindow::changeYourUsername()
     dialog.setTextValue(ui->loggedUsernameLabel->text());
     dialog.setModal(true);
     while(true) {
-        if(dialog.exec()==QDialog::Accepted && dialog.textValue()=="") {
-            QMessageBox advice(this);
-            advice.setText("Username field empty!\nEnter a valid username");
-            advice.setIcon(QMessageBox::Critical);
-            advice.exec();
-        }
-        else {
-            ui->loggedUsernameLabel->setText(dialog.textValue());
-            break;
+        if(dialog.exec()==QDialog::Accepted) {
+            if(dialog.textValue()=="") {
+                QMessageBox advice(this);
+                advice.setText("You left the field empty!\nEnter a valid username");
+                advice.setIcon(QMessageBox::Critical);
+                advice.exec();
+            }
+            else {
+                this->sessionData.username = dialog.textValue().toStdString();
+                QString encodedAvatar = LoginWindow::generateEncodedImage(this->sessionData.avatar);
+                QString username = dialog.textValue();
+                QString password = QString::fromStdString(this->sessionData.password);
+
+                QThread* sender = new OnlineSender(this->sessionData.token, username, encodedAvatar, password);
+                sender->start();
+
+                break;
+            }
         }
     }
 }
 
 void LoginWindow::changeYourAvatar()
 {
-    QString file_path = QFileDialog::getOpenFileName(nullptr,"Choose your own avatar..");
-    if(file_path!="") {
-        QString file_name = file_path.split("/").last();
-        QString new_file_path = ":/resources/"+file_name;
-        QFile::copy(file_path,new_file_path);
+    QString avatar_path = QFileDialog::getOpenFileName(nullptr,"Choose your own avatar..");
+    if(avatar_path!="") {
 
-        ui->loggedAvatar->setPixmap(QPixmap(new_file_path));
+        QPixmap avatar(avatar_path);
+        this->sessionData.avatar = avatar;
+        QString encodedAvatar = LoginWindow::generateEncodedImage(avatar);
+        QString username = ui->loggedUsernameLabel->text();
+        QString password = QString::fromStdString(this->sessionData.password);
+
+        QThread* sender = new OnlineSender(this->sessionData.token, username, encodedAvatar, password);
+        sender->start();
+    }
+}
+
+void LoginWindow::changeYourPassword()
+{
+    QInputDialog dialog(this);
+    dialog.setLabelText("Insert a new password:");
+    dialog.setTextEchoMode(QLineEdit::Password);
+    dialog.setModal(true);
+    while(true) {
+        if(dialog.exec()==QDialog::Accepted) {
+            if(dialog.textValue()=="") {
+                QMessageBox advice(this);
+                advice.setText("You left the field empty!\nEnter a valid password");
+                advice.setIcon(QMessageBox::Critical);
+                advice.exec();
+            }
+            else {
+                QString username = QString::fromStdString(this->sessionData.username);
+                QString encodedAvatar = LoginWindow::generateEncodedImage(this->sessionData.avatar);
+                QString password = dialog.textValue();
+
+                QThread* sender = new OnlineSender(this->sessionData.token, username, encodedAvatar, password);
+                sender->start();
+
+                break;
+            }
+        }
     }
 }
 
 void LoginWindow::createDocument()
 {
     QInputDialog dialog(this);
-    dialog.setLabelText("Insert filename:");
+    dialog.setLabelText("Insert new document name:");
 
     while(true) {
         if(dialog.exec()==QDialog::Accepted) {
             if(dialog.textValue()=="") {
                 QMessageBox advice(this);
-                advice.setText("Filename field empty!\nEnter a valid one");
+                advice.setText("Document name field empty!\nEnter a valid one");
                 advice.setIcon(QMessageBox::Critical);
                 advice.exec();
             } else {
-                MyTextEdit::getInstance().setDocumentName(dialog.textValue());
+                this->sessionData.docName = dialog.textValue().toStdString();
 
-                QThread* sender = new OnlineSender(personalToken.toStdString(), dialog.textValue().toStdString());
+                QThread* sender = new OnlineSender(this->sessionData.token, this->sessionData.docName);
                 sender->start();
                 break;
             }
@@ -231,8 +276,53 @@ void LoginWindow::createDocument()
 
 void LoginWindow::openDocument()
 {
-    //i have to show a simple list received from db:
-    //filename | creation data | last mod data | num of users
+    auto docListDialog = new QDialog(this);
+    auto vertLayout= new QVBoxLayout(docListDialog);
+    docListDialog->setLayout(vertLayout);
+    auto docListView = new QListView(docListDialog);
+    docListDialog->layout()->addWidget(docListView);
+    auto widget = new QWidget(docListDialog);
+    docListDialog->layout()->addWidget(widget);
+    auto horizLayout = new QHBoxLayout(widget);
+    widget->setLayout(horizLayout);
+    auto okButton = new QPushButton(widget);
+    auto cancButton = new QPushButton(widget);
+    widget->layout()->addWidget(okButton);
+    widget->layout()->addWidget(cancButton);
+
+    auto model = new QStringListModel(this);
+    model->setStringList(this->docsList);
+    docListView->setModel(model);
+
+    //docListDialog->setWindowFlags(Qt::FramelessWindowHint);
+    docListDialog->setGeometry(this->x()+320,this->y()+240,320,240);
+    docListDialog->autoFillBackground();
+    okButton->setText("Ok");
+    cancButton->setText("Cancel");
+
+    QModelIndex fakeIndex;
+    docListView->setCurrentIndex(fakeIndex);
+
+    connect(okButton,&QPushButton::clicked,this,[&](){
+        if(!docListView->currentIndex().isValid()) {
+            QMessageBox advice(this);
+            advice.setText("You have not selected any document!");
+            advice.setIcon(QMessageBox::Critical);
+            advice.exec();
+        }
+        else {
+
+            QThread* sender = new OnlineSender(this->sessionData.token, docListView->currentIndex().data(Qt::DisplayRole).toString());
+            sender->start();
+
+            docListDialog->close();
+        }
+    });
+    connect(cancButton,&QPushButton::clicked,docListDialog,&QDialog::close);
+
+    docListDialog->exec();
+
+    //delete docListDialog;
 }
 
 void LoginWindow::requestURI()
@@ -315,8 +405,8 @@ void LoginWindow::tryRegister()
                 advice.exec();
             }
         }
-
-        QString encodedAvatar = LoginWindow::generateEncodedImage(avatar_path);
+        QPixmap avatar(avatar_path);
+        QString encodedAvatar = LoginWindow::generateEncodedImage(avatar);
 
         QThread* sender = new OnlineSender(email, username, password, encodedAvatar);
         sender->start();
@@ -370,15 +460,14 @@ void LoginWindow::showLoginResponse(bool goodResponse, QString responseText,  QS
         ui->informationImage->movie()->setFileName(":/resources/correct_icon.gif");
 
         QStringList replyParts = replyString.split(":");
-        this->personalAvatar = recoverImageFromEncodedString(replyParts[0]);
-        this->personalToken = replyParts[1];
-        this->docsList = replyParts[2].split("|",QString::SkipEmptyParts);
-        MainWindow::getInstance().sessionData.token = this->personalToken.toStdString();
-        MainWindow::getInstance().sessionData.avatar = this->personalAvatar;
-        MainWindow::getInstance().sessionData.username = ui->loginUsernameInput->text().toStdString();
+        this->sessionData.userId = replyParts[0].toStdString();
+        this->sessionData.token = replyParts[1].toStdString();
+        this->sessionData.avatar = recoverImageFromEncodedString(replyParts[2]);
+        this->docsList = replyParts[3].split("|",QString::SkipEmptyParts);
 
+        this->sessionData.username = ui->loginUsernameInput->text().toStdString();
         ui->loggedUsernameLabel->setText(ui->loginUsernameInput->text());
-        ui->loggedAvatar->setPixmap(this->personalAvatar);
+        ui->loggedAvatar->setPixmap(this->sessionData.avatar);
     }
     else {
         connect(ui->informationButton,&QPushButton::clicked,this,[&](){
@@ -396,32 +485,83 @@ void LoginWindow::showLoginResponse(bool goodResponse, QString responseText,  QS
     ui->informationWhiteFrame->setVisible(true);
 }
 
-void LoginWindow::showNewDocResponse(bool goodResponse, QString responseText)
+void LoginWindow::showNewDocResponse(bool goodResponse, QString responseText, QString replyString)
 {
     QMessageBox advice(this);
     advice.setText(responseText);
     if(goodResponse)
-        advice.setIcon(QMessageBox::Warning);
-    else
         advice.setIcon(QMessageBox::Information);
+    else
+        advice.setIcon(QMessageBox::Warning);
 
     advice.exec();
 
     if(goodResponse) {
+        QStringList replyParts = replyString.split("|");
+        this->sessionData.docId = replyParts[0].toStdString();
+        this->sessionData.status = true;
         this->loginCorrect=true;
+
         close();
     }
 }
 
-QString LoginWindow::generateEncodedImage(const QString& avatar_path) {
+void LoginWindow::getPartecipantsResponse(QString responseString)
+{
+    if(responseString[0]!='0') {
+        this->sessionData.docId = responseString.left(responseString.indexOf('|')).toStdString();
+        responseString.remove(0,this->sessionData.docId.length()+1);
 
-    QString format(avatar_path.split('.').last().toUpper());
-    QPixmap avatar(avatar_path);
+        QStringList users = responseString.split("|");
+        for (QString user : users) {
+            QStringList userElements = user.split(":");
+
+            if(userElements[2].toStdString()!=this->sessionData.username) {
+                UserTag userTag;
+                userTag.setUserColor(chooseColorFromString(userElements[1]));
+                userTag.setUsername(userElements[2]);
+                userTag.setAvatar(recoverImageFromEncodedString(userElements[3]));
+                userTag.setUserStatus(false);
+
+                this->sessionData.usersList.push_back(userTag);
+                this->sessionData.userColorMap[userElements[0].toInt()] = userTag.getUserColor();
+            }
+        }
+        this->sessionData.status = true;
+        this->loginCorrect=true;
+
+        close();
+    }
+}
+
+void LoginWindow::showUpdateUserDataResponse(bool goodResponse, QString responseText)
+{
+    QMessageBox advice(this);
+    advice.setText(responseText);
+    if(goodResponse)
+        advice.setIcon(QMessageBox::Information);
+    else
+        advice.setIcon(QMessageBox::Warning);
+
+    advice.exec();
+
+    if(goodResponse) {
+        ui->loggedUsernameLabel->setText(QString::fromStdString(this->sessionData.username));
+        ui->loggedAvatar->setPixmap(this->sessionData.avatar);
+    }
+    else {
+        this->sessionData.username = ui->loggedUsernameLabel->text().toStdString();
+        this->sessionData.avatar = *ui->loggedAvatar->pixmap();
+    }
+}
+
+QString LoginWindow::generateEncodedImage(QPixmap avatar) {
+
     avatar = avatar.scaled(71,71);
     QByteArray blobAvatar;
     QBuffer buffer(&blobAvatar);
     buffer.open(QIODevice::WriteOnly);
-    avatar.save(&buffer, "PNG"); //format.toStdString().c_str()
+    avatar.save(&buffer, "PNG");
     QString encodedAvatar = buffer.data().toBase64(QByteArray::Base64UrlEncoding);
 
     return encodedAvatar;
@@ -434,4 +574,19 @@ QPixmap LoginWindow::recoverImageFromEncodedString(const QString& code) {
     avatar.loadFromData(array);
 
     return avatar;
+}
+
+QColor LoginWindow::chooseColorFromString(QString string) {
+
+    std::hash<std::string> hash;
+    auto hashed = hash(string.toStdString());
+    QString colorString = QString::number(((hashed>>24)&0xFF),16)+
+                          QString::number(((hashed>>16)&0xFF),16)+
+                          QString::number(((hashed>>8)&0xFF),16)+
+                          QString::number((hashed&0xFF),16);
+
+    //QColor color("#"+colorString);
+    QColor color = QColor::fromCmyk((hashed>>24)&0xFF,(hashed>>16)&0xFF,(hashed>>8)&0xFF,(hashed>>0)&0xFF);
+
+    return color;
 }

@@ -399,7 +399,6 @@
    <addaction name="actionAlignJustify"/>
    <addaction name="actionTestColor"/>
    <addaction name="actionTestCursor"/>
-   <addaction name="actionTestTag"/>
    <addaction name="actionTestDisconnect"/>
   </widget>
   <widget class="QStatusBar" name="statusBar">
@@ -568,11 +567,6 @@
   <action name="actionTestCursor">
    <property name="text">
     <string>TestCursor</string>
-   </property>
-  </action>
-  <action name="actionTestTag">
-   <property name="text">
-    <string>TestTag</string>
    </property>
   </action>
   <action name="actionTestDisconnect">

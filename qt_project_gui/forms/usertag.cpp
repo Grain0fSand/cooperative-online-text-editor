@@ -76,14 +76,9 @@ void UserTag::setUsername(QString newName)
     this->userUsername = newName;
 }
 
-void UserTag::setUserColor(QString color)
+void UserTag::setUserColor(QColor color)
 {
     this->userColor = color;
-}
-
-void UserTag::chooseAvatar()
-{
-    //to implement?
 }
 
 void UserTag::setAvatar(QPixmap avatar)
@@ -106,7 +101,7 @@ QPixmap UserTag::getAvatar()
     return this->userAvatar;
 }
 
-QString UserTag::getUserColor()
+QColor UserTag::getUserColor()
 {
     return this->userColor;
 }
