@@ -176,17 +176,17 @@ void Crdt::sendActionToServer(Action& action, int cursorPos, int numChars) {
 
 std::vector<int> Crdt::symbolInsertionExt(const std::pair<int,int>& left_sym, int n, const std::pair<int,int>& symbol, const QString chars) {
     auto it = list.begin();
-    int j = 0;
+    int j = -1;
+
     //insert in relative position
     while (it != list.end()) {
+        if (!it->is_hidden())
+            ++j;
         if (left_sym == it->getSymbolId())
             break;
 
-        if (!it->is_hidden())
-            ++j;
         ++it;
     }
-
 
     //must check that doing it once is sufficient
     if (it == list.end())
@@ -208,7 +208,7 @@ std::vector<int> Crdt::symbolInsertionExt(const std::pair<int,int>& left_sym, in
 
     list.insert(it, tmp_arr, tmp_arr + n);
 
-    return std::vector<int>(j);
+    return std::vector<int>{j};
 }
 
 //delete done by server
