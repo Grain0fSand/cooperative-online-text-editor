@@ -23,7 +23,8 @@ public:
     void addPartecipant(std::string docId,std::string uid);
     void updateTimestamp(std::string docId,std::string uid);
     void insertCrdt(std::string crdt_json,std::string uid,std::string docId);
-    std::vector<exchangeable_data::send_data> getCrdtUser(std::string lastCrdtId,std::string uid,std::string docId);
+    std::vector<exchangeable_data::send_data> getCrdtUser(std::string lastCrdtId,std::string uid,std::string docId,std::string remoteCursor);
+    std::vector<exchangeable_data::send_data> getOnlineUsers(std::string lastCrdtId,std::string uid,std::string docId);
 
 private:
     SQLite::Database db;
@@ -32,6 +33,8 @@ private:
 
     std::string hashed_pass(std::string pass);
     std::string random_string(size_t length);
+
+    void updateTimestamp(std::string docId, std::string uid, std::string remoteCursor);
 };
 
 #endif //DATABASE_H

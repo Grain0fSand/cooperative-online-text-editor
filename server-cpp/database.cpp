@@ -153,11 +153,10 @@ int Database::updateUserData(std::string token,std::string username,std::string 
     return 1;
 }
 
-//TODO: ricordati di inviare tutto lo storico dei crdt
 void Database::addPartecipant(std::string docId,std::string uid)
 {
     std::string sql = "INSERT OR IGNORE INTO user_document_request "
-                      "VALUES(" + uid + "," + docId + ",datetime('now','localitime'));";
+                      "VALUES(" + uid + "," + docId + ",datetime('now','localitime'),'')";
 
     SQLite::Statement query(db,sql);
     query.exec();
@@ -169,6 +168,13 @@ void Database::updateTimestamp(std::string docId,std::string uid)
 {
     std::string sql = "UPDATE user_document_request SET lastReq = datetime('now','localtime') "
                       "WHERE idUser = " + uid + " AND idDocument = " + docId + ";)";
+    SQLite::Statement query(db,sql);
+    query.exec();
+}
+
+void Database::updateTimestamp(std::string docId,std::string uid,std::string remoteCursor)
+{
+    std::string sql = "UPDATE user_document_request SET lastReq = datetime('now'), cursor_position_json = " + remoteCursor + " WHERE idUser = " + uid + " AND idDocument = " + docId + ";)";
     SQLite::Statement query(db,sql);
     query.exec();
 }
@@ -209,6 +215,8 @@ void Database::insertCrdt(std::string crdt_json,std::string uid,std::string docI
         SQLite::Statement insertNotification(db,sql);
         insertNotification.exec();
     }
+
+    updateTimestamp(docId,uid);
 }
 
 /*
@@ -216,8 +224,10 @@ void Database::insertCrdt(std::string crdt_json,std::string uid,std::string docI
      * seen document; it ensure also the statistics of witch crdt has been seen
      * by a user
      */
-std::vector<exchangeable_data::send_data> Database::getCrdtUser(std::string lastCrdtId,std::string uid,std::string docId)
+std::vector<exchangeable_data::send_data> Database::getCrdtUser(std::string lastCrdtId,std::string uid,std::string docId,std::string remoteCursor)
 {
+    // TODO: add lorenzo's parameter cursorPos
+
     std::string sql;
 
     if (lastCrdtId.compare("")!=0){
@@ -244,6 +254,8 @@ std::vector<exchangeable_data::send_data> Database::getCrdtUser(std::string last
         vect.push_back(exchangeable_data::send_data(id,crdt_json));
     }
 
+    updateTimestamp(docId,uid,remoteCursor);
+
     return vect;
 }
 
@@ -267,4 +279,9 @@ std::string Database::random_string(size_t length)
     std::string str(length,0);
     std::generate_n( str.begin(), length, randchar );
     return str;
+}
+
+std::vector<exchangeable_data::send_data>
+Database::getOnlineUsers(std::string lastCrdtId, std::string uid, std::string docId) {
+    return std::vector<exchangeable_data::send_data>();
 }
