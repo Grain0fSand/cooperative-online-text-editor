@@ -69,6 +69,7 @@ public:
         if (LoginWindow->objectName().isEmpty())
             LoginWindow->setObjectName(QString::fromUtf8("LoginWindow"));
         LoginWindow->resize(640, 480);
+        LoginWindow->setStyleSheet("background-color:#F2ECFF;");
         QIcon icon;
         icon.addFile(QString::fromUtf8(":/resources/logoIcon.png"), QSize(), QIcon::Normal, QIcon::Off);
         LoginWindow->setWindowIcon(icon);
@@ -167,7 +168,7 @@ public:
         loginText->setFont(font3);
         loginText->setCursor(QCursor(Qt::PointingHandCursor));
         loginText->setFocusPolicy(Qt::NoFocus);
-        loginText->setStyleSheet(QString::fromUtf8("color:darkblue"));
+        loginText->setStyleSheet(QString::fromUtf8("color:#3C505B"));
         loginText->setFlat(true);
         registerText = new QPushButton(formFrame);
         registerText->setObjectName(QString::fromUtf8("registerText"));
@@ -175,7 +176,7 @@ public:
         registerText->setFont(font3);
         registerText->setCursor(QCursor(Qt::PointingHandCursor));
         registerText->setFocusPolicy(Qt::NoFocus);
-        registerText->setStyleSheet(QString::fromUtf8("color:darkblue"));
+        registerText->setStyleSheet(QString::fromUtf8("color:#3C505B"));
         registerText->setFlat(true);
         registerEmailLabel = new QLabel(formFrame);
         registerEmailLabel->setObjectName(QString::fromUtf8("registerEmailLabel"));
@@ -356,7 +357,7 @@ public:
         informationWhiteFrame = new QFrame(formFrame);
         informationWhiteFrame->setObjectName(QString::fromUtf8("informationWhiteFrame"));
         informationWhiteFrame->setGeometry(QRect(640, 0, 320, 480));
-        informationWhiteFrame->setStyleSheet(QString::fromUtf8("background: #F0F0F0;"));
+        informationWhiteFrame->setStyleSheet(QString::fromUtf8("background: #F2ECFF;"));
         informationWhiteFrame->setFrameShape(QFrame::NoFrame);
         informationWhiteFrame->setFrameShadow(QFrame::Plain);
         informationLabel = new QLabel(informationWhiteFrame);
@@ -428,8 +429,6 @@ public:
         titleBar = new QFrame(LoginWindow);
         titleBar->setObjectName(QString::fromUtf8("titleBar"));
         titleBar->setGeometry(QRect(0, 0, 640, 30));
-        titleBar->setFrameShape(QFrame::StyledPanel);
-        titleBar->setFrameShadow(QFrame::Raised);
         closeButton = new QPushButton(titleBar);
         closeButton->setObjectName(QString::fromUtf8("closeButton"));
         closeButton->setGeometry(QRect(610, 5, 21, 23));

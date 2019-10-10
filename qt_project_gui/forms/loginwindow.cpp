@@ -92,7 +92,7 @@ void LoginWindow::showLoading(Frame frame) {
     ui->informationWhiteFrame->setGeometry(xPos,0,320,480);
 
     ui->informationButton->setVisible(false);
-    ui->informationLabel->setStyleSheet("color:darkblue");
+    ui->informationLabel->setStyleSheet("color:#3C505B");
     ui->informationLabel->setText(text);
     ui->informationImage->movie()->setFileName(":/resources/loader.gif");
     ui->informationImage->setGeometry(QRect(110, 270, 100, 100));
@@ -124,23 +124,6 @@ void LoginWindow::slowClose()
 
     connect(a,&QPropertyAnimation::finished,this,&LoginWindow::close);
 }
-
-LoginWindow::Frame LoginWindow::currentVisibleFrame()
-{
-    int x = ui->informationWhiteFrame->x();
-
-    switch(x) {
-        case 0:
-            return Frame::PersonalPage;
-        case 320:
-            return Frame::Login;
-        case 640:
-            return Frame::Registration;
-        default:
-            break;
-    }
-    return Frame::Login;
-};
 
 void LoginWindow::switchFrame(int direction)
 {
@@ -203,6 +186,7 @@ void LoginWindow::changeYourUsername()
                 break;
             }
         }
+        else break;
     }
 }
 
@@ -247,6 +231,7 @@ void LoginWindow::changeYourPassword()
                 break;
             }
         }
+        else break;
     }
 }
 
@@ -280,6 +265,8 @@ void LoginWindow::openDocument()
     auto vertLayout= new QVBoxLayout(docListDialog);
     docListDialog->setLayout(vertLayout);
     auto docListView = new QListView(docListDialog);
+    docListView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    docListView->setStyleSheet("background-color:white");
     docListDialog->layout()->addWidget(docListView);
     auto widget = new QWidget(docListDialog);
     docListDialog->layout()->addWidget(widget);
@@ -294,14 +281,20 @@ void LoginWindow::openDocument()
     model->setStringList(this->docsList);
     docListView->setModel(model);
 
-    //docListDialog->setWindowFlags(Qt::FramelessWindowHint);
-    docListDialog->setGeometry(this->x()+320,this->y()+240,320,240);
+    docListDialog->setGeometry(this->x()+120,this->y()+110,400,300);
     docListDialog->autoFillBackground();
     okButton->setText("Ok");
     cancButton->setText("Cancel");
 
     QModelIndex fakeIndex;
     docListView->setCurrentIndex(fakeIndex);
+
+    connect(docListView,&QAbstractItemView::doubleClicked,this,[&](){
+        QThread* sender = new OnlineSender(this->sessionData.token, docListView->currentIndex().data(Qt::DisplayRole).toString());
+        sender->start();
+
+        docListDialog->close();
+    });
 
     connect(okButton,&QPushButton::clicked,this,[&](){
         if(!docListView->currentIndex().isValid()) {
@@ -589,4 +582,15 @@ QColor LoginWindow::chooseColorFromString(QString string) {
     QColor color = QColor::fromCmyk((hashed>>24)&0xFF,(hashed>>16)&0xFF,(hashed>>8)&0xFF,(hashed>>0)&0xFF);
 
     return color;
+}
+
+void LoginWindow::mousePressEvent(QMouseEvent *event) {
+    mouseClickXCoordinate = event->x();
+    mouseClickYCoordinate = event->y();
+}
+
+void LoginWindow::mouseMoveEvent(QMouseEvent *event) {
+    if(event->localPos().x()<=ui->titleBar->width() && event->localPos().y()<=ui->titleBar->height()) {
+        move(event->globalX()-mouseClickXCoordinate,event->globalY()-mouseClickYCoordinate);
+    }
 }

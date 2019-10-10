@@ -245,7 +245,7 @@ border-color: #00559B;
      <enum>Qt::NoFocus</enum>
     </property>
     <property name="styleSheet">
-     <string notr="true">color:darkblue</string>
+     <string notr="true">color:#3C505B</string>
     </property>
     <property name="text">
      <string>Register a new account ―&gt;</string>
@@ -277,7 +277,7 @@ border-color: #00559B;
      <enum>Qt::NoFocus</enum>
     </property>
     <property name="styleSheet">
-     <string notr="true">color:darkblue</string>
+     <string notr="true">color:#3C505B</string>
     </property>
     <property name="text">
      <string>&lt;― Back to login page</string>
@@ -802,7 +802,7 @@ QPushButton:hover {
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">background: #F0F0F0;</string>
+     <string notr="true">background: #F2ECFF;</string>
     </property>
     <property name="frameShape">
      <enum>QFrame::NoFrame</enum>
@@ -934,12 +934,6 @@ QPushButton:hover {
      <height>30</height>
     </rect>
    </property>
-   <property name="frameShape">
-    <enum>QFrame::StyledPanel</enum>
-   </property>
-   <property name="frameShadow">
-    <enum>QFrame::Raised</enum>
-   </property>
    <widget class="QPushButton" name="closeButton">
     <property name="geometry">
      <rect>
@@ -1044,8 +1038,8 @@ QPushButton:hover {
    </property>
   </action>
   <zorder>formFrame</zorder>
-  <zorder>titleBar</zorder>
   <zorder>formLogo</zorder>
+  <zorder>titleBar</zorder>
   <zorder>banner</zorder>
   <zorder>verticalSeparator</zorder>
  </widget>

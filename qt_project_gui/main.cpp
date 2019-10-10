@@ -6,11 +6,10 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+    a.setStyle(QStyleFactory::create("Fusion")); // for uniform style
     LoginWindow::getInstance().exec();
     if(LoginWindow::getInstance().isLoginCorrect()) {
         MainWindow::getInstance().showMaximized();
-
-        a.setStyle(QStyleFactory::create("Fusion")); // for uniform style
 
         return a.exec();
     }

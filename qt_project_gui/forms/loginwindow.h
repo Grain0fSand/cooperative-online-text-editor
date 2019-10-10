@@ -36,7 +36,6 @@ public:
     static QString generateEncodedImage(QPixmap avatar);
     static QPixmap recoverImageFromEncodedString(const QString& code);
     static QColor chooseColorFromString(QString string);
-    Frame currentVisibleFrame();
 
 public slots:
     void tryLogin();
@@ -63,6 +62,11 @@ private:
     Ui::LoginWindow *ui;
     bool loginCorrect;
     QStringList docsList;
+
+    void mousePressEvent(QMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
+    int mouseClickXCoordinate;
+    int mouseClickYCoordinate;
 };
 
 #endif // LOGINWINDOW_H
