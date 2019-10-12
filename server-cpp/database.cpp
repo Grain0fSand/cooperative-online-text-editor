@@ -113,7 +113,8 @@ std::string Database::getPartecipants(std::string token,std::string docName)
 
     std::string docId = findDocId.getColumn(0);
 
-    addPartecipant(docId,std::to_string(uid));
+    // why there was that here?
+    //addPartecipant(docId,std::to_string(uid));
 
     query = "SELECT id,email,username,image FROM users WHERE id IN "
             "(SELECT idUser FROM user_document_request WHERE idDocument=" + docId + ")";
@@ -189,7 +190,14 @@ void Database::insertCrdt(std::string crdt_json,std::string uid,std::string docI
     std::string sql = "INSERT INTO crdt(idDoc,idUser,crdt_json)  VALUES(" + docId + "," + uid + ",'" + crdt_json + "');";
 
     SQLite::Statement queryUpdate(db,sql);
-    auto res = queryUpdate.exec();
+
+    try {
+        auto res = queryUpdate.exec();
+    } catch (SQLite::Exception &error){
+        std::cout << error.getErrorCode();
+        std::cout << error.getErrorStr();
+    }
+
     int idCrdtInserted = db.getLastInsertRowid();
 
     sql = "SELECT idUser FROM user_document_request WHERE idDocument=" + docId + ";";
@@ -279,7 +287,28 @@ std::string Database::random_string(size_t length)
     return str;
 }
 
-std::vector<exchangeable_data::send_data>
-Database::getOnlineUsers(std::string lastCrdtId, std::string uid, std::string docId) {
-    return std::vector<exchangeable_data::send_data>();
+// NB: all the query is valid if that query excecute validly on the sqlite db
+// select datetime(),datetime((strftime('%s','now')-30),'unixepoch','localtime');
+// that query select the time now and before of 30 seconds
+std::vector<exchangeable_data::user>
+Database::getOnlineUsers() {
+
+    // TODO: replace 90000 with 30, is the seconds, note that there are 2 90000 inside the query
+    std::string sql = "select id,email,username,image,(select cursor_position_json from user_document_request where lastReq >= datetime((strftime('%s','now')-90000),'unixepoch','localtime')) as json_cursor from users where id in (select idUser from user_document_request where lastReq >= datetime((strftime('%s','now')-90000),'unixepoch','localtime'))";
+
+    SQLite::Statement query(db, sql);
+    std::vector<exchangeable_data::user> vect;
+
+    while (query.executeStep()){
+        std::string id = query.getColumn(0);
+        std::string email = query.getColumn(1);
+        std::string username = query.getColumn(2);
+        std::string image = query.getColumn(3);
+        std::string json_cursor = query.getColumn(4);
+
+        vect.push_back(exchangeable_data::user(id,email,username,image,json_cursor));
+    }
+
+
+    return vect;
 }

@@ -32,8 +32,8 @@ namespace exchangeable_data {
     class user {
     public:
         user(){}
-        user(std::string id,std::string username,
-                std::string image,std::string lastCursorPositionJson): id(id),
+        user(std::string id,std::string email,std::string username,
+                std::string image,std::string lastCursorPositionJson): id(id),email(email),
                 username(username),image(image),lastCursorPositionJson(lastCursorPositionJson)
                 {}
 
@@ -41,6 +41,19 @@ namespace exchangeable_data {
         std::string username;
         std::string image;
         std::string lastCursorPositionJson;
+        std::string email;
+
+        json get_json() {
+            return json{{"id", this->id},{"username", this->username},{"image", this->image}, {"curson_json", this->lastCursorPositionJson},{"email", this->email}};
+        }
+
+        static void from_json(user& d,const json& j){
+            d.id = j.at("id").get<std::string>();
+            d.username = j.at("username").get<std::string>();
+            d.image = j.at("image").get<std::string>();
+            d.lastCursorPositionJson = j.at("curson_json").get<std::string>();
+            d.email = j.at("email").get<std::string>();
+        }
     };
 
 }

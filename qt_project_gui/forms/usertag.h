@@ -3,6 +3,7 @@
 
 #include <QAbstractItemDelegate>
 #include <QPainter>
+#include <data_structure/exchangeable.h>
 
 class UserTag : public QAbstractItemDelegate
 {
@@ -29,6 +30,28 @@ public:
         return *this;
     }
 
+    // for std::find method
+    bool operator==(const UserTag& other) const {
+        return this->userUsername == other.userUsername;
+    }
+
+    // for std::find with exchangeble_data::user element comparing
+    bool operator==(const exchangeable_data::user& other) const {
+        return this->userUsername == QString::fromStdString(other.username);
+    }
+
+    /* probably we need not to use that if all is correct
+    // for std::sort with exchangable_data::user
+    bool operator<(const exchangeable_data::user& other) const {
+        return this->userUsername < QString::fromStdString(other.username);
+    }
+    */
+
+    // for std::sort
+    bool operator<(const UserTag& other) const {
+        return this->userUsername < other.userUsername;
+    }
+
     void paint ( QPainter * painter, const QStyleOptionViewItem & option, const QModelIndex & index ) const;
     QSize sizeHint ( const QStyleOptionViewItem & option, const QModelIndex & index ) const;
 
@@ -36,7 +59,7 @@ public:
     void setAvatar(QPixmap);
     void setUserStatus(bool);
     void setUserColor(QColor);
-    QString getUsername();
+    QString getUsername() const; // always better set explicitly const, so the compiler check if you access to modify some variables
     QPixmap getAvatar();
     bool getStatus();
     QColor getUserColor();

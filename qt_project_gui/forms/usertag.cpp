@@ -91,7 +91,7 @@ void UserTag::setUserStatus(bool newStatus)
     this->userStatus = newStatus;
 }
 
-QString UserTag::getUsername()
+QString UserTag::getUsername() const
 {
     return this->userUsername;
 }

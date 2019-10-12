@@ -99,6 +99,7 @@ signals:
 private slots:
     void on_onlineRollButton_clicked();
     void on_offlineRollButton_clicked();
+    void update_online_users_and_cursors_positions(std::vector<exchangeable_data::user> vector);
 
 private:
     explicit MainWindow(QWidget *parent = nullptr);

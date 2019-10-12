@@ -562,5 +562,67 @@ void MainWindow::on_offlineRollButton_clicked()
     }
 }
 
+
+void MainWindow::update_online_users_and_cursors_positions(std::vector<exchangeable_data::user> vector){
+    // NB: è ancora da debuggare andando a creare dei dati fittizzi dentro userBar in modo
+    // da verificare che tutto funzioni, il problema è che non so come creare degli oggetti di tipo
+    // UserTag, perdonami ma senza di te mi è difficile utilizzarlo
+    std::vector<UserTag>& usersBar = this->sessionData.usersList;
+    std::vector<UserTag> userBarUpdated;
+
+    for(exchangeable_data::user u : vector){
+        auto iterator_user = std::find(usersBar.begin(),usersBar.end(),u);
+
+        if (iterator_user != usersBar.end()){
+            // the user was already present, i only copy it in the new bar updated
+            UserTag user = *iterator_user; //  called copy constructor
+            // TODO: dario check if is correct use true
+            user.setUserStatus(true); // was more clear use like: user.setUserIsOnline(...) status is not auto explicative
+            userBarUpdated.push_back(std::move(user)); // forwarded using movement semantic, std::move is optional, the compiler
+            // is smart enought to understand it automatically, is only for you dario with love
+        } else {
+            // TODO: dario please call che constructor correctly i'm not sure of how to calc the data like color for eg
+            // all the data required are inside object u
+            std::cout << "add the user" << u.username << std::endl;
+        }
+
+    }
+    // at this point userBarUpdated contains all the online users, to detect the offline i can subtract the online
+    // from the original one
+
+    // TODO: dario check also this comments please, if you do not undestand ask me! cit. elia
+    // please for working the original data must be sorted in the same way that i will now use to sort the new list
+    // this also is required for the draw operation otherwise the list will change from an instant to the next also
+    // in the order
+    std::sort(userBarUpdated.begin(),userBarUpdated.end(),[](const UserTag& u1,const UserTag& u2) -> bool {
+        return u1.getUsername().compare(u2.getUsername()); // get... is java like syntax, cpp programmer tend to prefer more concise syntax in general
+        // is absolutely not wrong, i had written only because the cpp general way of programming is that
+    });
+
+    std::vector<UserTag> difference;
+
+    std::set_difference(
+            usersBar.begin(),usersBar.end(),
+            userBarUpdated.begin(),userBarUpdated.end(),
+            std::back_inserter(difference)
+            );
+
+    for(UserTag& user : difference){
+        user.setUserStatus(false); // TODO: dario check if correct, that are the users that are offline
+        userBarUpdated.push_back(user);
+    }
+
+    // now i replace the old data with the new calculated
+    this->sessionData.usersList = userBarUpdated;
+
+    // TODO: now that data are updated need to be refreshed the interface
+
+    for(exchangeable_data::user u : vector){
+        std::cout << "manage the remote cursor json : " << u.lastCursorPositionJson << std::endl;
+    }
+
+    std::cout << "arrived new users and cursors, update the data!" << std::endl;
+}
+
 //TODO: clicking on bold/cursive/etc. with nothing highlighted sends an action but it shouldn't
 //TODO: block formatting doesn't result in sending an action but it should

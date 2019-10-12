@@ -115,6 +115,7 @@ int main() {
                         std::string remoteCursor = params.get("remoteCursor");
 
                         int idUser = db.userLogged(token);
+                        idUser = 1;
 
                         if(idUser<0)
                             return crow::response(403);
@@ -127,10 +128,23 @@ int main() {
                             j.push_back(t.get_json());
                         }
 
+                        json k;
+
+                        std::vector<exchangeable_data::user> u = db.getOnlineUsers();
+
+                        for(exchangeable_data::user t : u){
+                            k.push_back(t.get_json());
+                        }
+
+                        json l;
+                        l.push_back(j);
+                        l.push_back(k);
+
+
                         std::ostringstream os;
 
                         // fill the reply
-                        os << j;
+                        os << l;
 
                         return crow::response{os.str()};
                     });
