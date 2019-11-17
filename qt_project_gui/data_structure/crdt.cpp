@@ -39,8 +39,9 @@ void Crdt::symbolInsertion(const std::pair<int,int>& left_sym, int n, const std:
 
     //array with all symbols to insert in list
     SymbolId tmp_arr[n];
+    if (n > 0) --op; //balance the ++op before call
     for (int i = 0; i < n; ++i) {
-        tmp_arr[i] = SymbolId(i + symbol.second, symbol.first);
+        tmp_arr[i] = SymbolId(++op, symbol.second);
         if (chars[i] == '\n')
             tmp_arr[i].setBlockStart();
     }
@@ -81,7 +82,7 @@ std::vector<std::pair<int,int>> Crdt::textFormatting(int n, const std::pair<int,
             while (n-- > 0) {
                 //format without checking version because it's unnecessary
                 if (!it->is_blockStart()) {
-                    it->setVersion(list.size(), usr_id, select);
+                    it->setVersion(op, usr_id, select);
                     ret.push_back(it->getSymbolId());
                 }
                 ++it;
@@ -107,14 +108,14 @@ std::vector<std::pair<int,int>> Crdt::blockFormatting(int n, const std::pair<int
 
         // if first symbol found format string and break
         if (it->getSymbolId() == first_symbol) {
-            list[last_block_starter].setVersion(list.size(), usr_id, 0);
+            list[last_block_starter].setVersion(op, usr_id, 0);
             ret.push_back(list[last_block_starter].getSymbolId());
             ++it;      //in case first_symbol is block_starter
 
             while (n-- > 1) {
                 //format without checking version because it's unnecessary
                 if (it->is_blockStart()) {
-                    it->setVersion(list.size(), usr_id, 0);
+                    it->setVersion(op, usr_id, 0);
                     ret.push_back(it->getSymbolId());
                 }
                 ++it;
@@ -132,7 +133,7 @@ std::vector<std::pair<int,int>> Crdt::blockFormatting(int n, const std::pair<int
 void Crdt::sendActionToServer(Action& action, int cursorPos, int numChars) {
     std::pair<int,int> rel_symbol = findRelativePosition(cursorPos);
 
-    std::pair<int,int> symbol(list.size(), usr_id);
+    std::pair<int,int> symbol(++op, usr_id);
     ActionWrapper action_wrapper(action);  //to send to json serializer
 
     switch (action.getActionType()) {
@@ -146,12 +147,12 @@ void Crdt::sendActionToServer(Action& action, int cursorPos, int numChars) {
             action_wrapper.symbol = symbolDeletion(numChars, rel_symbol);
             break;
         case TextFormatting:
-            action_wrapper.symbol = textFormatting(numChars, rel_symbol, action.getSelection());
             action_wrapper.rel_symbol = symbol;  //for setting version
+            action_wrapper.symbol = textFormatting(numChars, rel_symbol, action.getSelection());
             break;
         case BlockFormatting:
-            action_wrapper.symbol = blockFormatting(numChars, rel_symbol);
             action_wrapper.rel_symbol = symbol;  //for setting version
+            action_wrapper.symbol = blockFormatting(numChars, rel_symbol);
             break;
         default:
             break;
@@ -198,10 +199,11 @@ std::vector<int> Crdt::symbolInsertionExt(const std::pair<int,int>& left_sym, in
         ++j;
     }
 
+    if (it->getSymbolId() == symbol) return std::vector<int>();
     //insert symbols
     SymbolId tmp_arr[n];
     for (int i = 0; i < n; ++i) {
-        tmp_arr[i] = SymbolId(symbol.first, symbol.second);
+        tmp_arr[i] = SymbolId(symbol.first + i, symbol.second);
         if (chars[i] == '\n')
             tmp_arr[i].setBlockStart();
     }
@@ -221,7 +223,7 @@ std::vector<int> Crdt::symbolDeletionExt(const std::vector<std::pair<int,int>>& 
         if (it->getSymbolId() == *del_it) {
             ++del_it;
             if (!it->is_hidden()) {
-                ret.push_back(i);  //get absolute position
+                ret.push_back(i-1);  //get absolute position
                 it->hide();
             }
         }
@@ -241,9 +243,9 @@ std::vector<int> Crdt::formattingExt(const std::pair<int,int>& rel_symbol, const
         //found symbol to format
         if (it->getSymbolId() == *form_it) {
             ++form_it;
-            //check hidden and version
-            if (!it->is_hidden() && it->compareVersion(rel_symbol.first, rel_symbol.second, select)) {
-                ret.push_back(i);  //get absolute position
+            //version
+            if (it->compareVersion(rel_symbol.first, rel_symbol.second, select)) {
+                ret.push_back(i-1);  //get absolute position
                 it->setVersion(rel_symbol.first, rel_symbol.second, select);
             }
         }
@@ -262,18 +264,22 @@ void Crdt::update_income(std::vector<ActionWrapper> actions){
             case Insertion:
                 all_pos = symbolInsertionExt(action_wrapper.rel_symbol, action.getChars().size(),
                                              action_wrapper.symbol.front(), action.getChars());
+                op += action.getChars().size();
                 break;
             case Deletion:
                 all_pos = symbolDeletionExt(action_wrapper.symbol);
+                ++op;
                 break;
             case TextFormatting:
             case BlockFormatting:
                 all_pos = formattingExt(action_wrapper.rel_symbol, action_wrapper.symbol, action.getSelection());
+                ++op;
                 break;
             default:
                 break;
         }
-        MyTextEdit::getInstance().doReceivedAction(action, all_pos);
+        if (!all_pos.empty())
+            MyTextEdit::getInstance().doReceivedAction(action, all_pos);
     }
 //    for (SymbolId s : list)
 //        std::cout << s.getIncId() << s.getUsrId() << s.is_hidden() << ' ';

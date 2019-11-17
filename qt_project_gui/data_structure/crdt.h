@@ -14,6 +14,7 @@ class Crdt : public QObject {
 
     std::vector<SymbolId> list;
     int usr_id;
+    unsigned int op = 0; //incremental counter
     std::queue<ActionWrapper> action_queue;
 
     Crdt() {}
@@ -47,8 +48,6 @@ public slots:
 
 private:
 
-    std::pair<int,int> findRelativePosition(int left_pos);
-
     // TODO: check if necessary lock shared between local and server updates
     //client
     void symbolInsertion(const std::pair<int,int>& left_sym, int n, const std::pair<int,int>& symbol, const QString chars);
@@ -69,7 +68,7 @@ public:
     //void actionsArrived(std::list<Action> actions);   //queue non needed
     void receiveActionFromServer(ActionWrapper& actionWrapper);
     void sendActionToServer(Action& action, int cursorPos, int numChars);
-   // void pushActionQueue(ActionWrapper action_wrapper);       //push server's actions
+    std::pair<int,int> findRelativePosition(int left_pos); //for cursor sending
 };
 
 

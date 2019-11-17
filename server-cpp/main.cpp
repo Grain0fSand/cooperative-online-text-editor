@@ -98,7 +98,7 @@ int main() {
                 });
 
     // to test launch and open
-    // http://localhost:8080/get_crdt?token=1&lastcrdt=&docId=1
+    // http://localhost:6969/get_crdt?token=1&lastcrdt=&docId=1&remoteCursor=0
     CROW_ROUTE(app,"/get_crdt")
             .methods("GET"_method)
                     ([&](const crow::request& req){

@@ -301,7 +301,8 @@ void MainWindow::textChanged(int pos, int nDel, int nIns) {
         bool underlined = font.underline();
 
         BlockFormatType blockFormatType;
-        Qt::Alignment alignment = text_cursor.blockFormat().alignment();
+        QTextBlockFormat blockFormat = text_cursor.blockFormat();
+        Qt::Alignment alignment = blockFormat.alignment();
         if (alignment == Qt::AlignLeft)
             blockFormatType = AlignLeft;
         else if (alignment == Qt::AlignCenter)
@@ -310,6 +311,13 @@ void MainWindow::textChanged(int pos, int nDel, int nIns) {
              blockFormatType = AlignRight;
         else if (alignment == Qt::AlignJustify)
              blockFormatType = AlignJustify;
+
+//        //this is because only first paragraph gets block alignment when copying multiple paragraphs
+//        QTextCursor* tmpCursor = new QTextCursor(ui->textEditShared->document());
+//        tmpCursor->setPosition(pos);
+//        tmpCursor->movePosition(QTextCursor::Right, QTextCursor::KeepAnchor,nIns);
+//        tmpCursor->setBlockFormat(blockFormat);
+
 
         Action action(str, familyIndex, sizeIndex, bold, italic, underlined, blockFormatType);
         Crdt::getInstance().sendActionToServer(action, pos, nIns);
@@ -332,7 +340,8 @@ void MainWindow::selectFont(int familyIndex)
     textEdit->setTextCursor(cursor);
 
     Action a = Action(3, familyIndex);
-    Crdt::getInstance().sendActionToServer(a, cursor.selectionStart() + 1, cursor.selectedText().length());
+    if (cursor.selectedText().length())
+        Crdt::getInstance().sendActionToServer(a, cursor.selectionStart() + 1, cursor.selectedText().length());
 }
 
 void MainWindow::selectSize(int sizeIndex)
@@ -347,7 +356,8 @@ void MainWindow::selectSize(int sizeIndex)
     textEdit->setTextCursor(cursor);
 
     Action a = Action(4, sizeIndex);
-    Crdt::getInstance().sendActionToServer(a, cursor.selectionStart() + 1, cursor.selectedText().length());
+    if (cursor.selectedText().length())
+        Crdt::getInstance().sendActionToServer(a, cursor.selectionStart() + 1, cursor.selectedText().length());
 }
 
 void MainWindow::checkTextProperty()

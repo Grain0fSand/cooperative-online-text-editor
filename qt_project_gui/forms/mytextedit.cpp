@@ -65,44 +65,71 @@ void MyTextEdit::addCursor(RemoteCursor *cursor)
 void MyTextEdit::doReceivedAction(const Action& action, const std::vector<int>& all_pos )
 {
     int ptr_start = 0, ptr_end, n = all_pos.size();    //ptr start and ptr end are for calculating ranges of subsequent positions in all_pos
-
     while (ptr_start < n) {
         //find range of subsequent positions and apply the action (for efficiency)
         ptr_end = ptr_start;
         this->hiddenCursor->setPosition(all_pos[ptr_start]);
         while (ptr_end < n - 1 && all_pos[ptr_end] == all_pos[ptr_end + 1] - 1)
             ++ptr_end;
-
         this->document()->blockSignals(true);
         switch(action.getActionType())
         {
             case NoActionType:
                 qDebug() << "Invalid action to do";
                 break;
-            case Insertion:
-                this->hiddenCursor->insertText(action.getChars().mid(ptr_start, ptr_end + 1 - ptr_start));
-                this->hiddenCursor->setPosition(all_pos[ptr_start]);
-                [[fallthrough]];
-            case TextFormatting:  //no break, insertion does formatting too
-            {
-                this->hiddenCursor->movePosition(QTextCursor::Right,QTextCursor::KeepAnchor, ptr_end + 1 - ptr_start);
+            case Insertion: {
+                this->hiddenCursor->insertText(action.getChars());
+                this->hiddenCursor->movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, action.getChars().size());
                 QTextCharFormat format;
 
                 action.getBold() ? format.setFontWeight(QFont::Bold) : format.setFontWeight(QFont::Normal);
                 format.setFontItalic(action.getItalic());
                 format.setFontUnderline(action.getUnderlined());
                 format.setFontFamily(this->fontFamilies.at(action.getComboFontIndex()));
-                format.setFontPointSize(this->fontSizes.at(action.getComboFontIndex()).toInt());
+                format.setFontPointSize(this->fontSizes.at(action.getFontSize()).toInt());
                 this->hiddenCursor->setCharFormat(format);
+
+                //this is because only first paragraph gets block alignment when copying multiple paragraphs
+                std::string st = action.getChars().toStdString();
+                unsigned int i;
+                for (i = 0; i < st.size(); ++i) {
+                    if (st[i] == '\n')
+                        break;
+                }
+                this->hiddenCursor->movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, all_pos[ptr_start] + i + 1);
+                QTextBlockFormat bFormat;
+                switch(action.getBlockFormat())
+                {
+                    case NoBlockFormatType:
+                        qDebug()  << "Invalid block formatting to do";
+                        break;
+                    case AlignLeft:
+                        bFormat.setAlignment(Qt::AlignLeft);
+                        break;
+                    case AlignCenter:
+                        bFormat.setAlignment(Qt::AlignCenter);
+                        break;
+                    case AlignRight:
+                        bFormat.setAlignment(Qt::AlignRight);
+                        break;
+                    case AlignJustify:
+                        bFormat.setAlignment(Qt::AlignJustify);
+                        break;
+                }
+                this->hiddenCursor->setBlockFormat(bFormat);
+                if (i != st.size()) {
+                    this->hiddenCursor->setPosition(all_pos[ptr_start] + i + 1);
+                    this->hiddenCursor->movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, st.size() - i);
+                    QTextBlockFormat bFormat;
+                    bFormat.setAlignment(Qt::AlignLeft);
+                    this->hiddenCursor->setBlockFormat(bFormat);
+                }
                 break;
             }
-            case Deletion:
-                this->hiddenCursor->movePosition(QTextCursor::Right,QTextCursor::KeepAnchor,ptr_end + 1 - ptr_start);
-                this->hiddenCursor->removeSelectedText();
-                break;
             case BlockFormatting:
             {
-                this->hiddenCursor->movePosition(QTextCursor::Right,QTextCursor::KeepAnchor,ptr_end + 1 - ptr_start);
+                this->hiddenCursor->setPosition(all_pos[ptr_start] + 1);
+                this->hiddenCursor->movePosition(QTextCursor::Right,QTextCursor::KeepAnchor,ptr_end - ptr_start);
                 QTextBlockFormat format;
                 switch(action.getBlockFormat())
                 {
@@ -125,6 +152,37 @@ void MyTextEdit::doReceivedAction(const Action& action, const std::vector<int>& 
                 this->hiddenCursor->setBlockFormat(format);
                 break;
             }
+            case TextFormatting:
+            {
+                this->hiddenCursor->movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, ptr_end + 1 - ptr_start);
+                QTextCharFormat format;
+
+                switch(action.getSelection()) {
+                    case 0:
+                        action.getBold() ? format.setFontWeight(QFont::Bold) : format.setFontWeight(QFont::Normal);
+                        break;
+                    case 1:
+                        format.setFontItalic(action.getItalic());
+                        break;
+                    case 2:
+                        format.setFontUnderline(action.getUnderlined());
+                        break;
+                    case 3:
+                        format.setFontFamily(this->fontFamilies.at(action.getComboFontIndex()));
+                        break;
+                    case 4:
+                        format.setFontPointSize(this->fontSizes.at(action.getFontSize()).toInt());
+                        break;
+                }
+                this->hiddenCursor->mergeCharFormat(format);
+                break;
+            }
+            case Deletion:
+                this->hiddenCursor->movePosition(QTextCursor::Right,QTextCursor::KeepAnchor,ptr_end + 1 - ptr_start);
+                this->hiddenCursor->removeSelectedText();
+                break;
+            default:
+                break;
         }
         this->document()->blockSignals(false);
         ptr_start = ptr_end + 1;

@@ -114,7 +114,7 @@ std::string Database::getPartecipants(std::string token,std::string docName)
     std::string docId = findDocId.getColumn(0);
 
     // why there was that here?
-    //addPartecipant(docId,std::to_string(uid));
+    addPartecipant(docId,std::to_string(uid));
 
     query = "SELECT id,email,username,image FROM users WHERE id IN "
             "(SELECT idUser FROM user_document_request WHERE idDocument=" + docId + ")";
@@ -190,39 +190,32 @@ void Database::insertCrdt(std::string crdt_json,std::string uid,std::string docI
     std::string sql = "INSERT INTO crdt(idDoc,idUser,crdt_json)  VALUES(" + docId + "," + uid + ",'" + crdt_json + "');";
 
     SQLite::Statement queryUpdate(db,sql);
-
-    try {
-        auto res = queryUpdate.exec();
-    } catch (SQLite::Exception &error){
-        std::cout << error.getErrorCode();
-        std::cout << error.getErrorStr();
-    }
-
-    int idCrdtInserted = db.getLastInsertRowid();
-
-    sql = "SELECT idUser FROM user_document_request WHERE idDocument=" + docId + ";";
-    SQLite::Statement idGetter(db,sql);
-    std::vector<int> ids;
-
-
-    while (idGetter.executeStep()){
-        ids.push_back(idGetter.getColumn(0));
-    }
-
-    std::stringstream ss{uid};
-
-    int creator_id;
-
-    ss >> creator_id;
-
-    ids.erase(std::remove(ids.begin(),ids.end(),creator_id),ids.end());
-    std::string crdtId = std::to_string(idCrdtInserted);
-
-    for(int usrId : ids){
-        sql = "INSERT INTO crdt_delvery(idDoc,idCrdt,idUser) VALUES(" + docId + "," + crdtId + "," + std::to_string(usrId) + ")";
-        SQLite::Statement insertNotification(db,sql);
-        insertNotification.exec();
-    }
+    auto res = queryUpdate.exec();
+//    int idCrdtInserted = db.getLastInsertRowid();
+//
+//    sql = "SELECT idUser FROM user_document_request WHERE idDocument=" + docId + ";";
+//    SQLite::Statement idGetter(db,sql);
+//    std::vector<int> ids;
+//
+//
+//    while (idGetter.executeStep()){
+//        ids.push_back(idGetter.getColumn(0));
+//    }
+//
+//    std::stringstream ss{uid};
+//
+//    int creator_id;
+//
+//    ss >> creator_id;
+//
+//    ids.erase(std::remove(ids.begin(),ids.end(),creator_id),ids.end());
+//    std::string crdtId = std::to_string(idCrdtInserted);
+//
+//    for(int usrId : ids){
+//        sql = "INSERT INTO crdt_delvery(idDoc,idCrdt,idUser) VALUES(" + docId + "," + crdtId + "," + std::to_string(usrId) + ")";
+//        SQLite::Statement insertNotification(db,sql);
+//        insertNotification.exec();
+//    }
 
     updateTimestamp(docId,uid);
 }
@@ -238,17 +231,22 @@ std::vector<exchangeable_data::send_data> Database::getCrdtUser(std::string last
 
     std::string sql;
 
-    if (lastCrdtId!=""){
-        sql = "UPDATE crdt_delvery SET delivered = '1' WHERE idDoc=" + docId + " AND idCrdt <=" + lastCrdtId + " AND idUser = " + uid + ";";
+//    if (lastCrdtId!=""){
+//        sql = "UPDATE crdt_delvery SET delivered = '1' WHERE idDoc=" + docId + " AND idCrdt <=" + lastCrdtId + " AND idUser = " + uid + ";";
+//
+//        SQLite::Statement queryUpdate(db,sql);
+//        queryUpdate.exec();
+//
+//
+//        sql = "SELECT id,crdt_json FROM crdt WHERE id IN (SELECT idCrdt from crdt_delvery WHERE idUser=" + uid + " AND idDoc=" + docId + "  AND delivered=0)";
+//    } else {
+//        sql = "SELECT id,crdt_json FROM crdt WHERE id IN (SELECT idCrdt from crdt_delvery WHERE idUser=" + uid + " AND idDoc=" + docId + ")";
+//    }
 
-        SQLite::Statement queryUpdate(db,sql);
-        queryUpdate.exec();
-
-
-        sql = "SELECT id,crdt_json FROM crdt WHERE id IN (SELECT idCrdt from crdt_delvery WHERE idUser=" + uid + " AND idDoc=" + docId + "  AND delivered=0)";
-    } else {
-        sql = "SELECT id,crdt_json FROM crdt WHERE id IN (SELECT idCrdt from crdt_delvery WHERE idUser=" + uid + " AND idDoc=" + docId + ")";
-    }
+    if (lastCrdtId == "")
+        sql = "SELECT id, crdt_json FROM crdt WHERE idDoc = " + docId;
+    else
+        sql = "SELECT id, crdt_json FROM crdt WHERE idDoc = " + docId + " AND id > " + lastCrdtId + " AND idUser != " + uid;
 
     SQLite::Statement query(db, sql);
     std::vector<exchangeable_data::send_data> vect;
