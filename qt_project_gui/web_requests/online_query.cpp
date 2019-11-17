@@ -85,7 +85,10 @@ void OnlineQuery::checkReply(QNetworkReply *reply) {
         ActionWrapper::action_from_json(w,json::parse(act.crdt));
         actions.push_back(w);
     }
-
+    for (auto t : actions)
+        if(t.action.getActionType() == Insertion)
+            qDebug() << t.action.getChars().toUtf8();
+        else qDebug() << t.action.getActionType();
 
     emit update_id(lastCrdtId);
     emit send_actions(actions);  //TODO pass reference
