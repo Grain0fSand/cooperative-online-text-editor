@@ -4,6 +4,34 @@
 
 std::string Database::dbUri = "../pds.db";
 
+/*
+ * function to prevent input to be dangerous for the db
+ */
+void sanitize(std::string &stringValue)
+{
+    // Add backslashes.
+    for (auto i = stringValue.begin();;) {
+        auto const pos = std::find_if(
+                i, stringValue.end(),
+                [](char const c) { return '\\' == c || '\'' == c || '"' == c; }
+        );
+        if (pos == stringValue.end()) {
+            break;
+        }
+        i = std::next(stringValue.insert(pos, '\\'), 2);
+    }
+
+    // Removes others.
+    stringValue.erase(
+            std::remove_if(
+                    stringValue.begin(), stringValue.end(), [](char const c) {
+                        return '\n' == c || '\r' == c || '\0' == c || '\x1A' == c;
+                    }
+            ),
+            stringValue.end()
+    );
+}
+
 
 int main() {
     Database db;
@@ -23,6 +51,11 @@ int main() {
                     std::string password = params.get("password");
                     std::string image = params.get("image");
 
+                    sanitize(email);
+                    sanitize(username);
+                    sanitize(password);
+                    sanitize(image);
+
                     int replyCode = db.userRegistration(email,username,password,image);
 
                     return crow::response{std::to_string(replyCode)};
@@ -38,6 +71,9 @@ int main() {
 
                         std::string token = params.get("token");
                         std::string docName = params.get("docName");
+
+                        sanitize(token);
+                        sanitize(docName);
 
                         std::string replyString = db.newDocument(token,docName);
 
@@ -55,6 +91,9 @@ int main() {
                         std::string token = params.get("token");
                         std::string docName = params.get("docName");
 
+                        sanitize(token);
+                        sanitize(docName);
+
                         std::string dbReply = db.getPartecipants(token,docName);
 
                         return crow::response{dbReply};
@@ -70,6 +109,9 @@ int main() {
 
                         std::string username = params.get("username");
                         std::string password = params.get("password");
+
+                        sanitize(username);
+                        sanitize(password);
 
                         std::string dbReply = db.userLogin(username,password);
 
@@ -90,6 +132,11 @@ int main() {
                     std::string username = params.get("username");
                     std::string avatar = params.get("avatar");
                     std::string password = params.get("password");
+
+                    sanitize(token);
+                    sanitize(username);
+                    sanitize(avatar);
+                    sanitize(password);
 
                     int dbReply = db.updateUserData(token,username,avatar,password);
 
@@ -113,6 +160,11 @@ int main() {
                         std::string lastcrdt = params.get("lastcrdt");
                         std::string docId = params.get("docId");
                         std::string remoteCursor = params.get("remoteCursor");
+
+                        sanitize(token);
+                        sanitize(lastcrdt);
+                        sanitize(docId);
+                        sanitize(remoteCursor);
 
                         int idUser = db.userLogged(token);
 
@@ -147,11 +199,13 @@ int main() {
                            || params.get("docId") == nullptr)
                             return crow::response(500);
 
-
-                        // TODO: replace the simple id to the hashmap of token
                         std::string uid = params.get("token");
                         std::string crdt = params.get("crdt");
                         std::string docId = params.get("docId");
+
+                        sanitize(uid);
+                        sanitize(crdt);
+                        sanitize(docId);
 
                         int idUser = db.userLogged(uid);
                         if(idUser<0)
