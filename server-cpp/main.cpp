@@ -187,6 +187,27 @@ int main() {
                         return crow::response{os.str()};
                     });
 
+    CROW_ROUTE(app,"/format_db")
+            .methods("GET"_method)
+                    ([&](const crow::request& req){
+                        auto params = req.url_params;
+
+                        if(params.get("pass") == nullptr)
+                            // TODO: see remoteCursor param
+                            return crow::response(500);
+
+                        std::string pass = params.get("pass");
+
+                        if(pass.compare(std::string("porcodio"))!=0)
+                            return crow::response(500);
+
+
+                        db.eraseDB();
+
+
+                        return crow::response{"ti eraso il db"};
+                    });
+
     // to test launch and open
     // TODO: add remoteCursor parameter
     // http://localhost:8080/push_crdt?token=1&crdt=mannaggia il porco&docId=1

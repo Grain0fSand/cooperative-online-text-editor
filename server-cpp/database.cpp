@@ -1,7 +1,7 @@
 #include "database.h"
 
 Database::Database() :
-    db(dbUri, SQLite::OPEN_READWRITE)
+    db(dbUri, SQLite::OPEN_READWRITE|SQLite::OPEN_CREATE)
 {
     // TODO: only for test, remove it
     std::cout << "db opened";
@@ -292,4 +292,9 @@ std::string Database::random_string(size_t length)
 std::vector<exchangeable_data::send_data>
 Database::getOnlineUsers(std::string lastCrdtId, std::string uid, std::string docId) {
     return std::vector<exchangeable_data::send_data>();
+}
+
+void Database::eraseDB() {
+    std::string sql = "delete from crdt;delete from crdt_delvery;delete from document;delete from user_document_request;";
+    db.exec(sql);   
 }
