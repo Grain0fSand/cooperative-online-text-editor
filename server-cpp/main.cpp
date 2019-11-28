@@ -54,7 +54,7 @@ int main() {
                     sanitize(email);
                     sanitize(username);
                     sanitize(password);
-                    sanitize(image);
+                    // sanitize(image); maybe sanitize can lose information, better binding
 
                     int replyCode = db.userRegistration(email,username,password,image);
 
@@ -135,7 +135,7 @@ int main() {
 
                     sanitize(token);
                     sanitize(username);
-                    sanitize(avatar);
+                    // sanitize(avatar); maybe lose information, better binding
                     sanitize(password);
 
                     int dbReply = db.updateUserData(token,username,avatar,password);
@@ -164,7 +164,7 @@ int main() {
                         sanitize(token);
                         sanitize(lastcrdt);
                         sanitize(docId);
-                        sanitize(remoteCursor);
+                        // sanitize(remoteCursor); the remote cursor is an json value so it must not be sanitized
 
                         int idUser = db.userLogged(token);
 
@@ -204,7 +204,7 @@ int main() {
                         std::string docId = params.get("docId");
 
                         sanitize(uid);
-                        sanitize(crdt);
+                        // sanitize(crdt); nb: crdt can contain all the charapters, so it must not be sanitized!!!!
                         sanitize(docId);
 
                         int idUser = db.userLogged(uid);
