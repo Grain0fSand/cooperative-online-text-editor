@@ -106,7 +106,8 @@ void OnlineSender::pushCrdtRequest()
     params += "&";
     params += "docId=" + QString::fromStdString(docId);
 
-    std::cout << (location+request+params).toStdString() << std::endl;
+    std::cout << "the url sended: " << (location+request+params).toStdString() << std::endl;
+    std::cout << "the encoded non base64 version of the crdt: " << json_to_send << std::endl;
     exit(0);
 
     url.setUrl(location+request+params);
