@@ -79,6 +79,7 @@ void MyTextEdit::doReceivedAction(const Action& action, const std::vector<int>& 
                 break;
             case Insertion: {
                 this->hiddenCursor->insertText(action.getChars());
+                this->hiddenCursor->setPosition(all_pos[ptr_start]);
                 this->hiddenCursor->movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, action.getChars().size());
                 QTextCharFormat format;
 
@@ -90,40 +91,40 @@ void MyTextEdit::doReceivedAction(const Action& action, const std::vector<int>& 
                 this->hiddenCursor->setCharFormat(format);
 
                 //this is because only first paragraph gets block alignment when copying multiple paragraphs
-                std::string st = action.getChars().toStdString();
-                unsigned int i;
-                for (i = 0; i < st.size(); ++i) {
-                    if (st[i] == '\n')
-                        break;
-                }
-                this->hiddenCursor->movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, all_pos[ptr_start] + i + 1);
-                QTextBlockFormat bFormat;
-                switch(action.getBlockFormat())
-                {
-                    case NoBlockFormatType:
-                        qDebug()  << "Invalid block formatting to do";
-                        break;
-                    case AlignLeft:
-                        bFormat.setAlignment(Qt::AlignLeft);
-                        break;
-                    case AlignCenter:
-                        bFormat.setAlignment(Qt::AlignCenter);
-                        break;
-                    case AlignRight:
-                        bFormat.setAlignment(Qt::AlignRight);
-                        break;
-                    case AlignJustify:
-                        bFormat.setAlignment(Qt::AlignJustify);
-                        break;
-                }
-                this->hiddenCursor->setBlockFormat(bFormat);
-                if (i != st.size()) {
-                    this->hiddenCursor->setPosition(all_pos[ptr_start] + i + 1);
-                    this->hiddenCursor->movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, st.size() - i);
-                    QTextBlockFormat bFormat;
-                    bFormat.setAlignment(Qt::AlignLeft);
-                    this->hiddenCursor->setBlockFormat(bFormat);
-                }
+//                std::string st = action.getChars().toStdString();
+//                unsigned int i;
+//                for (i = 0; i < st.size(); ++i) {
+//                    if (st[i] == '\n')
+//                        break;
+//                }
+//                this->hiddenCursor->movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, all_pos[ptr_start] + i + 1);
+//                QTextBlockFormat bFormat;
+//                switch(action.getBlockFormat())
+//                {
+//                    case NoBlockFormatType:
+//                        qDebug()  << "Invalid block formatting to do";
+//                        break;
+//                    case AlignLeft:
+//                        bFormat.setAlignment(Qt::AlignLeft);
+//                        break;
+//                    case AlignCenter:
+//                        bFormat.setAlignment(Qt::AlignCenter);
+//                        break;
+//                    case AlignRight:
+//                        bFormat.setAlignment(Qt::AlignRight);
+//                        break;
+//                    case AlignJustify:
+//                        bFormat.setAlignment(Qt::AlignJustify);
+//                        break;
+//                }
+//                this->hiddenCursor->setBlockFormat(bFormat);
+//                if (i != st.size()) {
+//                    this->hiddenCursor->setPosition(all_pos[ptr_start] + i + 1);
+//                    this->hiddenCursor->movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, st.size() - i);
+//                    QTextBlockFormat bFormat;
+//                    bFormat.setAlignment(Qt::AlignLeft);
+//                    this->hiddenCursor->setBlockFormat(bFormat);
+//                }
                 break;
             }
             case BlockFormatting:

@@ -112,7 +112,6 @@ public:
         ActionType type = a.getActionType();
         j.push_back(type);
 
-
         switch(type) {
             case Insertion:
                 j.push_back(a.getChars().toUtf8().constData());
