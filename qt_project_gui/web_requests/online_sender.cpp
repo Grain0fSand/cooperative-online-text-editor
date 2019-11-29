@@ -4,6 +4,7 @@
 #include "online_sender.h"
 #include <QTimer>
 #include <QtCore/QBuffer>
+#include <QtCore/QUrlQuery>
 
 #define IP_ADDRESS "47.53.242.167"
 #define PORT "6969"
@@ -92,9 +93,6 @@ void OnlineSender::pushCrdtRequest()
     QString port = PORT;
     QString location = "http://" + ip_address + ":" + PORT + "/";
     QString request = "push_crdt";
-    QString params = "?";
-    params += "token=" + QString::fromStdString(token);
-    params += "&";
 
     // TODO: check correctness
     QBuffer buffer;
@@ -102,17 +100,20 @@ void OnlineSender::pushCrdtRequest()
     buffer.write(json_to_send.c_str());
     QString encodedCrdt = buffer.data().toBase64(QByteArray::Base64UrlEncoding);
 
-    params += "crdt=" + encodedCrdt;
-    params += "&";
-    params += "docId=" + QString::fromStdString(docId);
-
-    std::cout << "the url sended: " << (location+request+params).toStdString() << std::endl;
+    std::cout << "the url sended: " << (location+request).toStdString() << std::endl;
     std::cout << "the encoded non base64 version of the crdt: " << json_to_send << std::endl;
-    exit(0);
 
-    url.setUrl(location+request+params);
+    url.setUrl(location+request);
     req.setUrl(url);
-    manager.get(req);
+    // TODO: check if this do problems with lengths
+    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+    QUrlQuery params;
+
+    params.addQueryItem("token",QString::fromStdString(token));
+    params.addQueryItem("crdt",encodedCrdt);
+    params.addQueryItem("docId",QString::fromStdString(docId));
+
+    manager.post(req,params.query().toUtf8()); // QUrl::FullyEncoded
 }
 
 void OnlineSender::tryRegistrationRequest()

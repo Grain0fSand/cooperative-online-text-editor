@@ -104,3 +104,4 @@ void OnlineQuery::checkReply(QNetworkReply *reply) {
     // TODO: remove comment here
     //emit response_arrived(answer);
 }
+

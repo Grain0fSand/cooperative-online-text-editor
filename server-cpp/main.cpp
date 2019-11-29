@@ -1,12 +1,42 @@
 #include <nlohmann/json.hpp>
 #include "database.h"
 #include "crow_all.h"
+#include <algorithm>
 
 std::string Database::dbUri = "../pds.db";
 
 /*
  * function to prevent input to be dangerous for the db
  */
+
+std::vector<std::string> split(const std::string& s, char delimiter)
+{
+    std::vector<std::string> tokens;
+    std::string token;
+    std::istringstream tokenStream(s);
+    while (std::getline(tokenStream, token, delimiter))
+    {
+        tokens.push_back(token);
+    }
+    return tokens;
+}
+
+
+void str_replace(std::string & data, std::string toSearch, std::string replaceStr)
+{
+    // Get the first occurrence
+    size_t pos = data.find(toSearch);
+
+    // Repeat till end is reached
+    while( pos != std::string::npos)
+    {
+        // Replace this occurrence of Sub String
+        data.replace(pos, toSearch.size(), replaceStr);
+        // Get the next occurrence from the current position
+        pos =data.find(toSearch, pos + replaceStr.size());
+    }
+}
+
 void sanitize(std::string &stringValue)
 {
     // Add backslashes.
@@ -212,17 +242,24 @@ int main() {
     // TODO: add remoteCursor parameter
     // http://localhost:8080/push_crdt?token=1&crdt=mannaggia il porco&docId=1
     CROW_ROUTE(app,"/push_crdt")
-            .methods("GET"_method)
+            .methods("POST"_method)
                     ([&](const crow::request& req){
-                        auto params = req.url_params;
+                        std::string all_params = req.body;
+                        std::vector<std::string> params = split(all_params,'&');
+                        std::unordered_map<std::string, std::string> parameters;
 
-                        if(params.get("token") == nullptr || params.get("crdt") == nullptr
-                           || params.get("docId") == nullptr)
+                        for(auto it = std::begin(params);it != std::end(params);it++){
+                            std::vector<std::string> param = split(*it,'=');
+                            parameters[param[0]] = param[1];
+                        }
+
+                        if(!(parameters.find(std::string("token")) != parameters.end() && parameters.find("crdt")!=parameters.end() && parameters.find("docId") != parameters.end()))
                             return crow::response(500);
 
-                        std::string uid = params.get("token");
-                        std::string crdt = params.get("crdt");
-                        std::string docId = params.get("docId");
+                        std::string uid = parameters["token"];
+                        std::string crdt = parameters["crdt"];
+                        str_replace(crdt,"%3D","=");
+                        std::string docId = parameters["docId"];
 
                         sanitize(uid);
                         // sanitize(crdt); nb: crdt can contain all the charapters, so it must not be sanitized!!!!
@@ -262,3 +299,4 @@ int main() {
     INSERT INTO crdt(idDoc,idUser,crdt_json)  VALUES(NULL,1,'crdt_json')
     insert into crdt_delvery(idCrdt,idUser,idDocument) values(1,1,1)
  */
+
