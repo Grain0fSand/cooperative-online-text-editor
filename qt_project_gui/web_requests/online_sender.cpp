@@ -4,7 +4,7 @@
 #include "online_sender.h"
 #include <QTimer>
 
-#define IP_ADDRESS "localhost"
+#define IP_ADDRESS "47.53.242.167"
 #define PORT "6969"
 
 OnlineSender::OnlineSender(std::string json_to_send,std::string docId,std::string token) :

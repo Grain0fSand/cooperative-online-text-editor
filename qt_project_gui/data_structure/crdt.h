@@ -16,6 +16,8 @@ class Crdt : public QObject {
     int usr_id;
     unsigned int op = 0; //incremental counter
     std::queue<ActionWrapper> action_queue;
+    // for managing the non monotonicity problem in the messages
+    std::vector<ActionWrapper> action_unresolved;
 
     Crdt() {}
     Crdt& operator=(const Crdt&) = delete;

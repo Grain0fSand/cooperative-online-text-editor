@@ -1,7 +1,7 @@
 #include "online_query.h"
 #include <thread>
 
-#define IP_ADDRESS "localhost"
+#define IP_ADDRESS "47.53.242.167"
 #define PORT "6969"
 
 OnlineQuery::OnlineQuery(std::string docId,std::string token,QObject* m) :

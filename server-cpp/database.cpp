@@ -296,5 +296,5 @@ Database::getOnlineUsers(std::string lastCrdtId, std::string uid, std::string do
 
 void Database::eraseDB() {
     std::string sql = "delete from crdt;delete from crdt_delvery;delete from document;delete from user_document_request;";
-    db.exec(sql);   
+    db.exec(sql);
 }

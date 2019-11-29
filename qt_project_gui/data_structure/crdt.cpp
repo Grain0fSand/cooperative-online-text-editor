@@ -5,13 +5,37 @@
 #include "../forms/mainwindow.h"
 #include <thread>
 #include "exchangeable.h"
+#include <exception>
 
-std::pair<int,int> Crdt::findRelativePosition(int left_pos) {
+
+
+class CrdtMonotonicityException : public std::exception
+{
+private:
+    std::string message;
+    ActionWrapper actionWrapper;
+
+public:
+    CrdtMonotonicityException(std::string message,ActionWrapper& actionWrapper) :
+    actionWrapper(actionWrapper),message(message)
+    {}
+
+    ActionWrapper& getActionWrapper(){
+        return actionWrapper;
+    }
+
+    const char* what () const throw ()
+    {
+        return message.c_str();
+    }
+};
+
+std::pair<int, int> Crdt::findRelativePosition(int left_pos) {
     int cmp = 0;
-    std::pair<int,int> left_sym = list.front().getSymbolId();   // block start tombstone
+    std::pair<int, int> left_sym = list.front().getSymbolId();   // block start tombstone
 
     //find left side symbol
-    for(auto cc : list) {
+    for (auto cc : list) {
         if (cmp == left_pos)
             break;
 
@@ -27,7 +51,8 @@ std::pair<int,int> Crdt::findRelativePosition(int left_pos) {
 }
 
 
-void Crdt::symbolInsertion(const std::pair<int,int>& left_sym, int n, const std::pair<int,int>& symbol, const QString chars) {
+void Crdt::symbolInsertion(const std::pair<int, int> &left_sym, int n, const std::pair<int, int> &symbol,
+                           const QString chars) {
     auto it = list.begin();
     //insert in relative position
     while (it != list.end()) {
@@ -50,11 +75,11 @@ void Crdt::symbolInsertion(const std::pair<int,int>& left_sym, int n, const std:
 }
 
 //delete done by client
-std::vector<std::pair<int,int>> Crdt::symbolDeletion(int n, const std::pair<int,int>& first_symbol) {
+std::vector<std::pair<int, int>> Crdt::symbolDeletion(int n, const std::pair<int, int> &first_symbol) {
     auto it = list.begin();
-    std::vector<std::pair<int,int>> ret;
+    std::vector<std::pair<int, int>> ret;
 
-    while(it != list.end()) {
+    while (it != list.end()) {
         // if first symbol found delete string and break
         if (it->getSymbolId() == first_symbol) {
             while (n-- > 0) {
@@ -70,9 +95,9 @@ std::vector<std::pair<int,int>> Crdt::symbolDeletion(int n, const std::pair<int,
 }
 
 //formatting done by client
-std::vector<std::pair<int,int>> Crdt::textFormatting(int n, const std::pair<int,int>& first_symbol, int select) {
+std::vector<std::pair<int, int>> Crdt::textFormatting(int n, const std::pair<int, int> &first_symbol, int select) {
     auto it = list.begin();
-    std::vector<std::pair<int,int>> ret;
+    std::vector<std::pair<int, int>> ret;
 
     while (it != list.end()) {
 
@@ -96,9 +121,9 @@ std::vector<std::pair<int,int>> Crdt::textFormatting(int n, const std::pair<int,
 }
 
 //block formatting done by client
-std::vector<std::pair<int,int>> Crdt::blockFormatting(int n, const std::pair<int,int>& first_symbol) {
+std::vector<std::pair<int, int>> Crdt::blockFormatting(int n, const std::pair<int, int> &first_symbol) {
     auto it = list.begin();
-    std::vector<std::pair<int,int>> ret;
+    std::vector<std::pair<int, int>> ret;
     int last_block_starter;
 
     while (it != list.end()) {
@@ -130,10 +155,10 @@ std::vector<std::pair<int,int>> Crdt::blockFormatting(int n, const std::pair<int
 
 
 //called by text editor
-void Crdt::sendActionToServer(Action& action, int cursorPos, int numChars) {
-    std::pair<int,int> rel_symbol = findRelativePosition(cursorPos);
+void Crdt::sendActionToServer(Action &action, int cursorPos, int numChars) {
+    std::pair<int, int> rel_symbol = findRelativePosition(cursorPos);
 
-    std::pair<int,int> symbol(++op, usr_id);
+    std::pair<int, int> symbol(++op, usr_id);
     ActionWrapper action_wrapper(action);  //to send to json serializer
 
     switch (action.getActionType()) {
@@ -164,7 +189,7 @@ void Crdt::sendActionToServer(Action& action, int cursorPos, int numChars) {
     auto token = MainWindow::getInstance().sessionData.token;
 
     // no need to free: https://stackoverflow.com/questions/26714492/how-to-release-memory-of-qthread-object
-    QThread* sender = new OnlineSender(str.dump(),docId,token);
+    QThread *sender = new OnlineSender(str.dump(), docId, token);
     sender->start();
 //    std::cout << str;
 
@@ -175,7 +200,8 @@ void Crdt::sendActionToServer(Action& action, int cursorPos, int numChars) {
 //    }
 }
 
-std::vector<int> Crdt::symbolInsertionExt(const std::pair<int,int>& left_sym, int n, const std::pair<int,int>& symbol, const QString chars) {
+std::vector<int> Crdt::symbolInsertionExt(const std::pair<int, int> &left_sym, int n, const std::pair<int, int> &symbol,
+                                          const QString chars) {
     auto it = list.begin();
     int j = -1;
 
@@ -214,27 +240,28 @@ std::vector<int> Crdt::symbolInsertionExt(const std::pair<int,int>& left_sym, in
 }
 
 //delete done by server
-std::vector<int> Crdt::symbolDeletionExt(const std::vector<std::pair<int,int>>& symbol) {
+std::vector<int> Crdt::symbolDeletionExt(const std::vector<std::pair<int, int>> &symbol) {
     auto it = list.begin();
     auto del_it = symbol.begin();  //symbols to delete
     int i = 0;
     std::vector<int> ret;
-    while(it != list.end() && del_it != symbol.end()) {
+    while (it != list.end() && del_it != symbol.end()) {
         if (it->getSymbolId() == *del_it) {
             ++del_it;
             if (!it->is_hidden()) {
-                ret.push_back(i-1);  //get absolute position
+                ret.push_back(i - 1);  //get absolute position
                 it->hide();
             }
         }
         ++it;
         if (!it->is_hidden())
-             ++i;
+            ++i;
     }
     return ret;
 }
 
-std::vector<int> Crdt::formattingExt(const std::pair<int,int>& rel_symbol, const std::vector<std::pair<int,int>>& symbol, int select) {
+std::vector<int>
+Crdt::formattingExt(const std::pair<int, int> &rel_symbol, const std::vector<std::pair<int, int>> &symbol, int select) {
     auto it = list.begin();
     auto form_it = symbol.begin();
     std::vector<int> ret;
@@ -245,7 +272,7 @@ std::vector<int> Crdt::formattingExt(const std::pair<int,int>& rel_symbol, const
             ++form_it;
             //version
             if (it->compareVersion(rel_symbol.first, rel_symbol.second, select)) {
-                ret.push_back(i-1);  //get absolute position
+                ret.push_back(i - 1);  //get absolute position
                 it->setVersion(rel_symbol.first, rel_symbol.second, select);
             }
         }
@@ -256,30 +283,50 @@ std::vector<int> Crdt::formattingExt(const std::pair<int,int>& rel_symbol, const
     return ret;
 }
 
-void Crdt::update_income(std::vector<ActionWrapper> actions){
-    for(ActionWrapper action_wrapper : actions) {
-        Action& action = action_wrapper.action;
+void Crdt::update_income(std::vector<ActionWrapper> actions) {
+
+    for(ActionWrapper actionWrapper : action_unresolved){
+        actions.push_back(actionWrapper);
+    }
+
+    // now the cycle continue again, the action_unresolved are clear and
+    // after if are not already resolved are filled again
+    action_unresolved.clear();
+
+    // solving the monoticity problem!!!!!
+    std::sort(std::begin(actions),std::end(actions));
+
+    for (ActionWrapper action_wrapper : actions) {
+
+        Action &action = action_wrapper.action;
         std::vector<int> all_pos;
-        switch (action.getActionType()) {
-            case Insertion:
-                all_pos = symbolInsertionExt(action_wrapper.rel_symbol, action.getChars().size(),
-                                             action_wrapper.symbol.front(), action.getChars());
-                op += action.getChars().size();
-                break;
-            case Deletion:
-                all_pos = symbolDeletionExt(action_wrapper.symbol);
-                ++op;
-                break;
-            case TextFormatting:
-            case BlockFormatting:
-                all_pos = formattingExt(action_wrapper.rel_symbol, action_wrapper.symbol, action.getSelection());
-                ++op;
-                break;
-            default:
-                break;
+        try {
+            switch (action.getActionType()) {
+                case Insertion:
+                    all_pos = symbolInsertionExt(action_wrapper.rel_symbol, action.getChars().size(),
+                                                 action_wrapper.symbol.front(), action.getChars());
+                    op += action.getChars().size();
+                    break;
+                case Deletion:
+                    all_pos = symbolDeletionExt(action_wrapper.symbol);
+                    ++op;
+                    break;
+                case TextFormatting:
+                case BlockFormatting:
+                    all_pos = formattingExt(action_wrapper.rel_symbol, action_wrapper.symbol,
+                                            action.getSelection());
+                    ++op;
+                    break;
+                default:
+                    break;
+            }
+            if (!all_pos.empty())
+                MyTextEdit::getInstance().doReceivedAction(action, all_pos);
+        } catch (...) {
+            // TODO: leave here for debugging purpose until the last control to understand why that error is happened
+            std::cout << "DEBUG: cannot insert symbol " << action_wrapper.get_json() << std::endl;
+            action_unresolved.push_back(action_wrapper);
         }
-        if (!all_pos.empty())
-            MyTextEdit::getInstance().doReceivedAction(action, all_pos);
     }
 //    for (SymbolId s : list)
 //        std::cout << s.getIncId() << s.getUsrId() << s.is_hidden() << ' ';
