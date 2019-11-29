@@ -228,6 +228,8 @@ int main() {
                         // sanitize(crdt); nb: crdt can contain all the charapters, so it must not be sanitized!!!!
                         sanitize(docId);
 
+                        std::cout << crdt << std::endl;
+
                         int idUser = db.userLogged(uid);
                         if(idUser<0)
                             return crow::response(403);

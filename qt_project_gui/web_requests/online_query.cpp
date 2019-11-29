@@ -78,6 +78,7 @@ void OnlineQuery::checkReply(QNetworkReply *reply) {
         }
     }
 
+
     std::vector<ActionWrapper> actions;
 
     for(exchangeable_data::send_data act : array){

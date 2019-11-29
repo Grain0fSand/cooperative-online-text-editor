@@ -94,9 +94,12 @@ void OnlineSender::pushCrdtRequest()
     QString params = "?";
     params += "token=" + QString::fromStdString(token);
     params += "&";
-    params += "crdt=" + QString::fromStdString(json_to_send);
+    params += "crdt=" + QUrl::toPercentEncoding(QString::fromStdString(json_to_send));
     params += "&";
     params += "docId=" + QString::fromStdString(docId);
+
+    std::cout << (location+request+params).toStdString() << std::endl;
+    exit(0);
 
     url.setUrl(location+request+params);
     req.setUrl(url);
