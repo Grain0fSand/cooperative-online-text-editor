@@ -3,6 +3,7 @@
 #include <forms/loginwindow.h>
 #include "online_sender.h"
 #include <QTimer>
+#include <QtCore/QBuffer>
 
 #define IP_ADDRESS "47.53.242.167"
 #define PORT "6969"
@@ -94,11 +95,19 @@ void OnlineSender::pushCrdtRequest()
     QString params = "?";
     params += "token=" + QString::fromStdString(token);
     params += "&";
-    params += "crdt=" + QUrl::toPercentEncoding(QString::fromStdString(json_to_send));
+
+    // TODO: check correctness
+    QBuffer buffer;
+    buffer.open(QBuffer::ReadWrite);
+    buffer.write(json_to_send.c_str());
+    QString encodedCrdt = buffer.data().toBase64(QByteArray::Base64UrlEncoding);
+
+    params += "crdt=" + encodedCrdt;
     params += "&";
     params += "docId=" + QString::fromStdString(docId);
 
-    std::cout << (location+request+params).toStdString() << std::endl;
+    std::cout << "the url sended: " << (location+request+params).toStdString() << std::endl;
+    std::cout << "the encoded non base64 version of the crdt: " << json_to_send << std::endl;
     exit(0);
 
     url.setUrl(location+request+params);

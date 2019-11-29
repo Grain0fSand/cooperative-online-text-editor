@@ -22,9 +22,7 @@ MyTextEdit::MyTextEdit(QWidget *parent)
 }
 
 //TODO: check delete hiddenCursor
-MyTextEdit::~MyTextEdit() {
-   // delete hiddenCursor;
-}
+MyTextEdit::~MyTextEdit() {}
 
 void MyTextEdit::paintEvent(QPaintEvent *e) {
 

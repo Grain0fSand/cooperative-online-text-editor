@@ -1,5 +1,6 @@
 #include "online_query.h"
 #include <thread>
+#include <QtCore/QBuffer>
 
 #define IP_ADDRESS "47.53.242.167"
 #define PORT "6969"
@@ -83,9 +84,15 @@ void OnlineQuery::checkReply(QNetworkReply *reply) {
 
     for(exchangeable_data::send_data act : array){
         ActionWrapper w;
-        ActionWrapper::action_from_json(w,json::parse(act.crdt));
+        std::string json_str = act.crdt;
+        QString qjson_str = QString::fromStdString(json_str);
+
+        QString decodedCrdt = QByteArray::fromBase64(qjson_str.toUtf8(),QByteArray::Base64UrlEncoding);
+
+        ActionWrapper::action_from_json(w,json::parse(decodedCrdt.toStdString()));
         actions.push_back(w);
     }
+
     for (auto t : actions)
         if(t.action.getActionType() == Insertion)
             qDebug() << t.action.getChars().toUtf8();
