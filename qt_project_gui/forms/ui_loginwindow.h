@@ -332,7 +332,7 @@ public:
         loggedAvatar->setScaledContents(true);
         loggedUsernameLabel = new QLabel(formFrame);
         loggedUsernameLabel->setObjectName(QString::fromUtf8("loggedUsernameLabel"));
-        loggedUsernameLabel->setGeometry(QRect(110, 210, 151, 41));
+        loggedUsernameLabel->setGeometry(QRect(110, 212, 151, 39));
         QFont font5;
         font5.setFamily(QString::fromUtf8("Verdana"));
         font5.setPointSize(14);

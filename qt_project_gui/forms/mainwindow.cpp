@@ -64,6 +64,11 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionAlignRight,&QAction::triggered,this,&MainWindow::alignRight);
     connect(ui->actionAlignJustify,&QAction::triggered,this,&MainWindow::alignJustify);
 
+    connect(ui->textEditShared->document(),&QTextDocument::contentsChange,this,[&](){
+        //for debbuging on text modifications
+
+
+    });
     connect(ui->textEditShared->document(),&QTextDocument::contentsChange,this,&MainWindow::textChanged);
     connect(ui->textEditShared,&QTextEdit::cursorPositionChanged,this,&MainWindow::checkTextProperty);
     connect(this,&MainWindow::setComboSize,comboSize,&QComboBox::setCurrentIndex);
@@ -286,50 +291,55 @@ void MainWindow::makeUnderline()
 
 //TODO: create multiple actions when copy pasting text with different styles
 void MainWindow::textChanged(int pos, int nDel, int nIns) {
-    qDebug() << "pos: " << pos << " dels: " << nDel << " inss: "<< nIns;
-    if(nDel==0) {  //insertion
-        QString str = ui->textEditShared->document()->toPlainText().mid(pos, nIns);
+    if(!ui->textEditShared->textCursor().hasSelection()) {
+        qDebug() << "pos: " << pos << " dels: " << nDel << " inss: "<< nIns;
+
+        if (nDel>0) { //deletion
+            Action action;
+            Crdt::getInstance().sendActionToServer(action, pos + 1, nDel);
+        }
+
+        if (nIns>0) { //insertion
+            QString str = ui->textEditShared->document()->toPlainText().mid(pos, nIns);
 //        for(int i=0; i<nIns; i++) {
 //            str += ui->textEditShared->document()->characterAt(pos+i);
 //        }
 //        qDebug() << str;
 
-        //check all properties of inserted chars
-        auto text_cursor = ui->textEditShared->textCursor();
-        auto format = text_cursor.charFormat();
-        auto font = format.font();
+            //check all properties of inserted chars
+            auto text_cursor = ui->textEditShared->textCursor();
+            auto format = text_cursor.charFormat();
+            auto font = format.font();
 
-        QString fontSize = QString::number(font.pointSize());
-        int sizeIndex = ui->textEditShared->getFontSizes().indexOf(fontSize);
-        int familyIndex = ui->textEditShared->getFontFamilies().indexOf(font.family());
-        setComboSize(sizeIndex);
+            QString fontSize = QString::number(font.pointSize());
+            int sizeIndex = ui->textEditShared->getFontSizes().indexOf(fontSize);
+            int familyIndex = ui->textEditShared->getFontFamilies().indexOf(font.family());
+            setComboSize(sizeIndex);
 
-        bool bold = font.bold();
-        bool italic = font.italic();
-        bool underlined = font.underline();
+            bool bold = font.bold();
+            bool italic = font.italic();
+            bool underlined = font.underline();
 
-        BlockFormatType blockFormatType;
-        QTextBlockFormat blockFormat = text_cursor.blockFormat();
-        Qt::Alignment alignment = blockFormat.alignment();
-        if (alignment == Qt::AlignLeft)
-            blockFormatType = AlignLeft;
-        else if (alignment == Qt::AlignCenter)
+            BlockFormatType blockFormatType;
+            QTextBlockFormat blockFormat = text_cursor.blockFormat();
+            Qt::Alignment alignment = blockFormat.alignment();
+            if (alignment == Qt::AlignLeft)
+                blockFormatType = AlignLeft;
+            else if (alignment == Qt::AlignCenter)
                 blockFormatType = AlignCenter;
-        else if (alignment == Qt::AlignRight)
-             blockFormatType = AlignRight;
-        else if (alignment == Qt::AlignJustify)
-             blockFormatType = AlignJustify;
+            else if (alignment == Qt::AlignRight)
+                blockFormatType = AlignRight;
+            else if (alignment == Qt::AlignJustify)
+                blockFormatType = AlignJustify;
 
 //  this is for copying multiple blocks
 //        for (int i = 0; i < str.size())
 
 
-        Action action(str, familyIndex, sizeIndex, bold, italic, underlined, blockFormatType);
-        Crdt::getInstance().sendActionToServer(action, pos, nIns);
+            Action action(str, familyIndex, sizeIndex, bold, italic, underlined, blockFormatType);
+            Crdt::getInstance().sendActionToServer(action, pos, nIns);
 
-    } else if (nIns==0) { //deletion
-        Action action;
-        Crdt::getInstance().sendActionToServer(action, pos + 1, nDel);
+        }
     }
 }
 
