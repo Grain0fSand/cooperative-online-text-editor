@@ -160,7 +160,7 @@ public:
         loginErrorLabel->setAlignment(Qt::AlignCenter);
         loginText = new QPushButton(formFrame);
         loginText->setObjectName(QString::fromUtf8("loginText"));
-        loginText->setGeometry(QRect(385, 436, 191, 24));
+        loginText->setGeometry(QRect(375, 436, 211, 24));
         QFont font3;
         font3.setFamily(QString::fromUtf8("Myanmar Text"));
         font3.setPointSize(11);

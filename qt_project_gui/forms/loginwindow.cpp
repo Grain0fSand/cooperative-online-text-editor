@@ -238,24 +238,29 @@ void LoginWindow::changeYourPassword()
 void LoginWindow::createDocument()
 {
     QInputDialog dialog(this);
+    QMessageBox advice(this);
     dialog.setLabelText("Insert new document name:");
 
     while(true) {
         if(dialog.exec()==QDialog::Accepted) {
             if(dialog.textValue()=="") {
-                QMessageBox advice(this);
                 advice.setText("Document name field empty!\nEnter a valid one");
-                advice.setIcon(QMessageBox::Critical);
-                advice.exec();
             } else {
-                this->sessionData.docName = dialog.textValue().toStdString();
+                if(this->docsList.contains(dialog.textValue())) {
+                    advice.setText("A document with this name already exists!\nPlease enter another one.");
+                }
+                else {
+                    this->sessionData.docName = dialog.textValue().toStdString();
 
-                QThread* sender = new OnlineSender(this->sessionData.token, this->sessionData.docName);
-                sender->start();
-                break;
+                    QThread* sender = new OnlineSender(this->sessionData.token, this->sessionData.docName);
+                    sender->start();
+                    break;
+                }
             }
+            advice.setIcon(QMessageBox::Critical);
+            advice.exec();
         }
-        else return;
+        else break;
     }
 }
 
@@ -290,7 +295,9 @@ void LoginWindow::openDocument()
     docListView->setCurrentIndex(fakeIndex);
 
     connect(docListView,&QAbstractItemView::doubleClicked,this,[&](){
-        QThread* sender = new OnlineSender(this->sessionData.token, docListView->currentIndex().data(Qt::DisplayRole).toString());
+        QString docName = docListView->currentIndex().data(Qt::DisplayRole).toString();
+        this->sessionData.docName = docName.toStdString();
+        QThread* sender = new OnlineSender(this->sessionData.token, docName);
         sender->start();
 
         docListDialog->close();
@@ -304,8 +311,9 @@ void LoginWindow::openDocument()
             advice.exec();
         }
         else {
-
-            QThread* sender = new OnlineSender(this->sessionData.token, docListView->currentIndex().data(Qt::DisplayRole).toString());
+            QString docName = docListView->currentIndex().data(Qt::DisplayRole).toString();
+            this->sessionData.docName = docName.toStdString();
+            QThread* sender = new OnlineSender(this->sessionData.token, docName);
             sender->start();
 
             docListDialog->close();
@@ -321,19 +329,37 @@ void LoginWindow::openDocument()
 void LoginWindow::requestURI()
 {
     QInputDialog dialog(this);
+    QMessageBox advice(this);
+
     dialog.setLabelText("Paste the URI here:");
     dialog.setModal(true);
     while(true) {
-        if(dialog.exec()==QDialog::Accepted && dialog.textValue()=="") {
-            QMessageBox advice(this);
-            advice.setText("URI field empty!\nEnter a valid URI");
+        if(dialog.exec()==QDialog::Accepted) {
+            if(dialog.textValue()=="") {
+                advice.setText("URI field is empty!\nEnter a valid URI.");
+            }
+            else {
+                QString uriToValidate = dialog.textValue();
+                bool isValid = uriToValidate.startsWith("ftp://simulpad.archive/document#");
+                if(isValid) {
+                    QString docBase64 = uriToValidate.split("#").at(1);
+                    QString docName = QByteArray::fromBase64(docBase64.toLocal8Bit());
+                    if(this->docsList.contains(docName)) {
+                        QThread* sender = new OnlineSender(this->sessionData.token, docName);
+                        sender->start();
+                        break;
+                    } else {
+                        advice.setText("This URI not exists or is expired!\nEnter a valid one.");
+                    }
+                }
+                else {
+                    advice.setText("URI format is not correct!\nEnter a valid URI.");
+                }
+            }
             advice.setIcon(QMessageBox::Critical);
             advice.exec();
         }
-        else {
-            qDebug() << "open document from URI";
-            break;
-        }
+        else break;
     }
 }
 

@@ -66,13 +66,14 @@ public:
     void collaborativeURI_Copied();
     void collaborativeURI_Pasted();
     bool eventFilter(QObject *obj,QEvent* event);
-    void sendInvitationEmail(QString destEmailAddress);
+    void sendInvitationEmail(QString docName, QString destEmailAddress);
     void setupFontComboBoxes(QComboBox *comboSize, QComboBox *comboFamily);
     void setupStatusBar();
     void getSessionDataFromLogin();
 
 public slots:
     void update_id(std::string id);
+    void exitFromEditor();
     void exportPDF();
     void selectFont(int);
     void selectSize(int);

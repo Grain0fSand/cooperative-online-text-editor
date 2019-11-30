@@ -225,9 +225,9 @@ border-color: #00559B;
    <widget class="QPushButton" name="loginText">
     <property name="geometry">
      <rect>
-      <x>385</x>
+      <x>375</x>
       <y>436</y>
-      <width>191</width>
+      <width>211</width>
       <height>24</height>
      </rect>
     </property>

@@ -68,6 +68,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->textEditShared,&QTextEdit::cursorPositionChanged,this,&MainWindow::checkTextProperty);
     connect(this,&MainWindow::setComboSize,comboSize,&QComboBox::setCurrentIndex);
     connect(this,&MainWindow::setComboFont,comboFamily,&QComboBox::setCurrentIndex);
+    connect(ui->actionExit,&QAction::triggered,this,&MainWindow::exitFromEditor);
     connect(ui->actionExport_to_PDF,&QAction::triggered,this,&MainWindow::exportPDF);
     connect(ui->actionInvite,&QAction::triggered,this,&MainWindow::reqInvitationEmailAddress);
     connect(ui->actionTestCursor,&QAction::triggered,this,&MainWindow::insertRemoteCursor); //only for test
@@ -121,6 +122,13 @@ void MainWindow::populateUserTagList()
 void MainWindow::update_id(std::string id){
     if (id.compare("")!=0)
         this->sessionData.lastCrdtId = id;
+}
+
+void MainWindow::exitFromEditor() {
+    QMessageBox::StandardButton reply = QMessageBox::question(this,"Exit from Simulpad","Are you sure you want to quit?");
+    if(reply == QMessageBox::Yes) {
+        this->close();
+    }
 }
 
 void MainWindow::exportPDF()
@@ -278,7 +286,7 @@ void MainWindow::makeUnderline()
 
 //TODO: create multiple actions when copy pasting text with different styles
 void MainWindow::textChanged(int pos, int nDel, int nIns) {
-
+    qDebug() << "pos: " << pos << " dels: " << nDel << " inss: "<< nIns;
     if(nDel==0) {  //insertion
         QString str = ui->textEditShared->document()->toPlainText().mid(pos, nIns);
 //        for(int i=0; i<nIns; i++) {
@@ -429,7 +437,7 @@ void MainWindow::reqInvitationEmailAddress()
                 advice.exec();
             }
             else {
-                sendInvitationEmail(dialog.textValue());
+                sendInvitationEmail(QString::fromStdString(this->sessionData.docName), dialog.textValue());
                 break;
             }
         }
@@ -504,15 +512,17 @@ void MainWindow::setupStatusBar()
     ui->statusBar->addWidget(cursorSelectionCount, 2);
 }
 
-void MainWindow::sendInvitationEmail(QString destEmailAddress)
+void MainWindow::sendInvitationEmail(QString docName, QString destEmailAddress)
 {
+    QString base64Name= docName.toLocal8Bit().toBase64(QByteArray::OmitTrailingEquals);
+
     SmtpClient smtp;
     smtp.setUser("simulpad.texteditor@gmail.com");
     smtp.setPassword("progettomalnati");
     smtp.setMailSender("simulpad.texteditor@gmail.com","SimulPad");
     smtp.setMailDestination(destEmailAddress,"no_name");
     smtp.setMailSubject("Someone invites to collaborate on SimulPad");
-    smtp.prepareMailText("Here goes the URI");
+    smtp.prepareMailText("ftp://simulpad.archive/document#"+base64Name);
 
     if(smtp.connectToHost()) {
         if(smtp.login()) {

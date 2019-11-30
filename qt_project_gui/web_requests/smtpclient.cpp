@@ -211,9 +211,9 @@ void SmtpClient::prepareMailText(QString uri)
     this->emailText = "Hey you!\n\n"
 
                       "You have been invited to collaborate in editing a document on SimulPad!\n"
-                      "In order to participate in the project insert the following URI (without quotes) in the appropriate field of the initial menu:\n\n"
+                      "In order to participate in the project insert the following URI in the appropriate field of the initial menu:\n\n"
 
-                      "\""+uri+"\"\n\n"
+                      ""+uri+"\n\n"
 
                       "Best regards\n"
                       "Simulpad Text Editor";
