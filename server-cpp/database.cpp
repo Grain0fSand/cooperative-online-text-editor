@@ -1,7 +1,7 @@
 #include "database.h"
 
 Database::Database() :
-    db(dbUri, SQLite::OPEN_READWRITE)
+    db(dbUri, SQLite::OPEN_READWRITE|SQLite::OPEN_CREATE)
 {
     // TODO: only for test, remove it
     std::cout << "db opened";
@@ -62,8 +62,11 @@ int Database::userRegistration(std::string email,std::string username,std::strin
 {
     std::string hashedPass = hashed_pass(password);
 
-    std::string sql = "INSERT INTO users(email,username,password,image) VALUES('" + email + "','" + username + "','" + hashedPass + "','" + image + "')";
+    std::string sql = "INSERT INTO users(email,username,password,image) VALUES('" + email + "','" + username + "','" + hashedPass + "',?)";
     SQLite::Statement query(db, sql);
+
+    query.bind(1,image);
+
     try {
         query.exec();
     } catch (SQLite::Exception &error) {
@@ -175,8 +178,9 @@ void Database::updateTimestamp(std::string docId,std::string uid)
 
 void Database::updateTimestamp(std::string docId,std::string uid,std::string remoteCursor)
 {
-    std::string sql = "UPDATE user_document_request SET lastReq = datetime('now','localtime'), cursor_position_json = '" + remoteCursor + "' WHERE idUser = " + uid + " AND idDocument = " + docId;
+    std::string sql = "UPDATE user_document_request SET lastReq = datetime('now','localtime'), cursor_position_json = ? WHERE idUser = " + uid + " AND idDocument = " + docId;
     SQLite::Statement query(db,sql);
+    query.bind(1,remoteCursor);
     query.exec();
 }
 
@@ -187,9 +191,10 @@ void Database::updateTimestamp(std::string docId,std::string uid,std::string rem
      */
 void Database::insertCrdt(std::string crdt_json,std::string uid,std::string docId)
 {
-    std::string sql = "INSERT INTO crdt(idDoc,idUser,crdt_json)  VALUES(" + docId + "," + uid + ",'" + crdt_json + "');";
+    std::string sql = "INSERT INTO crdt(idDoc,idUser,crdt_json)  VALUES(" + docId + "," + uid + ",?);";
 
     SQLite::Statement queryUpdate(db,sql);
+    queryUpdate.bind(1,crdt_json);
     auto res = queryUpdate.exec();
 //    int idCrdtInserted = db.getLastInsertRowid();
 //
@@ -309,4 +314,9 @@ Database::getOnlineUsers() {
 
 
     return vect;
+}
+
+void Database::eraseDB() {
+    std::string sql = "delete from crdt;delete from crdt_delvery;delete from document;delete from user_document_request;";
+    db.exec(sql);
 }

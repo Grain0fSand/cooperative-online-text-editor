@@ -312,11 +312,8 @@ void MainWindow::textChanged(int pos, int nDel, int nIns) {
         else if (alignment == Qt::AlignJustify)
              blockFormatType = AlignJustify;
 
-//        //this is because only first paragraph gets block alignment when copying multiple paragraphs
-//        QTextCursor* tmpCursor = new QTextCursor(ui->textEditShared->document());
-//        tmpCursor->setPosition(pos);
-//        tmpCursor->movePosition(QTextCursor::Right, QTextCursor::KeepAnchor,nIns);
-//        tmpCursor->setBlockFormat(blockFormat);
+//  this is for copying multiple blocks
+//        for (int i = 0; i < str.size())
 
 
         Action action(str, familyIndex, sizeIndex, bold, italic, underlined, blockFormatType);

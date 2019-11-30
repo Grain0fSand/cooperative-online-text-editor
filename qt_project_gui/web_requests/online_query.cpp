@@ -1,21 +1,19 @@
 #include "online_query.h"
 #include <thread>
+#include <QtCore/QBuffer>
 
-#define IP_ADDRESS "localhost"
+#define IP_ADDRESS "47.53.242.167"
 #define PORT "6969"
 
 OnlineQuery::OnlineQuery(std::string docId,std::string token,QObject* m) :
     docId(docId),
     token(token),
-    lastCrdtId(""),
-    continue_run(true)
+    lastCrdtId("")
 {
     // because the background thread cannot communicate with the gui thread
     connect(this,&OnlineQuery::request_time,this,&OnlineQuery::getCrdtRequest);
     connect(this,&OnlineQuery::send_actions,&Crdt::getInstance(),&Crdt::update_income);
     connect(this,SIGNAL(update_id(std::string)),m,SLOT(update_id(std::string)));
-    connect(this,SIGNAL(users_online_arrived(std::vector<exchangeable_data::user>)),
-            m,SLOT(update_online_users_and_cursors_positions(std::vector<exchangeable_data::user>)));
 
     // the QTObj must be always be manipulated only by
     // the QThread that create the obj, so all the code must be
@@ -25,7 +23,7 @@ OnlineQuery::OnlineQuery(std::string docId,std::string token,QObject* m) :
 
 void OnlineQuery::run() {
     // while loop
-    while(continue_run) {
+    while(true) {
         emit request_time();
         std::this_thread::sleep_for(std::chrono::milliseconds(800));
     }
@@ -60,7 +58,7 @@ void OnlineQuery::checkReply(QNetworkReply *reply) {
     }
 
     std::string answer = reply->readAll().toStdString();
-    json v = json::parse(answer);
+    json j = json::parse(answer);
     std::vector<exchangeable_data::send_data> array;
 
     int last = 0;
@@ -69,9 +67,6 @@ void OnlineQuery::checkReply(QNetworkReply *reply) {
         last = std::stoi(lastCrdtId);
 
     int cmp;
-
-    json j = v.at(0);
-    json users = v.at(1);
 
     for (auto& element : j) {
         exchangeable_data::send_data data;
@@ -84,35 +79,29 @@ void OnlineQuery::checkReply(QNetworkReply *reply) {
         }
     }
 
-    std::vector<exchangeable_data::user> users_decoded;
-
-    for (json& user : users){
-        exchangeable_data::user u;
-        exchangeable_data::user::from_json(u,user);
-
-        users_decoded.push_back(u);
-    }
 
     std::vector<ActionWrapper> actions;
 
-    for(exchangeable_data::send_data& act : array){
+    for(exchangeable_data::send_data act : array){
         ActionWrapper w;
-        ActionWrapper::action_from_json(w,json::parse(act.crdt));
+        std::string json_str = act.crdt;
+        QString qjson_str = QString::fromStdString(json_str);
+
+        QString decodedCrdt = QByteArray::fromBase64(qjson_str.toUtf8(),QByteArray::Base64UrlEncoding);
+
+        ActionWrapper::action_from_json(w,json::parse(decodedCrdt.toStdString()));
         actions.push_back(w);
     }
+
     for (auto t : actions)
         if(t.action.getActionType() == Insertion)
             qDebug() << t.action.getChars().toUtf8();
         else qDebug() << t.action.getActionType();
 
     emit update_id(lastCrdtId);
-    emit users_online_arrived(users_decoded);
     emit send_actions(actions);  //TODO pass reference
-    // NO! you need to check cpp move Rvalue, the performance
-    // of the copy is eigther superior than pass per reference
-    // also note that here we are at tail of function that enable
-    // the compiler to do also more magic
 
     // TODO: remove comment here
     //emit response_arrived(answer);
 }
+
