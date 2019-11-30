@@ -27,6 +27,8 @@ public:
     std::vector<exchangeable_data::send_data> getOnlineUsers(std::string lastCrdtId,std::string uid,std::string docId);
     void eraseDB();
 
+    std::vector<exchangeable_data::user> getOnlineUsers();
+
 private:
     SQLite::Database db;
     static std::string dbUri;
@@ -36,6 +38,7 @@ private:
     std::string random_string(size_t length);
 
     void updateTimestamp(std::string docId, std::string uid, std::string remoteCursor);
+
 };
 
 #endif //DATABASE_H
