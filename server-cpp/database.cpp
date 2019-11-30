@@ -290,9 +290,6 @@ std::string Database::random_string(size_t length)
     return str;
 }
 
-// NB: all the query is valid if that query excecute validly on the sqlite db
-// select datetime(),datetime((strftime('%s','now')-30),'unixepoch','localtime');
-// that query select the time now and before of 30 seconds
 std::vector<exchangeable_data::user>
 Database::getOnlineUsers() {
 
@@ -302,14 +299,14 @@ Database::getOnlineUsers() {
     SQLite::Statement query(db, sql);
     std::vector<exchangeable_data::user> vect;
 
-    while (query.executeStep()){
+    while (query.executeStep()) {
         std::string id = query.getColumn(0);
         std::string email = query.getColumn(1);
         std::string username = query.getColumn(2);
         std::string image = query.getColumn(3);
         std::string json_cursor = query.getColumn(4);
 
-        vect.push_back(exchangeable_data::user(id,email,username,image,json_cursor));
+        vect.push_back(exchangeable_data::user(id, email, username, image, json_cursor));
     }
 
 

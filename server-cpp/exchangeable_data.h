@@ -33,9 +33,9 @@ namespace exchangeable_data {
     public:
         user(){}
         user(std::string id,std::string email,std::string username,
-                std::string image,std::string lastCursorPositionJson): id(id),email(email),
-                username(username),image(image),lastCursorPositionJson(lastCursorPositionJson)
-                {}
+             std::string image,std::string lastCursorPositionJson): id(id),email(email),
+                                                                    username(username),image(image),lastCursorPositionJson(lastCursorPositionJson)
+        {}
 
         std::string id;
         std::string username;
