@@ -59,8 +59,12 @@ void OnlineQuery::checkReply(QNetworkReply *reply) {
     }
 
     std::string answer = reply->readAll().toStdString();
-    json j = json::parse(answer);
+    json crdt_onlineUsers = json::parse(answer);
+    json j = crdt_onlineUsers[0];
+    json onlineUsers = crdt_onlineUsers[1];
+
     std::vector<exchangeable_data::send_data> array;
+    std::vector<exchangeable_data::user> arrayOnlineUser;
 
     int last = 0;
 
@@ -68,6 +72,15 @@ void OnlineQuery::checkReply(QNetworkReply *reply) {
         last = std::stoi(lastCrdtId);
 
     int cmp;
+
+    for (auto& element : onlineUsers) {
+        exchangeable_data::user user;
+        exchangeable_data::user::from_json(user, element);
+        arrayOnlineUser.push_back(user);
+    }
+
+    //emit TIENIDARIOOOOOOO(arrayOnlineUser);
+
 
     for (auto& element : j) {
         exchangeable_data::send_data data;
@@ -100,9 +113,8 @@ void OnlineQuery::checkReply(QNetworkReply *reply) {
         else qDebug() << t.action.getActionType();
 
     emit update_id(lastCrdtId);
-    emit send_actions(actions);  //TODO pass reference
+    emit send_actions(actions);
 
-    // TODO: remove comment here
     //emit response_arrived(answer);
 }
 
