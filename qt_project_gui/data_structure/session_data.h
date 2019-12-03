@@ -5,12 +5,26 @@
 #ifndef TRANSLATOR_SESSION_DATA_H
 #define TRANSLATOR_SESSION_DATA_H
 
+#include "../forms/mainwindow.h"
+#include "../forms/loginwindow.h"
+#include "../forms/mytextedit.h"
+
 /*
  * this class represent all the data
  * avaiable after a webrequest
  */
+namespace Ui {
+    class SessionData;
+}
+
+class MainWindow;
+class LoginWindow;
+
 class SessionData {
+
+
 public:
+
     std::string docId;
     std::string docName;
     std::string userId;
@@ -22,6 +36,23 @@ public:
     std::vector<UserTag> usersList;
     std::map<int,QColor> userColorMap;
     bool status;
+
+    bool isLoginCorrect = false;
+    bool youWannaLogin = false;
+
+    MyTextEdit* myTextEditPointer;
+    LoginWindow* loginWindowPointer;
+    MainWindow* mainWindowPointer;
+
+    static SessionData& accessToSessionData() {
+        static SessionData instance;
+
+        return instance;
+    }
+
+private:
+    explicit SessionData() = default;
+    ~SessionData() = default;
     // TODO: add list of user
     // TODO: add list of cursor
     // TODO: add list of online user

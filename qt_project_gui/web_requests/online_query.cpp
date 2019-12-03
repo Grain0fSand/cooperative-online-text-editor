@@ -3,6 +3,7 @@
 #include <QtCore/QBuffer>
 
 #define IP_ADDRESS "47.53.242.167"
+//#define IP_ADDRESS "192.168.1.114"
 #define PORT "6969"
 
 OnlineQuery::OnlineQuery(std::string docId,std::string token,QObject* m) :

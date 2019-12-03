@@ -42,7 +42,7 @@ public:
     QAction *actionAlignLeft;
     QAction *actionAlignCenter;
     QAction *actionAlignRight;
-    QAction *actionConnect;
+    QAction *actionBack;
     QAction *actionExport_to_PDF;
     QAction *actionExit;
     QAction *actionAlignJustify;
@@ -137,8 +137,8 @@ public:
         QIcon icon9;
         icon9.addFile(QString::fromUtf8(":/resources/ic_format_align_right_36pt_2x.png"), QSize(), QIcon::Normal, QIcon::Off);
         actionAlignRight->setIcon(icon9);
-        actionConnect = new QAction(MainWindow);
-        actionConnect->setObjectName(QString::fromUtf8("actionConnect"));
+        actionBack = new QAction(MainWindow);
+        actionBack->setObjectName(QString::fromUtf8("actionBack"));
         actionExport_to_PDF = new QAction(MainWindow);
         actionExport_to_PDF->setObjectName(QString::fromUtf8("actionExport_to_PDF"));
         actionExit = new QAction(MainWindow);
@@ -184,7 +184,7 @@ public:
         docFrameLayout->setContentsMargins(11, 11, 11, 11);
         docFrameLayout->setObjectName(QString::fromUtf8("docFrameLayout"));
         docFrameLayout->setContentsMargins(0, 0, 0, 0);
-        textEditShared = &MyTextEdit::getInstance();
+        textEditShared = new MyTextEdit(docFrame);
         textEditShared->setObjectName(QString::fromUtf8("textEditShared"));
         QSizePolicy sizePolicy2(QSizePolicy::Fixed, QSizePolicy::Expanding);
         sizePolicy2.setHorizontalStretch(0);
@@ -347,9 +347,10 @@ public:
         mainToolBar->addAction(actionTestDisconnect);
         menuBar->addAction(menuMain->menuAction());
         menuBar->addAction(menuAbout->menuAction());
-        menuMain->addAction(actionConnect);
-        menuMain->addAction(actionExport_to_PDF);
         menuMain->addAction(actionInvite);
+        menuMain->addAction(actionExport_to_PDF);
+        menuMain->addSeparator();
+        menuMain->addAction(actionBack);
         menuMain->addSeparator();
         menuMain->addAction(actionExit);
 
@@ -370,7 +371,7 @@ public:
         actionAlignLeft->setText(QCoreApplication::translate("MainWindow", "AlignLeft", nullptr));
         actionAlignCenter->setText(QCoreApplication::translate("MainWindow", "AlignCenter", nullptr));
         actionAlignRight->setText(QCoreApplication::translate("MainWindow", "AlignRight", nullptr));
-        actionConnect->setText(QCoreApplication::translate("MainWindow", "Connect...", nullptr));
+        actionBack->setText(QCoreApplication::translate("MainWindow", "Logout...", nullptr));
         actionExport_to_PDF->setText(QCoreApplication::translate("MainWindow", "Export to PDF", nullptr));
         actionExit->setText(QCoreApplication::translate("MainWindow", "Exit", nullptr));
         actionAlignJustify->setText(QCoreApplication::translate("MainWindow", "AlignJustify", nullptr));

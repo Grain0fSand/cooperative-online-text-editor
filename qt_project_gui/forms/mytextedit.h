@@ -6,18 +6,15 @@
 #include <../data_structure/remotecursor.h>
 #include "../data_structure/action.h"
 #include <data_structure/crdt.h>
+#include <QPointer>
 
 class MyTextEdit : public QTextEdit
 {
 public:
-    MyTextEdit(const MyTextEdit &) = delete;
-    MyTextEdit& operator=(const MyTextEdit &) = delete;
-
-    static MyTextEdit& getInstance(){
-        static MyTextEdit instance;
-
-        return instance;
-    }
+    MyTextEdit(QWidget *parent = nullptr);
+    ~MyTextEdit();
+    //MyTextEdit(const MyTextEdit &) = delete;
+    //MyTextEdit& operator=(const MyTextEdit &) = delete;
 
     void paintEvent(QPaintEvent *e);
     void createCursor(int pos, QString text, QColor color);
@@ -27,8 +24,9 @@ public:
     void addAction(int cursorPos, int numChars, bool bold, bool italic, bool underlined, ActionType = TextFormatting);
     void addAction(int cursorPos, int numChars, BlockFormatType, ActionType = BlockFormatting);
     void doReceivedAction(const Action& action, const std::vector<int>& all_pos);
-
-    std::list<Action> toDoList;
+    const QString &getDocumentName() const;
+    void setDocumentName(const QString &documentName);
+    //std::list<Action> toDoList;
     QStringList getFontSizes() const;
     QStringList getFontFamilies() const;
 
@@ -36,21 +34,15 @@ public slots:
     void colorText(bool checked);
 
 private:
-    MyTextEdit(QWidget *parent = nullptr);
-    ~MyTextEdit();
+
 
     std::list<RemoteCursor*> cursorsList;
   //  std::list<Action> toSendList;
+   // static inline MyTextEdit* instance = nullptr;
     QStringList fontSizes;
     QStringList fontFamilies;
     QTextCursor* hiddenCursor;
     QString documentName;
-
-public:
-    const QString &getDocumentName() const;
-    void setDocumentName(const QString &documentName);
-
-private:
     int user_id;
 };
 

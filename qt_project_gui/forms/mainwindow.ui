@@ -419,9 +419,10 @@
     <property name="title">
      <string>Main</string>
     </property>
-    <addaction name="actionConnect"/>
-    <addaction name="actionExport_to_PDF"/>
     <addaction name="actionInvite"/>
+    <addaction name="actionExport_to_PDF"/>
+    <addaction name="separator"/>
+    <addaction name="actionBack"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
@@ -532,9 +533,9 @@
     <string>AlignRight</string>
    </property>
   </action>
-  <action name="actionConnect">
+  <action name="actionBack">
    <property name="text">
-    <string>Connect...</string>
+    <string>Logout...</string>
    </property>
   </action>
   <action name="actionExport_to_PDF">

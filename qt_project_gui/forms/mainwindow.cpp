@@ -26,19 +26,21 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow),
     background_task(200)
 {
-    getSessionDataFromLogin();
+    ui->setupUi(this);
 
-    Crdt::getInstance().init(std::stoi(this->sessionData.userId));
+    SessionData::accessToSessionData().youWannaLogin = false;
+    SessionData::accessToSessionData().mainWindowPointer = this;
+    SessionData::accessToSessionData().myTextEditPointer = ui->textEditShared;
 
-    query = new OnlineQuery{this->sessionData.docId,this->sessionData.token,this};
+    Crdt::getInstance().init(std::stoi(SessionData::accessToSessionData().userId));
+    query = new OnlineQuery{SessionData::accessToSessionData().docId,SessionData::accessToSessionData().token,this};
     query->start();
 
-    ui->setupUi(this);
-    ui->myUsername->setText(QString::fromStdString(sessionData.username));
-    ui->myAvatar->setPixmap(sessionData.avatar);
+    ui->myUsername->setText(QString::fromStdString(SessionData::accessToSessionData().username));
+    ui->myAvatar->setPixmap(SessionData::accessToSessionData().avatar);
     ui->textEditShared->setAcceptRichText(false); //this needs to be false to avoid pasting formatted text with CTRL+V
     ui->textEditShared->installEventFilter(this);
-    ui->textEditShared->setDocumentName(QString::fromStdString(sessionData.docName));
+    ui->textEditShared->setDocumentName(QString::fromStdString(SessionData::accessToSessionData().docName));
     Shared_editor::getInstance().initString(ui->textEditShared->toHtml());
 
     ui->sideLayout->layout()->setAlignment(Qt::AlignTop);
@@ -74,6 +76,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this,&MainWindow::setComboSize,comboSize,&QComboBox::setCurrentIndex);
     connect(this,&MainWindow::setComboFont,comboFamily,&QComboBox::setCurrentIndex);
     connect(ui->actionExit,&QAction::triggered,this,&MainWindow::exitFromEditor);
+    connect(ui->actionBack,&QAction::triggered,this,&MainWindow::backToLogin);
     connect(ui->actionExport_to_PDF,&QAction::triggered,this,&MainWindow::exportPDF);
     connect(ui->actionInvite,&QAction::triggered,this,&MainWindow::reqInvitationEmailAddress);
     connect(ui->actionTestCursor,&QAction::triggered,this,&MainWindow::insertRemoteCursor); //only for test
@@ -88,15 +91,11 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::getSessionDataFromLogin() {
-    this->sessionData = LoginWindow::getInstance().sessionData;
-}
-
 void MainWindow::populateUserTagList()
 {
     QString statusLabel;
     QPixmap led;
-    for(auto &tag : this->sessionData.usersList) {
+    for(auto &tag : SessionData::accessToSessionData().usersList) {
         auto item = new QListWidgetItem();
         if(tag.getStatus()) {
             led.load(":/resources/greenLed.png");
@@ -126,12 +125,22 @@ void MainWindow::populateUserTagList()
 
 void MainWindow::update_id(std::string id){
     if (id.compare("")!=0)
-        this->sessionData.lastCrdtId = id;
+        SessionData::accessToSessionData().lastCrdtId = id;
 }
 
 void MainWindow::exitFromEditor() {
     QMessageBox::StandardButton reply = QMessageBox::question(this,"Exit from Simulpad","Are you sure you want to quit?");
     if(reply == QMessageBox::Yes) {
+        this->close();
+    }
+}
+
+void MainWindow::backToLogin() {
+    QMessageBox::StandardButton reply = QMessageBox::question(this,"Back to Login","Are you sure you want to logout?");
+    if(reply == QMessageBox::Yes) {
+        SessionData::accessToSessionData().loginWindowPointer->switchFrame(-1);
+        SessionData::accessToSessionData().youWannaLogin = true;
+        SessionData::accessToSessionData().isLoginCorrect = false;
         this->close();
     }
 }
@@ -447,7 +456,7 @@ void MainWindow::reqInvitationEmailAddress()
                 advice.exec();
             }
             else {
-                sendInvitationEmail(QString::fromStdString(this->sessionData.docName), dialog.textValue());
+                sendInvitationEmail(QString::fromStdString(SessionData::accessToSessionData().docName), dialog.textValue());
                 break;
             }
         }
@@ -594,7 +603,7 @@ void MainWindow::update_online_users_and_cursors_positions(std::vector<exchangea
     // NB: è ancora da debuggare andando a creare dei dati fittizzi dentro userBar in modo
     // da verificare che tutto funzioni, il problema è che non so come creare degli oggetti di tipo
     // UserTag, perdonami ma senza di te mi è difficile utilizzarlo
-    std::vector<UserTag>& usersBar = this->sessionData.usersList;
+    std::vector<UserTag>& usersBar = SessionData::accessToSessionData().usersList;
     std::vector<UserTag> userBarUpdated;
 
     for(exchangeable_data::user u : vector){
@@ -640,7 +649,7 @@ void MainWindow::update_online_users_and_cursors_positions(std::vector<exchangea
     }
 
     // now i replace the old data with the new calculated
-    this->sessionData.usersList = userBarUpdated;
+    SessionData::accessToSessionData().usersList = userBarUpdated;
 
     // TODO: now that data are updated need to be refreshed the interface
 

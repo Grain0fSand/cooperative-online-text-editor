@@ -7,8 +7,6 @@
 
 MyTextEdit::MyTextEdit(QWidget *parent)
 {
-    this->setParent(parent);
-
     this->setCurrentFont(QFont("Calibri",11,-1,false));
     this->document()->setDocumentMargin(11);
     this->hiddenCursor = new QTextCursor(this->document());
@@ -21,7 +19,6 @@ MyTextEdit::MyTextEdit(QWidget *parent)
                           "Palatino Linotype" << "Tahoma" << "Times New Roman" << "Verdana" << "Vivaldi";
 }
 
-//TODO: check delete hiddenCursor
 MyTextEdit::~MyTextEdit() {}
 
 void MyTextEdit::paintEvent(QPaintEvent *e) {
@@ -186,7 +183,7 @@ void MyTextEdit::doReceivedAction(const Action& action, const std::vector<int>& 
         this->document()->blockSignals(false);
         ptr_start = ptr_end + 1;
     }
-    MainWindow::getInstance().checkTextProperty();
+    SessionData::accessToSessionData().mainWindowPointer->checkTextProperty();
 }
 
 QStringList MyTextEdit::getFontSizes() const
@@ -203,8 +200,8 @@ void MyTextEdit::colorText(bool checked)
 {
     if(checked) {
         std::vector<SymbolId> *list = &Crdt::getInstance().getSymbolList();
-        int myId = std::stoi(MainWindow::getInstance().sessionData.userId);
-        int size = MyTextEdit::getInstance().document()->characterCount()-1;
+        int myId = std::stoi(SessionData::accessToSessionData().userId);
+        int size = SessionData::accessToSessionData().myTextEditPointer->document()->characterCount()-1;
         QColor color;
         int start=0, end=0;
 
@@ -222,11 +219,11 @@ void MyTextEdit::colorText(bool checked)
             else {
                 end = start;
                 this->hiddenCursor->setPosition(start);
-                color = (MainWindow::getInstance().sessionData.userColorMap[uid]);
+                color = SessionData::accessToSessionData().userColorMap[uid];
                 while(it->getSymbolId().second == uid) {
                     if(!it->is_hidden()) {
                         end++;
-                        if(end==(size-1)) break;
+                        //if(end==(size-1)) break;
                     }
                     it++;
                 }

@@ -54,26 +54,20 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    SessionData sessionData;
-    MainWindow(const MainWindow&) = delete;
-    MainWindow& operator=(const MainWindow&) = delete;
+    MainWindow(QWidget *parent = nullptr);
+    ~MainWindow();
+    //MainWindow(const MainWindow&) = delete;
+    //MainWindow& operator=(const MainWindow&) = delete;
 
-    static MainWindow& getInstance() {
-        static MainWindow instance;
-        return instance;
-    }
-
-    void collaborativeURI_Copied();
-    void collaborativeURI_Pasted();
     bool eventFilter(QObject *obj,QEvent* event);
     void sendInvitationEmail(QString docName, QString destEmailAddress);
     void setupFontComboBoxes(QComboBox *comboSize, QComboBox *comboFamily);
     void setupStatusBar();
-    void getSessionDataFromLogin();
 
 public slots:
     void update_id(std::string id);
     void exitFromEditor();
+    void backToLogin();
     void exportPDF();
     void selectFont(int);
     void selectSize(int);
@@ -103,8 +97,7 @@ private slots:
     void update_online_users_and_cursors_positions(std::vector<exchangeable_data::user> vector);
 
 private:
-    explicit MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
+
 
     void addUserTag(QString username, bool status, QPixmap avatar, QColor color);
     Ui::MainWindow *ui;

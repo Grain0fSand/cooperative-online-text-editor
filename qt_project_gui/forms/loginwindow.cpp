@@ -17,6 +17,8 @@ LoginWindow::LoginWindow(QWidget *parent) :
     ui(new Ui::LoginWindow)
 {
     ui->setupUi(this);
+    SessionData::accessToSessionData().loginWindowPointer = this;
+    SessionData::accessToSessionData().isLoginCorrect = false;
 
     ui->loginErrorLabel->setVisible(false);
     this->setWindowFlag(Qt::FramelessWindowHint);
@@ -37,14 +39,14 @@ LoginWindow::LoginWindow(QWidget *parent) :
     connect(ui->loginText,&QPushButton::clicked,this,&LoginWindow::switchFrame);
     connect(ui->registerText,&QPushButton::clicked,this,&LoginWindow::switchFrame);
     connect(ui->registerButton,&QPushButton::clicked,this,&LoginWindow::tryRegister);
-    connect(ui->loggedLogoutButton,&QPushButton::clicked,[&](){this->loginCorrect=false;});
-    connect(ui->loggedLogoutButton,&QPushButton::clicked,this,&LoginWindow::switchFrame);
     connect(ui->actionChangeUsername,&QAction::triggered,this,&LoginWindow::changeYourUsername);
     connect(ui->actionChangePassword,&QAction::triggered,this,&LoginWindow::changeYourPassword);
     connect(ui->actionChangeAvatar,&QAction::triggered,this,&LoginWindow::changeYourAvatar);
     connect(ui->loggedNewButton,&QPushButton::clicked,this,&LoginWindow::createDocument);
     connect(ui->loggedOpenButton,&QPushButton::clicked,this,&LoginWindow::openDocument);
     connect(ui->loggedURIButton,&QPushButton::clicked,this,&LoginWindow::requestURI);
+    connect(ui->loggedLogoutButton,&QPushButton::clicked,[&](){SessionData::accessToSessionData().isLoginCorrect = false;});
+    connect(ui->loggedLogoutButton,&QPushButton::clicked,this,&LoginWindow::switchFrame);
 
     connect(ui->loginUsernameInput,&QLineEdit::returnPressed,ui->loginButton,&QPushButton::click);
     connect(ui->loginPasswordInput,&QLineEdit::returnPressed,ui->loginButton,&QPushButton::click);
@@ -65,10 +67,6 @@ bool LoginWindow::validateEmail(QString email)
     QRegExp regex(R"(\b[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}\b)");
 
     return regex.exactMatch(email);
-}
-
-bool LoginWindow::isLoginCorrect() {
-    return this->loginCorrect;
 }
 
 void LoginWindow::showLoading(Frame frame) {
@@ -147,8 +145,11 @@ void LoginWindow::switchFrame(int direction)
     switchAnimation->setEndValue(frameGeometry);
 
     connect(switchAnimation,&QPropertyAnimation::finished,this,&LoginWindow::resetInputFields);
-
-    if(this->sender()->objectName()=="informationButton") {
+    if(this->sender()== nullptr) {
+        frameGeometry.setX(320);
+        switchAnimation->setDuration(0);
+    }
+    else if(this->sender()->objectName()=="informationButton") {
         connect(switchAnimation,&QPropertyAnimation::finished,this,[&](){
             ui->informationWhiteFrame->setVisible(false);
             disconnect(ui->informationButton,&QPushButton::clicked,this,nullptr);
@@ -175,12 +176,12 @@ void LoginWindow::changeYourUsername()
                 advice.exec();
             }
             else {
-                this->sessionData.username = dialog.textValue().toStdString();
-                QString encodedAvatar = LoginWindow::generateEncodedImage(this->sessionData.avatar);
+                SessionData::accessToSessionData().username = dialog.textValue().toStdString();
+                QString encodedAvatar = LoginWindow::generateEncodedImage(SessionData::accessToSessionData().avatar);
                 QString username = dialog.textValue();
-                QString password = QString::fromStdString(this->sessionData.password);
+                QString password = QString::fromStdString(SessionData::accessToSessionData().password);
 
-                QThread* sender = new OnlineSender(this->sessionData.token, username, encodedAvatar, password);
+                QThread* sender = new OnlineSender(SessionData::accessToSessionData().token, username, encodedAvatar, password);
                 sender->start();
 
                 break;
@@ -196,12 +197,12 @@ void LoginWindow::changeYourAvatar()
     if(avatar_path!="") {
 
         QPixmap avatar(avatar_path);
-        this->sessionData.avatar = avatar;
+        SessionData::accessToSessionData().avatar = avatar;
         QString encodedAvatar = LoginWindow::generateEncodedImage(avatar);
         QString username = ui->loggedUsernameLabel->text();
-        QString password = QString::fromStdString(this->sessionData.password);
+        QString password = QString::fromStdString(SessionData::accessToSessionData().password);
 
-        QThread* sender = new OnlineSender(this->sessionData.token, username, encodedAvatar, password);
+        QThread* sender = new OnlineSender(SessionData::accessToSessionData().token, username, encodedAvatar, password);
         sender->start();
     }
 }
@@ -221,11 +222,11 @@ void LoginWindow::changeYourPassword()
                 advice.exec();
             }
             else {
-                QString username = QString::fromStdString(this->sessionData.username);
-                QString encodedAvatar = LoginWindow::generateEncodedImage(this->sessionData.avatar);
+                QString username = QString::fromStdString(SessionData::accessToSessionData().username);
+                QString encodedAvatar = LoginWindow::generateEncodedImage(SessionData::accessToSessionData().avatar);
                 QString password = dialog.textValue();
 
-                QThread* sender = new OnlineSender(this->sessionData.token, username, encodedAvatar, password);
+                QThread* sender = new OnlineSender(SessionData::accessToSessionData().token, username, encodedAvatar, password);
                 sender->start();
 
                 break;
@@ -250,9 +251,9 @@ void LoginWindow::createDocument()
                     advice.setText("A document with this name already exists!\nPlease enter another one.");
                 }
                 else {
-                    this->sessionData.docName = dialog.textValue().toStdString();
+                    SessionData::accessToSessionData().docName = dialog.textValue().toStdString();
 
-                    QThread* sender = new OnlineSender(this->sessionData.token, this->sessionData.docName);
+                    QThread* sender = new OnlineSender(SessionData::accessToSessionData().token, SessionData::accessToSessionData().docName);
                     sender->start();
                     break;
                 }
@@ -296,8 +297,8 @@ void LoginWindow::openDocument()
 
     connect(docListView,&QAbstractItemView::doubleClicked,this,[&](){
         QString docName = docListView->currentIndex().data(Qt::DisplayRole).toString();
-        this->sessionData.docName = docName.toStdString();
-        QThread* sender = new OnlineSender(this->sessionData.token, docName);
+        SessionData::accessToSessionData().docName = docName.toStdString();
+        QThread* sender = new OnlineSender(SessionData::accessToSessionData().token, docName);
         sender->start();
 
         docListDialog->close();
@@ -312,8 +313,8 @@ void LoginWindow::openDocument()
         }
         else {
             QString docName = docListView->currentIndex().data(Qt::DisplayRole).toString();
-            this->sessionData.docName = docName.toStdString();
-            QThread* sender = new OnlineSender(this->sessionData.token, docName);
+            SessionData::accessToSessionData().docName = docName.toStdString();
+            QThread* sender = new OnlineSender(SessionData::accessToSessionData().token, docName);
             sender->start();
 
             docListDialog->close();
@@ -345,7 +346,7 @@ void LoginWindow::requestURI()
                     QString docBase64 = uriToValidate.split("#").at(1);
                     QString docName = QByteArray::fromBase64(docBase64.toLocal8Bit());
                     if(this->docsList.contains(docName)) {
-                        QThread* sender = new OnlineSender(this->sessionData.token, docName);
+                        QThread* sender = new OnlineSender(SessionData::accessToSessionData().token, docName);
                         sender->start();
                         break;
                     } else {
@@ -374,8 +375,7 @@ void LoginWindow::tryLogin()
     else if(password.isEmpty()) {
         ui->loginErrorLabel->setText("Password field is empty");
     }
-    else if(username=="test2" && password=="test2") {
-        this->loginCorrect=true;
+    else if(username=="test2" && password=="test2") { //TODO: remember to remove this
         ui->loggedUsernameLabel->setText(username);
         ui->loggedAvatar->setPixmap(QPixmap(":/resources/avatar.png"));
         this->switchFrame(1);
@@ -479,14 +479,14 @@ void LoginWindow::showLoginResponse(bool goodResponse, QString responseText,  QS
         ui->informationImage->movie()->setFileName(":/resources/correct_icon.gif");
 
         QStringList replyParts = replyString.split(":");
-        this->sessionData.userId = replyParts[0].toStdString();
-        this->sessionData.token = replyParts[1].toStdString();
-        this->sessionData.avatar = recoverImageFromEncodedString(replyParts[2]);
+        SessionData::accessToSessionData().userId = replyParts[0].toStdString();
+        SessionData::accessToSessionData().token = replyParts[1].toStdString();
+        SessionData::accessToSessionData().avatar = recoverImageFromEncodedString(replyParts[2]);
         this->docsList = replyParts[3].split("|",QString::SkipEmptyParts);
 
-        this->sessionData.username = ui->loginUsernameInput->text().toStdString();
+        SessionData::accessToSessionData().username = ui->loginUsernameInput->text().toStdString();
         ui->loggedUsernameLabel->setText(ui->loginUsernameInput->text());
-        ui->loggedAvatar->setPixmap(this->sessionData.avatar);
+        ui->loggedAvatar->setPixmap(SessionData::accessToSessionData().avatar);
     }
     else {
         connect(ui->informationButton,&QPushButton::clicked,this,[&](){
@@ -517,9 +517,9 @@ void LoginWindow::showNewDocResponse(bool goodResponse, QString responseText, QS
 
     if(goodResponse) {
         QStringList replyParts = replyString.split("|");
-        this->sessionData.docId = replyParts[0].toStdString();
-        this->sessionData.status = true;
-        this->loginCorrect=true;
+        SessionData::accessToSessionData().docId = replyParts[0].toStdString();
+        SessionData::accessToSessionData().status = true;
+        SessionData::accessToSessionData().isLoginCorrect = true;
 
         close();
     }
@@ -528,26 +528,26 @@ void LoginWindow::showNewDocResponse(bool goodResponse, QString responseText, QS
 void LoginWindow::getPartecipantsResponse(QString responseString)
 {
     if(responseString[0]!='0') {
-        this->sessionData.docId = responseString.left(responseString.indexOf('|')).toStdString();
-        responseString.remove(0,this->sessionData.docId.length()+1);
+        SessionData::accessToSessionData().docId = responseString.left(responseString.indexOf('|')).toStdString();
+        responseString.remove(0,SessionData::accessToSessionData().docId.length()+1);
 
         QStringList users = responseString.split("|");
         for (QString user : users) {
             QStringList userElements = user.split(":");
 
-            if(userElements[2].toStdString()!=this->sessionData.username) {
+            if(userElements[2].toStdString()!=SessionData::accessToSessionData().username) {
                 UserTag userTag;
                 userTag.setUserColor(chooseColorFromString(userElements[1]));
                 userTag.setUsername(userElements[2]);
                 userTag.setAvatar(recoverImageFromEncodedString(userElements[3]));
                 userTag.setUserStatus(false);
 
-                this->sessionData.usersList.push_back(userTag);
-                this->sessionData.userColorMap[userElements[0].toInt()] = userTag.getUserColor();
+                SessionData::accessToSessionData().usersList.push_back(userTag);
+                SessionData::accessToSessionData().userColorMap[userElements[0].toInt()] = userTag.getUserColor();
             }
         }
-        this->sessionData.status = true;
-        this->loginCorrect=true;
+        SessionData::accessToSessionData().status = true;
+        SessionData::accessToSessionData().isLoginCorrect = true;
 
         close();
     }
@@ -565,12 +565,12 @@ void LoginWindow::showUpdateUserDataResponse(bool goodResponse, QString response
     advice.exec();
 
     if(goodResponse) {
-        ui->loggedUsernameLabel->setText(QString::fromStdString(this->sessionData.username));
-        ui->loggedAvatar->setPixmap(this->sessionData.avatar);
+        ui->loggedUsernameLabel->setText(QString::fromStdString(SessionData::accessToSessionData().username));
+        ui->loggedAvatar->setPixmap(SessionData::accessToSessionData().avatar);
     }
     else {
-        this->sessionData.username = ui->loggedUsernameLabel->text().toStdString();
-        this->sessionData.avatar = *ui->loggedAvatar->pixmap();
+        SessionData::accessToSessionData().username = ui->loggedUsernameLabel->text().toStdString();
+        SessionData::accessToSessionData().avatar = *ui->loggedAvatar->pixmap();
     }
 }
 

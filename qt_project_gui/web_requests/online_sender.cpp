@@ -7,6 +7,7 @@
 #include <QtCore/QUrlQuery>
 
 #define IP_ADDRESS "47.53.242.167"
+//#define IP_ADDRESS "192.168.1.114"
 #define PORT "6969"
 
 OnlineSender::OnlineSender(std::string json_to_send,std::string docId,std::string token) :
@@ -32,7 +33,7 @@ OnlineSender::OnlineSender(QString email, QString username, QString password, QS
     moveToThread(this);
     connect(this,&OnlineSender::prepareRequest,this,&OnlineSender::tryRegistrationRequest);
     connect(&manager,&QNetworkAccessManager::finished,this,&OnlineSender::checkTryRegistrationReply);
-    connect(this,&OnlineSender::responseTryRegistrationArrived,&LoginWindow::getInstance(),&LoginWindow::showRegisterResponse);
+    connect(this,&OnlineSender::responseTryRegistrationArrived,SessionData::accessToSessionData().loginWindowPointer,&LoginWindow::showRegisterResponse);
     connect(this,&OnlineSender::responseTryRegistrationArrived,this,&OnlineSender::quit);
 }
 
@@ -43,7 +44,7 @@ OnlineSender::OnlineSender(QString username, QString password) :
     moveToThread(this);
     connect(this,&OnlineSender::prepareRequest,this,&OnlineSender::tryLoginRequest);
     connect(&manager,&QNetworkAccessManager::finished,this,&OnlineSender::checkTryLoginReply);
-    connect(this,&OnlineSender::responseTryLoginArrived,&LoginWindow::getInstance(),&LoginWindow::showLoginResponse);
+    connect(this,&OnlineSender::responseTryLoginArrived,SessionData::accessToSessionData().loginWindowPointer,&LoginWindow::showLoginResponse);
     connect(this,&OnlineSender::responseTryLoginArrived,this,&OnlineSender::quit);
 }
 
@@ -54,7 +55,7 @@ OnlineSender::OnlineSender(std::string token,std::string newDocName) :
     moveToThread(this);
     connect(this,&OnlineSender::prepareRequest,this,&OnlineSender::newDocRequest);
     connect(&manager,&QNetworkAccessManager::finished,this,&OnlineSender::checkNewDocReply);
-    connect(this,&OnlineSender::responseNewDocArrived,&LoginWindow::getInstance(),&LoginWindow::showNewDocResponse);
+    connect(this,&OnlineSender::responseNewDocArrived,SessionData::accessToSessionData().loginWindowPointer,&LoginWindow::showNewDocResponse);
     connect(this,&OnlineSender::responseNewDocArrived,this,&OnlineSender::quit);
 }
 
@@ -65,7 +66,7 @@ OnlineSender::OnlineSender(std::string token,QString existingDocName) :
     moveToThread(this);
     connect(this,&OnlineSender::prepareRequest,this,&OnlineSender::getPartecipantsRequest);
     connect(&manager,&QNetworkAccessManager::finished,this,&OnlineSender::checkGetPartecipantsReply);
-    connect(this,&OnlineSender::responseGetPartecipantsArrived,&LoginWindow::getInstance(),&LoginWindow::getPartecipantsResponse);
+    connect(this,&OnlineSender::responseGetPartecipantsArrived,SessionData::accessToSessionData().loginWindowPointer,&LoginWindow::getPartecipantsResponse);
     connect(this,&OnlineSender::responseGetPartecipantsArrived,this,&OnlineSender::quit);
 }
 
@@ -78,7 +79,7 @@ OnlineSender::OnlineSender(std::string token, QString username, QString encodedA
     moveToThread(this);
     connect(this,&OnlineSender::prepareRequest,this,&OnlineSender::updateUserDataRequest);
     connect(&manager,&QNetworkAccessManager::finished,this,&OnlineSender::checkUpdateUserDataReply);
-    connect(this,&OnlineSender::responseUpdateUserDataArrived,&LoginWindow::getInstance(),&LoginWindow::showUpdateUserDataResponse);
+    connect(this,&OnlineSender::responseUpdateUserDataArrived,SessionData::accessToSessionData().loginWindowPointer,&LoginWindow::showUpdateUserDataResponse);
     connect(this,&OnlineSender::responseUpdateUserDataArrived,this,&OnlineSender::quit);
 }
 

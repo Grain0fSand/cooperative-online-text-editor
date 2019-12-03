@@ -185,8 +185,8 @@ void Crdt::sendActionToServer(Action &action, int cursorPos, int numChars) {
     //send to server
     json str = action_wrapper.get_json();
 
-    auto docId = MainWindow::getInstance().sessionData.docId;
-    auto token = MainWindow::getInstance().sessionData.token;
+    auto docId = SessionData::accessToSessionData().docId;
+    auto token = SessionData::accessToSessionData().token;
 
     // no need to free: https://stackoverflow.com/questions/26714492/how-to-release-memory-of-qthread-object
     QThread *sender = new OnlineSender(str.dump(), docId, token);
@@ -321,7 +321,7 @@ void Crdt::update_income(std::vector<ActionWrapper> actions) {
                     break;
             }
             if (!all_pos.empty())
-                MyTextEdit::getInstance().doReceivedAction(action, all_pos);
+                SessionData::accessToSessionData().myTextEditPointer->doReceivedAction(action, all_pos);
         } catch (...) {
             // TODO: leave here for debugging purpose until the last control to understand why that error is happened
             std::cout << "DEBUG: cannot insert symbol " << action_wrapper.get_json() << std::endl;

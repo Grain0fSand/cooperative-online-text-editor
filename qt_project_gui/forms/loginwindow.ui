@@ -813,9 +813,9 @@ QPushButton:hover {
     <widget class="QLabel" name="informationLabel">
      <property name="geometry">
       <rect>
-       <x>40</x>
+       <x>35</x>
        <y>200</y>
-       <width>240</width>
+       <width>250</width>
        <height>100</height>
       </rect>
      </property>
