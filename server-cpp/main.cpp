@@ -67,29 +67,45 @@ int main() {
     Database db;
     crow::SimpleApp app;
 
-    CROW_ROUTE(app,"/try_registration")
+    CROW_ROUTE(app,"/logout")
             .methods("GET"_method)
                 ([&](const crow::request& req){
                     auto params = req.url_params;
 
-                    if(params.get("email") == nullptr || params.get("username") == nullptr
-                       || params.get("password") == nullptr || params.get("image")==nullptr)
+                    if(params.get("token") == nullptr || params.get("docId") == nullptr)
                         return crow::response(500);
 
-                    std::string email = params.get("email");
-                    std::string username = params.get("username");
-                    std::string password = params.get("password");
-                    std::string image = params.get("image");
+                    std::string token = params.get("token");
+                    std::string docId = params.get("docId");
 
-                    sanitize(email);
-                    sanitize(username);
-                    sanitize(password);
-                    // sanitize(image); maybe sanitize can lose information, better binding
+                    db.userLogout(token,docId);
 
-                    int replyCode = db.userRegistration(email,username,password,image);
-
-                    return crow::response{std::to_string(replyCode)};
+                    return crow::response{0};
                 });
+
+    CROW_ROUTE(app,"/try_registration")
+            .methods("GET"_method)
+                    ([&](const crow::request& req){
+                        auto params = req.url_params;
+
+                        if(params.get("email") == nullptr || params.get("username") == nullptr
+                           || params.get("password") == nullptr || params.get("image")==nullptr)
+                            return crow::response(500);
+
+                        std::string email = params.get("email");
+                        std::string username = params.get("username");
+                        std::string password = params.get("password");
+                        std::string image = params.get("image");
+
+                        sanitize(email);
+                        sanitize(username);
+                        sanitize(password);
+                        // sanitize(image); maybe sanitize can lose information, better binding
+
+                        int replyCode = db.userRegistration(email,username,password,image);
+
+                        return crow::response{std::to_string(replyCode)};
+                    });
 
     CROW_ROUTE(app,"/new_doc")
             .methods("GET"_method)

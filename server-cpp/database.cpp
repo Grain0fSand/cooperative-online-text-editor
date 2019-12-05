@@ -17,6 +17,16 @@ int Database::userLogged(std::string token)
     return -1;
 }
 
+void Database::userLogout(std::string token, std::string docId)
+{
+    std::string uid = std::to_string(userLogged(token));
+
+    std::string sql = "UPDATE user_document_request SET lastReq = datetime((strftime('%s','now')-31),'unixepoch','localtime') WHERE idUser = " + uid + " AND idDocument = " + docId;
+    SQLite::Statement query(db, sql);
+
+    query.exec();
+}
+
 std::string Database::userLogin(std::string username,std::string password)
 {
     std::string hashedPass = hashed_pass(password);
@@ -293,8 +303,7 @@ std::string Database::random_string(size_t length)
 std::vector<exchangeable_data::user>
 Database::getOnlineUsers() {
 
-    // TODO: replace 90000 with 30, is the seconds, note that there are 2 90000 inside the query
-    std::string sql = "select id,email,username,image,(select cursor_position_json from user_document_request where lastReq >= datetime((strftime('%s','now')-90000),'unixepoch','localtime')) as json_cursor from users where id in (select idUser from user_document_request where lastReq >= datetime((strftime('%s','now')-90000),'unixepoch','localtime'))";
+    std::string sql = "select id,email,username,image,(select cursor_position_json from user_document_request where lastReq >= datetime((strftime('%s','now')+30),'unixepoch','localtime')) as json_cursor from users where id in (select idUser from user_document_request where lastReq >= datetime((strftime('%s','now')-30),'unixepoch','localtime'))";
 
     SQLite::Statement query(db, sql);
     std::vector<exchangeable_data::user> vect;
