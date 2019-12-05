@@ -9,7 +9,8 @@ MyTextEdit::MyTextEdit(QWidget *parent)
 {
     this->setCurrentFont(QFont("Calibri",11,-1,false));
     this->document()->setDocumentMargin(11);
-    this->hiddenCursor = new QTextCursor(this->document());
+    this->hiddenCursorForText = new QTextCursor(this->document());
+    this->hiddenCursorForColors = new QTextCursor(this->document());
     this->fontSizes << "8" << "9" << "10" << "11" << "12" <<
                        "14" << "16" << "18" << "20" << "22" <<
                        "24" << "26" << "28" << "36" << "48" << "72";
@@ -57,13 +58,13 @@ void MyTextEdit::addCursor(RemoteCursor *cursor)
     this->cursorsList.push_back(cursor);
 }
 
-void MyTextEdit::doReceivedAction(const Action& action, const std::vector<int>& all_pos )
+void MyTextEdit::doReceivedAction(const Action& action, int ownerId, const std::vector<int>& all_pos )
 {
     int ptr_start = 0, ptr_end, n = all_pos.size();    //ptr start and ptr end are for calculating ranges of subsequent positions in all_pos
     while (ptr_start < n) {
         //find range of subsequent positions and apply the action (for efficiency)
         ptr_end = ptr_start;
-        this->hiddenCursor->setPosition(all_pos[ptr_start]);
+        this->hiddenCursorForText->setPosition(all_pos[ptr_start]);
         while (ptr_end < n - 1 && all_pos[ptr_end] == all_pos[ptr_end + 1] - 1)
             ++ptr_end;
         this->document()->blockSignals(true);
@@ -73,17 +74,26 @@ void MyTextEdit::doReceivedAction(const Action& action, const std::vector<int>& 
                 qDebug() << "Invalid action to do";
                 break;
             case Insertion: {
-                this->hiddenCursor->insertText(action.getChars());
-                this->hiddenCursor->setPosition(all_pos[ptr_start]);
-                this->hiddenCursor->movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, action.getChars().size());
+                this->hiddenCursorForText->insertText(action.getChars());
+                this->hiddenCursorForText->setPosition(all_pos[ptr_start]);
+                this->hiddenCursorForText->movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, action.getChars().size());
                 QTextCharFormat format;
+
 
                 action.getBold() ? format.setFontWeight(QFont::Bold) : format.setFontWeight(QFont::Normal);
                 format.setFontItalic(action.getItalic());
                 format.setFontUnderline(action.getUnderlined());
                 format.setFontFamily(this->fontFamilies.at(action.getComboFontIndex()));
                 format.setFontPointSize(this->fontSizes.at(action.getFontSize()).toInt());
-                this->hiddenCursor->setCharFormat(format);
+
+                if(colorFeatureActive) {
+                    QColor color;
+                    color = SessionData::accessToSessionData().userColorMap[ownerId];
+                    format.setBackground(QBrush(color));
+                    format.setForeground(QBrush(chooseColorTextFromBackground(color)));
+                }
+
+                this->hiddenCursorForText->setCharFormat(format);
 
                 //this is because only first paragraph gets block alignment when copying multiple paragraphs
 //                std::string st = action.getChars().toStdString();
@@ -92,7 +102,7 @@ void MyTextEdit::doReceivedAction(const Action& action, const std::vector<int>& 
 //                    if (st[i] == '\n')
 //                        break;
 //                }
-//                this->hiddenCursor->movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, all_pos[ptr_start] + i + 1);
+//                this->hiddenCursorForText->movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, all_pos[ptr_start] + i + 1);
 //                QTextBlockFormat bFormat;
 //                switch(action.getBlockFormat())
 //                {
@@ -112,20 +122,20 @@ void MyTextEdit::doReceivedAction(const Action& action, const std::vector<int>& 
 //                        bFormat.setAlignment(Qt::AlignJustify);
 //                        break;
 //                }
-//                this->hiddenCursor->setBlockFormat(bFormat);
+//                this->hiddenCursorForText->setBlockFormat(bFormat);
 //                if (i != st.size()) {
-//                    this->hiddenCursor->setPosition(all_pos[ptr_start] + i + 1);
-//                    this->hiddenCursor->movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, st.size() - i);
+//                    this->hiddenCursorForText->setPosition(all_pos[ptr_start] + i + 1);
+//                    this->hiddenCursorForText->movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, st.size() - i);
 //                    QTextBlockFormat bFormat;
 //                    bFormat.setAlignment(Qt::AlignLeft);
-//                    this->hiddenCursor->setBlockFormat(bFormat);
+//                    this->hiddenCursorForText->setBlockFormat(bFormat);
 //                }
                 break;
             }
             case BlockFormatting:
             {
-                this->hiddenCursor->setPosition(all_pos[ptr_start] + 1);
-                this->hiddenCursor->movePosition(QTextCursor::Right,QTextCursor::KeepAnchor,ptr_end - ptr_start);
+                this->hiddenCursorForText->setPosition(all_pos[ptr_start] + 1);
+                this->hiddenCursorForText->movePosition(QTextCursor::Right,QTextCursor::KeepAnchor,ptr_end - ptr_start);
                 QTextBlockFormat format;
                 switch(action.getBlockFormat())
                 {
@@ -145,12 +155,12 @@ void MyTextEdit::doReceivedAction(const Action& action, const std::vector<int>& 
                         format.setAlignment(Qt::AlignJustify);
                         break;
                 }
-                this->hiddenCursor->setBlockFormat(format);
+                this->hiddenCursorForText->setBlockFormat(format);
                 break;
             }
             case TextFormatting:
             {
-                this->hiddenCursor->movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, ptr_end + 1 - ptr_start);
+                this->hiddenCursorForText->movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, ptr_end + 1 - ptr_start);
                 QTextCharFormat format;
 
                 switch(action.getSelection()) {
@@ -170,12 +180,12 @@ void MyTextEdit::doReceivedAction(const Action& action, const std::vector<int>& 
                         format.setFontPointSize(this->fontSizes.at(action.getFontSize()).toInt());
                         break;
                 }
-                this->hiddenCursor->mergeCharFormat(format);
+                this->hiddenCursorForText->mergeCharFormat(format);
                 break;
             }
             case Deletion:
-                this->hiddenCursor->movePosition(QTextCursor::Right,QTextCursor::KeepAnchor,ptr_end + 1 - ptr_start);
-                this->hiddenCursor->removeSelectedText();
+                this->hiddenCursorForText->movePosition(QTextCursor::Right,QTextCursor::KeepAnchor,ptr_end + 1 - ptr_start);
+                this->hiddenCursorForText->removeSelectedText();
                 break;
             default:
                 break;
@@ -198,6 +208,8 @@ QStringList MyTextEdit::getFontFamilies() const
 
 void MyTextEdit::colorText(bool checked)
 {
+    this->colorFeatureActive = checked;
+
     if(checked) {
         std::vector<SymbolId> *list = &Crdt::getInstance().getSymbolList();
         int myId = std::stoi(SessionData::accessToSessionData().userId);
@@ -206,47 +218,45 @@ void MyTextEdit::colorText(bool checked)
         int start=0, end=0;
 
         std::vector<SymbolId>::iterator it;
-        for(it=list->begin()+1; it<list->end(); it++) {
-            int uid = it->getSymbolId().second;
-            if(uid==myId) {
-                start++;
-                end++;
-                continue;
-            }
-            else if(it->is_hidden()) {
-                continue;
-            }
-            else {
-                end = start;
-                this->hiddenCursor->setPosition(start);
+        for(it=list->begin()+1; it<list->end() || end==size; it++) {
 
-                while(it->getSymbolId().second == uid) {
-                    if(!it->is_hidden()) {
-                        end++;
-                        if(end==(size-1)) break;
-                    }
-                    it++;
+            int currentId = it->getSymbolId().second;
+            start = end;
+
+            do {
+                if(!it->is_hidden()) {
+                    end++;
+                    if(end == size) break;
                 }
-                this->hiddenCursor->movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, end-start);
-                color = SessionData::accessToSessionData().userColorMap[uid];
+                it++;
+            } while(it->getSymbolId().second == currentId);
+
+            if(currentId!=myId)
+            {
+                this->hiddenCursorForColors->setPosition(start);
+                this->hiddenCursorForColors->movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, end-start);
+                color = SessionData::accessToSessionData().userColorMap[currentId];
                 QTextCharFormat format;
                 format.setBackground(QBrush(color));
-                if((color.red()*299 + color.green()*587 + color.blue()*114)/1000 < 123)
-                    format.setForeground(QBrush(QColor(Qt::white)));
-                this->hiddenCursor->mergeCharFormat(format);
-
-                start=end;
-                it+=start;
+                format.setForeground(chooseColorTextFromBackground(color));
+                this->hiddenCursorForColors->mergeCharFormat(format);
             }
+            it--;
         }
     }
     else {
         QTextCharFormat format;
         format.setBackground(QBrush(Qt::black,Qt::NoBrush));
         format.setForeground(QBrush(Qt::black));
-        this->hiddenCursor->select(QTextCursor::Document);
-        this->hiddenCursor->mergeCharFormat(format);
+        this->hiddenCursorForColors->select(QTextCursor::Document);
+        this->hiddenCursorForColors->mergeCharFormat(format);
     }
+}
+
+QColor MyTextEdit::chooseColorTextFromBackground(QColor& background) {
+    if((background.red()*299 + background.green()*587 + background.blue()*114)/1000 < 123)
+        return {Qt::white};
+    return {Qt::black};
 }
 
 void MyTextEdit::createCursor(int pos, QString text, QColor color) {

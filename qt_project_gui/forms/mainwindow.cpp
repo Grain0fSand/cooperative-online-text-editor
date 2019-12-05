@@ -476,7 +476,8 @@ void MainWindow::checkTextProperty()
     ui->statusBar->findChild<QLabel*>("cursorColumn")->setText("col: "+QString::number(ui->textEditShared->textCursor().columnNumber()));
     ui->statusBar->findChild<QLabel*>("cursorSelectionCount")->setText("sel: "+QString::number(ui->textEditShared->textCursor().selectedText().length()));
 
-    ui->textEditShared->setTextColor(QColor("black"));
+    ui->textEditShared->setTextColor({Qt::black});
+    ui->textEditShared->setTextBackgroundColor({Qt::white});
 }
 
 void MainWindow::insertRemoteCursor() {
