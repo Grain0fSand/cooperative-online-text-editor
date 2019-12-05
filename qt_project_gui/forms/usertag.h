@@ -13,10 +13,11 @@ public:
     ~UserTag() = default;
 
     UserTag(const UserTag &source) :
+        userId(source.userId),
         userUsername(source.userUsername),
-        userColor(source.userColor),
         userAvatar(source.userAvatar),
-        userStatus(source.userStatus)
+        userStatus(source.userStatus),
+        userColor(source.userColor)
     {
     }
 
@@ -37,7 +38,7 @@ public:
 
     // for std::find with exchangeble_data::user element comparing
     bool operator==(const exchangeable_data::user& other) const {
-        return this->userUsername == QString::fromStdString(other.username);
+        return this->userId == std::stoi(other.id);
     }
 
     /* probably we need not to use that if all is correct
@@ -55,16 +56,19 @@ public:
     void paint ( QPainter * painter, const QStyleOptionViewItem & option, const QModelIndex & index ) const;
     QSize sizeHint ( const QStyleOptionViewItem & option, const QModelIndex & index ) const;
 
+    void setUserId(int);
     void setUsername(QString);
     void setAvatar(QPixmap);
     void setUserStatus(bool);
     void setUserColor(QColor);
+    int getUserId();
     QString getUsername() const; // always better set explicitly const, so the compiler check if you access to modify some variables
     QPixmap getAvatar();
     bool getStatus();
     QColor getUserColor();
 
 private:
+    int userId;
     QString userUsername;
     QPixmap userAvatar;
     bool userStatus;

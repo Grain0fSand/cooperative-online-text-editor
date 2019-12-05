@@ -60,6 +60,7 @@ public:
     //MainWindow& operator=(const MainWindow&) = delete;
 
     bool eventFilter(QObject *obj,QEvent* event);
+    void closeEvent ( QCloseEvent * event );
     void sendInvitationEmail(QString docName, QString destEmailAddress);
     void setupFontComboBoxes(QComboBox *comboSize, QComboBox *comboFamily);
     void setupStatusBar();
@@ -83,11 +84,13 @@ public slots:
     void reqInvitationEmailAddress();
     void disableEditor();
     void populateUserTagList();
+    void arrangeUserTagList(std::vector<exchangeable_data::user>);
 
 protected slots:
     void textChanged(int, int, int);
 
 signals:
+    void exitSignal();
     void setComboSize(int);
     void setComboFont(int);
 

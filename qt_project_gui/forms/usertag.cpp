@@ -71,6 +71,11 @@ QSize UserTag::sizeHint (const QStyleOptionViewItem &option, const QModelIndex &
     return QSize(200, 60); // very dumb value
 }
 
+void UserTag::setUserId(int id)
+{
+    this->userId = id;
+}
+
 void UserTag::setUsername(QString newName)
 {
     this->userUsername = newName;
@@ -89,6 +94,11 @@ void UserTag::setAvatar(QPixmap avatar)
 void UserTag::setUserStatus(bool newStatus)
 {
     this->userStatus = newStatus;
+}
+
+int UserTag::getUserId()
+{
+    return this->userId;
 }
 
 QString UserTag::getUsername() const

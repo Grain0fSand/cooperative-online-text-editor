@@ -48,6 +48,13 @@ OnlineSender::OnlineSender(QString username, QString password) :
     connect(this,&OnlineSender::responseTryLoginArrived,this,&OnlineSender::quit);
 }
 
+OnlineSender::OnlineSender(QString token, std::string docId) :
+        token(token.toStdString()),
+        docId(docId)
+{
+    connect(this,&OnlineSender::prepareRequest,this,&OnlineSender::logoutRequest);
+}
+
 OnlineSender::OnlineSender(std::string token,std::string newDocName) :
     token(token),
     docName(newDocName)
@@ -168,6 +175,22 @@ void OnlineSender::tryLoginRequest()
     connect(&timeout,&QTimer::timeout,[&](){manager.finished(reply);});
     timeout.start(3000);
     loop.exec();
+}
+
+void OnlineSender::logoutRequest()
+{
+    QString ip_address = IP_ADDRESS;
+    QString port = PORT;
+    QString location = "http://" + ip_address + ":" + PORT + "/";
+    QString request = "logout";
+    QString params = "?";
+    params += "token=" + QString::fromStdString(token);
+    params += "&";
+    params += "docId=" + QString::fromStdString(docId);
+
+    url.setUrl(location+request+params);
+    req.setUrl(url);
+    manager.get(req);
 }
 
 void OnlineSender::newDocRequest()

@@ -532,19 +532,19 @@ void LoginWindow::getPartecipantsResponse(QString responseString)
         responseString.remove(0,SessionData::accessToSessionData().docId.length()+1);
 
         QStringList users = responseString.split("|");
-        for (QString user : users) {
+        for (QString& user : users) {
             QStringList userElements = user.split(":");
 
-            if(userElements[2].toStdString()!=SessionData::accessToSessionData().username) {
-                UserTag userTag;
-                userTag.setUserColor(chooseColorFromString(userElements[1]));
-                userTag.setUsername(userElements[2]);
-                userTag.setAvatar(recoverImageFromEncodedString(userElements[3]));
-                userTag.setUserStatus(false);
+            UserTag userTag;
+            userTag.setUserId(userElements[0].toInt());
+            userTag.setUserColor(chooseColorFromString(userElements[1]));
+            userTag.setUsername(userElements[2]);
+            userTag.setAvatar(recoverImageFromEncodedString(userElements[3]));
+            userTag.setUserStatus(false);
 
-                SessionData::accessToSessionData().usersList.push_back(userTag);
-                SessionData::accessToSessionData().userColorMap[userElements[0].toInt()] = userTag.getUserColor();
-            }
+            SessionData::accessToSessionData().usersList.push_back(userTag);
+            SessionData::accessToSessionData().userColorMap[userElements[0].toInt()] = userTag.getUserColor();
+
         }
         SessionData::accessToSessionData().status = true;
         SessionData::accessToSessionData().isLoginCorrect = true;

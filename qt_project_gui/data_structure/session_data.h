@@ -34,6 +34,7 @@ public:
     std::string password;
     QPixmap avatar;
     std::vector<UserTag> usersList;
+    std::vector<exchangeable_data::user> onlineUsers;
     std::map<int,QColor> userColorMap;
     bool status;
 

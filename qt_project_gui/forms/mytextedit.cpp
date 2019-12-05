@@ -219,16 +219,16 @@ void MyTextEdit::colorText(bool checked)
             else {
                 end = start;
                 this->hiddenCursor->setPosition(start);
-                color = SessionData::accessToSessionData().userColorMap[uid];
+
                 while(it->getSymbolId().second == uid) {
                     if(!it->is_hidden()) {
                         end++;
-                        //if(end==(size-1)) break;
+                        if(end==(size-1)) break;
                     }
                     it++;
                 }
                 this->hiddenCursor->movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, end-start);
-
+                color = SessionData::accessToSessionData().userColorMap[uid];
                 QTextCharFormat format;
                 format.setBackground(QBrush(color));
                 if((color.red()*299 + color.green()*587 + color.blue()*114)/1000 < 123)
@@ -236,7 +236,7 @@ void MyTextEdit::colorText(bool checked)
                 this->hiddenCursor->mergeCharFormat(format);
 
                 start=end;
-                it--;
+                it+=start;
             }
         }
     }

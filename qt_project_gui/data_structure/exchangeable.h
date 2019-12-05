@@ -34,8 +34,28 @@ namespace exchangeable_data {
         user() : id(""),username(""),image(""),lastCursorPositionJson(""),email("") {}
         user(std::string id,std::string email,std::string username,
              std::string image,std::string lastCursorPositionJson): id(id),email(email),
-                                                                    username(username),image(image),lastCursorPositionJson(lastCursorPositionJson)
+                                                                    username(username),image(image),
+                                                                    lastCursorPositionJson(lastCursorPositionJson)
         {}
+
+        user& operator=(const user &source) {
+            if(this != &source) {
+                this->id = source.id;
+                this->email = source.id;
+                this->username = source.username;
+                this->image = source.image;
+                this->lastCursorPositionJson = source.lastCursorPositionJson;
+            }
+            return *this;
+        }
+
+        bool operator==(const user &other) const {
+            return this->id == other.id;
+        }
+
+        bool operator!=(const user &other) const {
+            return this->id != other.id;
+        }
 
         std::string id;
         std::string username;

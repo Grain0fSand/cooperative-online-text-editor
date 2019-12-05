@@ -91,11 +91,25 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::closeEvent ( QCloseEvent * event ) {
+    event->ignore();
+    QThread* sender = new OnlineSender(QString::fromStdString(SessionData::accessToSessionData().token), SessionData::accessToSessionData().docId);
+    sender->start();
+    event->accept();
+}
+
 void MainWindow::populateUserTagList()
 {
     QString statusLabel;
     QPixmap led;
+
+    ui->listOnlineUsers->clear();
+    ui->listOfflineUsers->clear();
+
     for(auto &tag : SessionData::accessToSessionData().usersList) {
+        if(tag.getUserId()==std::stoi(SessionData::accessToSessionData().userId))
+            continue;
+
         auto item = new QListWidgetItem();
         if(tag.getStatus()) {
             led.load(":/resources/greenLed.png");
@@ -120,6 +134,47 @@ void MainWindow::populateUserTagList()
         item->setData(Qt::UserRole + 3, tag.getAvatar());
         item->setData(Qt::UserRole + 4, led);
         item->setData(Qt::UserRole + 5, tag.getUserColor());
+    }
+}
+
+void MainWindow::arrangeUserTagList(std::vector<exchangeable_data::user> remoteVector) {
+
+    SessionData *sessionData = &SessionData::accessToSessionData();
+
+    if(sessionData->onlineUsers!=remoteVector) {
+        std::vector<UserTag>::iterator everytimeUser;
+        std::vector<exchangeable_data::user>::iterator onlineUser;
+
+        for(everytimeUser=sessionData->usersList.begin(); everytimeUser<sessionData->usersList.end(); everytimeUser++) {
+            everytimeUser->setUserStatus(false);
+        }
+
+        for(onlineUser=remoteVector.begin(); onlineUser<remoteVector.end(); onlineUser++) {
+            if(onlineUser->id==sessionData->userId)
+                continue;
+
+            bool found = false;
+            for(everytimeUser=sessionData->usersList.begin(); everytimeUser<sessionData->usersList.end(); everytimeUser++) {
+                if(*everytimeUser==*onlineUser) {
+                    everytimeUser->setUserStatus(true);
+                    found = true;
+                    break;
+                }
+            }
+            if(!found) {
+                UserTag userTag;
+                userTag.setUserId(std::stoi(onlineUser->id));
+                userTag.setUserColor(LoginWindow::chooseColorFromString(QString::fromStdString(onlineUser->email)));
+                userTag.setUsername(QString::fromStdString(onlineUser->username));
+                userTag.setAvatar(LoginWindow::recoverImageFromEncodedString(QString::fromStdString(onlineUser->image)));
+                userTag.setUserStatus(true);
+
+                sessionData->usersList.push_back(userTag);
+                sessionData->userColorMap[userTag.getUserId()] = userTag.getUserColor();
+            }
+        }
+        sessionData->onlineUsers = remoteVector;
+        populateUserTagList();
     }
 }
 
@@ -301,7 +356,10 @@ void MainWindow::makeUnderline()
 //TODO: create multiple actions when copy pasting text with different styles
 void MainWindow::textChanged(int pos, int nDel, int nIns) {
     if(!ui->textEditShared->textCursor().hasSelection()) {
-        qDebug() << "pos: " << pos << " dels: " << nDel << " inss: "<< nIns;
+        qDebug() << "NON ha selection | pos: " << pos << " dels: " << nDel << " inss: "<< nIns;
+
+        if(nDel==nIns) return;  //this occurs when the hidden cursor selects part of the text for coloring
+                                //(i can't find a better way for now)
 
         if (nDel>0) { //deletion
             Action action;

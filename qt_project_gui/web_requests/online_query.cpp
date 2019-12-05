@@ -1,4 +1,5 @@
 #include "online_query.h"
+#include "../data_structure/session_data.h"
 #include <thread>
 #include <QtCore/QBuffer>
 
@@ -15,6 +16,7 @@ OnlineQuery::OnlineQuery(std::string docId,std::string token,QObject* m) :
     connect(this,&OnlineQuery::request_time,this,&OnlineQuery::getCrdtRequest);
     connect(this,&OnlineQuery::send_actions,&Crdt::getInstance(),&Crdt::update_income);
     connect(this,SIGNAL(update_id(std::string)),m,SLOT(update_id(std::string)));
+    connect(this,&OnlineQuery::users_online_arrived,SessionData::accessToSessionData().mainWindowPointer,&MainWindow::arrangeUserTagList);
 
     // the QTObj must be always be manipulated only by
     // the QThread that create the obj, so all the code must be
@@ -79,8 +81,7 @@ void OnlineQuery::checkReply(QNetworkReply *reply) {
         arrayOnlineUser.push_back(user);
     }
 
-    //emit TIENIDARIOOOOOOO(arrayOnlineUser);
-
+    emit users_online_arrived(arrayOnlineUser);
 
     for (auto& element : j) {
         exchangeable_data::send_data data;
