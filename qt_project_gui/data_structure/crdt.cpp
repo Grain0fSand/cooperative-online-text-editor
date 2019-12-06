@@ -83,17 +83,19 @@ std::vector<std::pair<int, int>> Crdt::symbolDeletion(int n, const std::pair<int
         // if first symbol found delete string and break
         if (it->getSymbolId() == first_symbol) {
             while (n-- > 0 && it != list.end())  {
-                it->hide();      //delete  without checking if it was already deleted
-                ret.push_back(it->getSymbolId());
+                if (it->is_hidden()) {
+                    ++n;
+                }
+                else {
+                    it->hide();
+                    ret.push_back(it->getSymbolId());
+                }
                 ++it;
             }
             break;
         }
         ++it;
     }
-    if (n >= 0)
-        n = 3;
-
     return ret;
 }
 
@@ -107,10 +109,14 @@ std::vector<std::pair<int, int>> Crdt::textFormatting(int n, const std::pair<int
         // if first symbol found format string and break
         if (it->getSymbolId() == first_symbol) {
             while (n-- > 0) {
-                //format without checking version because it's unnecessary
-                if (!it->is_blockStart()) {
-                    it->setVersion(op, usr_id, select);
-                    ret.push_back(it->getSymbolId());
+                if (it->is_hidden())
+                    ++n;
+                else {
+                    //format without checking version because it's unnecessary
+                    if (!it->is_blockStart()) {
+                        it->setVersion(op, usr_id, select);
+                        ret.push_back(it->getSymbolId());
+                    }
                 }
                 ++it;
             }
@@ -140,10 +146,15 @@ std::vector<std::pair<int, int>> Crdt::blockFormatting(int n, const std::pair<in
             ++it;      //in case first_symbol is block_starter
 
             while (n-- > 1) {
-                //format without checking version because it's unnecessary
-                if (it->is_blockStart()) {
-                    it->setVersion(op, usr_id, 0);
-                    ret.push_back(it->getSymbolId());
+                if (it->is_hidden()) {
+                    ++n;
+                }
+                else {
+                    //format without checking version because it's unnecessary
+                    if (it->is_blockStart()) {
+                        it->setVersion(op, usr_id, 0);
+                        ret.push_back(it->getSymbolId());
+                    }
                 }
                 ++it;
             }
@@ -257,7 +268,7 @@ std::vector<int> Crdt::symbolDeletionExt(const std::vector<std::pair<int, int>> 
             }
         }
         ++it;
-        if (!it->is_hidden())
+        if (it != list.end() && !it->is_hidden())
             ++i;
     }
     if (del_it != symbol.end()) throw "Not all characters could be deleted";
