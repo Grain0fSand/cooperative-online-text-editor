@@ -30,7 +30,7 @@ public:
     QStringList getFontSizes() const;
     QStringList getFontFamilies() const;
     static QColor chooseColorTextFromBackground(QColor& background);
-
+    void realignCopiedBlocks(int pos, int n);
 public slots:
     void colorText(bool checked);
 

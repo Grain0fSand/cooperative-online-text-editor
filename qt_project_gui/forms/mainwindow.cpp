@@ -369,11 +369,6 @@ void MainWindow::textChanged(int pos, int nDel, int nIns) {
 
         if (nIns>0) { //insertion
             QString str = ui->textEditShared->document()->toPlainText().mid(pos, nIns);
-//        for(int i=0; i<nIns; i++) {
-//            str += ui->textEditShared->document()->characterAt(pos+i);
-//        }
-//        qDebug() << str;
-
             //check all properties of inserted chars
             auto text_cursor = ui->textEditShared->textCursor();
             auto format = text_cursor.charFormat();
@@ -400,13 +395,9 @@ void MainWindow::textChanged(int pos, int nDel, int nIns) {
             else if (alignment == Qt::AlignJustify)
                 blockFormatType = AlignJustify;
 
-//  this is for copying multiple blocks
-//        for (int i = 0; i < str.size())
-
-
+            SessionData::accessToSessionData().myTextEditPointer->realignCopiedBlocks(pos, nIns);
             Action action(str, familyIndex, sizeIndex, bold, italic, underlined, blockFormatType);
             Crdt::getInstance().sendActionToServer(action, pos, nIns);
-
         }
     }
 }

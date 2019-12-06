@@ -82,7 +82,7 @@ std::vector<std::pair<int, int>> Crdt::symbolDeletion(int n, const std::pair<int
     while (it != list.end()) {
         // if first symbol found delete string and break
         if (it->getSymbolId() == first_symbol) {
-            while (n-- > 0) {
+            while (n-- > 0 && it != list.end())  {
                 it->hide();      //delete  without checking if it was already deleted
                 ret.push_back(it->getSymbolId());
                 ++it;
@@ -91,6 +91,9 @@ std::vector<std::pair<int, int>> Crdt::symbolDeletion(int n, const std::pair<int
         }
         ++it;
     }
+    if (n >= 0)
+        n = 3;
+
     return ret;
 }
 
@@ -210,6 +213,7 @@ std::vector<int> Crdt::symbolInsertionExt(const std::pair<int, int> &left_sym, i
         if (!it->is_hidden())
             ++j;
         if (left_sym == it->getSymbolId())
+
             break;
         ++it;
     }
