@@ -286,12 +286,12 @@ Crdt::formattingExt(const std::pair<int, int> &rel_symbol, const std::vector<std
         if (it->getSymbolId() == *form_it) {
             ++form_it;
             //version
-            if (it->compareVersion(rel_symbol.first, rel_symbol.second, select)) {
+            if (!it->is_hidden() && it->compareVersion(rel_symbol.first, rel_symbol.second, select)) {
                 ret.push_back(i - 1);  //get absolute position
                 it->setVersion(rel_symbol.first, rel_symbol.second, select);
             }
         }
-        ++it;
+         ++it;
         if (!it->is_hidden())
             ++i;
     }
