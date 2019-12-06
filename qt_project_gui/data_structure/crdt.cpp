@@ -103,7 +103,6 @@ std::vector<std::pair<int, int>> Crdt::textFormatting(int n, const std::pair<int
 
         // if first symbol found format string and break
         if (it->getSymbolId() == first_symbol) {
-
             while (n-- > 0) {
                 //format without checking version because it's unnecessary
                 if (!it->is_blockStart()) {
@@ -168,16 +167,16 @@ void Crdt::sendActionToServer(Action &action, int cursorPos, int numChars) {
             action_wrapper.symbol.push_back(symbol);
             break;
         case Deletion:
-            action_wrapper.rel_symbol = rel_symbol; //first symbol
             action_wrapper.symbol = symbolDeletion(numChars, rel_symbol);
+            action_wrapper.rel_symbol = symbol;
             break;
         case TextFormatting:
-            action_wrapper.rel_symbol = symbol;  //for setting version
             action_wrapper.symbol = textFormatting(numChars, rel_symbol, action.getSelection());
+            action_wrapper.rel_symbol = symbol;  //for setting version
             break;
         case BlockFormatting:
-            action_wrapper.rel_symbol = symbol;  //for setting version
             action_wrapper.symbol = blockFormatting(numChars, rel_symbol);
+            action_wrapper.rel_symbol = symbol;  //for setting version
             break;
         default:
             break;
@@ -198,6 +197,7 @@ void Crdt::sendActionToServer(Action &action, int cursorPos, int numChars) {
 //        receiveActionFromServer(action_queue.front());
 //        action_queue.pop();
 //    }
+    std::cout << "Action done: " << action_wrapper.get_json() << std::endl;
 }
 
 std::vector<int> Crdt::symbolInsertionExt(const std::pair<int, int> &left_sym, int n, const std::pair<int, int> &symbol,
@@ -211,7 +211,6 @@ std::vector<int> Crdt::symbolInsertionExt(const std::pair<int, int> &left_sym, i
             ++j;
         if (left_sym == it->getSymbolId())
             break;
-
         ++it;
     }
 
@@ -257,6 +256,7 @@ std::vector<int> Crdt::symbolDeletionExt(const std::vector<std::pair<int, int>> 
         if (!it->is_hidden())
             ++i;
     }
+    if (del_it != symbol.end()) throw "Not all characters could be deleted";
     return ret;
 }
 
@@ -280,6 +280,7 @@ Crdt::formattingExt(const std::pair<int, int> &rel_symbol, const std::vector<std
         if (!it->is_hidden())
             ++i;
     }
+    if (form_it != symbol.end()) throw "Not all characters could be formatted";
     return ret;
 }
 
@@ -288,16 +289,26 @@ void Crdt::update_income(std::vector<ActionWrapper> actions) {
     for(ActionWrapper actionWrapper : action_unresolved){
         actions.push_back(actionWrapper);
     }
-
     // now the cycle continue again, the action_unresolved are clear and
     // after if are not already resolved are filled again
     action_unresolved.clear();
+
+    if (actions.empty())
+        return;
+    //catch action wrappers sent mistakenly and belonging to the user who received them
+    if (list.size() > 1) {
+        int u = usr_id;
+        actions.erase(std::remove_if(actions.begin(), actions.end(), [u](ActionWrapper action_wrapper) {
+            if (action_wrapper.action.getActionType() == Insertion)
+                return (action_wrapper.symbol.empty() || action_wrapper.symbol.front().second == u);
+            return action_wrapper.rel_symbol.second == u;
+        }), actions.end());
+    }
 
     // solving the monoticity problem!!!!!
     std::sort(std::begin(actions),std::end(actions));
 
     for (ActionWrapper action_wrapper : actions) {
-
         Action &action = action_wrapper.action;
         std::vector<int> all_pos;
         try {
@@ -329,6 +340,7 @@ void Crdt::update_income(std::vector<ActionWrapper> actions) {
             std::cout << "DEBUG: cannot insert symbol " << action_wrapper.get_json() << std::endl;
             action_unresolved.push_back(action_wrapper);
         }
+
     }
 //    for (SymbolId s : list)
 //        std::cout << s.getIncId() << s.getUsrId() << s.is_hidden() << ' ';
