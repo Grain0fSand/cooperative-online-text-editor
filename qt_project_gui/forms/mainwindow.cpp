@@ -193,6 +193,7 @@ void MainWindow::exitFromEditor() {
 void MainWindow::backToLogin() {
     QMessageBox::StandardButton reply = QMessageBox::question(this,"Back to Login","Are you sure you want to logout?");
     if(reply == QMessageBox::Yes) {
+        Crdt::getInstance().reset();
         SessionData::accessToSessionData().loginWindowPointer->switchFrame(-1);
         SessionData::accessToSessionData().youWannaLogin = true;
         SessionData::accessToSessionData().isLoginCorrect = false;

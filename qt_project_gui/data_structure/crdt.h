@@ -15,7 +15,6 @@ class Crdt : public QObject {
     std::vector<SymbolId> list;
     int usr_id;
     unsigned int op = 0; //incremental counter
-    std::queue<ActionWrapper> action_queue;
     // for managing the non monotonicity problem in the messages
     std::vector<ActionWrapper> action_unresolved;
 
@@ -35,6 +34,12 @@ public:
     static Crdt& getInstance() {
        static Crdt instance;
        return instance;
+    }
+
+    void reset() {
+        op = 0;
+        list.clear();
+        action_unresolved.clear();
     }
 
     //TODO: verify usefulness

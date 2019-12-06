@@ -61,13 +61,13 @@ void MyTextEdit::addCursor(RemoteCursor *cursor)
 void MyTextEdit::doReceivedAction(const Action& action, int ownerId, const std::vector<int>& all_pos )
 {
     int ptr_start = 0, ptr_end, n = all_pos.size();    //ptr start and ptr end are for calculating ranges of subsequent positions in all_pos
+    this->document()->blockSignals(true);
     while (ptr_start < n) {
         //find range of subsequent positions and apply the action (for efficiency)
         ptr_end = ptr_start;
         this->hiddenCursorForText->setPosition(all_pos[ptr_start]);
         while (ptr_end < n - 1 && all_pos[ptr_end] == all_pos[ptr_end + 1] - 1)
             ++ptr_end;
-        this->document()->blockSignals(true);
         switch(action.getActionType())
         {
             case NoActionType:
@@ -190,10 +190,10 @@ void MyTextEdit::doReceivedAction(const Action& action, int ownerId, const std::
             default:
                 break;
         }
-        this->document()->blockSignals(false);
         ptr_start = ptr_end + 1;
     }
     SessionData::accessToSessionData().mainWindowPointer->checkTextProperty();
+    this->document()->blockSignals(false);
 }
 
 QStringList MyTextEdit::getFontSizes() const

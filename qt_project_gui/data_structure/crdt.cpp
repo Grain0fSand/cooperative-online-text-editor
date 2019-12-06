@@ -224,7 +224,7 @@ std::vector<int> Crdt::symbolInsertionExt(const std::pair<int, int> &left_sym, i
         ++j;
     }
 
-    if (it->getSymbolId() == symbol) return std::vector<int>();
+    if (it != list.end() && it->getSymbolId() == symbol) return std::vector<int>();
     //insert symbols
     SymbolId tmp_arr[n];
     for (int i = 0; i < n; ++i) {
