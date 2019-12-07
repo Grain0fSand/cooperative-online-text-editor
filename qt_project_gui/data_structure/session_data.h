@@ -38,6 +38,7 @@ public:
     std::map<int,QColor> userColorMap;
     bool status;
 
+    bool isUserConnected = true;
     bool isLoginCorrect = false;
     bool youWannaLogin = false;
 

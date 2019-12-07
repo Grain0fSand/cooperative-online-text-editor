@@ -96,7 +96,7 @@ set(SOURCES
 		web_requests/smtpclient.cpp
 		web_requests/smtpclient.h
 		web_requests/online_sender.cpp
-		web_requests/online_sender.h)
+		web_requests/online_sender.h web_requests/ReplyTimeout.cpp web_requests/ReplyTimeout.h)
 
 # User interface files
 set(FORMS

@@ -29,6 +29,7 @@ public:
 public slots:
     void getCrdtRequest();
     void checkReply(QNetworkReply *reply);
+    void slotErrorConnection(QNetworkReply::NetworkError error);
 
 private:
     QNetworkAccessManager manager{this};
@@ -38,6 +39,7 @@ private:
     std::string token;
     std::string lastCrdtId;
     std::atomic<bool> continue_run;
+    bool is_user_connected;
 
 signals:
     void response_arrived(std::string response);

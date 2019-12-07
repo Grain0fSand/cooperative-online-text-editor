@@ -1,7 +1,11 @@
 #include "online_query.h"
 #include "../data_structure/session_data.h"
+#include "ReplyTimeout.h"
 #include <thread>
 #include <QtCore/QBuffer>
+#include <QtNetwork/QNetworkConfigurationManager>
+#include <QProcess>
+#include <QtCore/QBasicTimer>
 
 #define IP_ADDRESS "47.53.242.167"
 //#define IP_ADDRESS "192.168.1.114"
@@ -33,7 +37,6 @@ void OnlineQuery::run() {
 }
 
 void OnlineQuery::getCrdtRequest() {
-
     // body of webrequest and json decode/unmarshaling
 
     QString ip_address = IP_ADDRESS;
@@ -51,10 +54,50 @@ void OnlineQuery::getCrdtRequest() {
 
     url.setUrl(location+request+params);
     req.setUrl(url);
-    manager.get(req);
+    QNetworkReply* reply = manager.get(req);
+    ReplyTimeout::set(reply,1200);
+    connect(reply,SIGNAL(error(QNetworkReply::NetworkError)),this,SLOT(slotErrorConnection(QNetworkReply::NetworkError)));
+
+}
+
+
+void OnlineQuery::slotErrorConnection(QNetworkReply::NetworkError error){
+    if (SessionData::accessToSessionData().isUserConnected){
+        SessionData::accessToSessionData().isUserConnected = false;
+        // TODO: emit disconnesso
+    }
 }
 
 void OnlineQuery::checkReply(QNetworkReply *reply) {
+
+
+    bool is_online = SessionData::accessToSessionData().isUserConnected;
+
+    if (is_online && reply->error() == QNetworkReply::NoError && reply->bytesAvailable()){
+        std::cout << "sei online" << std::endl;
+    } else {
+
+        if (reply->error() == QNetworkReply::NoError && reply->bytesAvailable()){
+            SessionData::accessToSessionData().isUserConnected = true;
+
+            // TODO: sei tornato online
+
+
+        } else if (SessionData::accessToSessionData().isUserConnected){
+            SessionData::accessToSessionData().isUserConnected = false;
+            //TODO: emit disconnesso
+            std::cout << "ti sei appena scollegato" << std::endl;
+        }
+
+
+        // left here, if no data are avaiable, no action need to be performed after
+        return;
+        std::cout << "sei offline" << std::endl;
+
+    }
+
+
+
     if (reply->error()) {
         qDebug() << reply->errorString();
         return;
