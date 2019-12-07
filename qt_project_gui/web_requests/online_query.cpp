@@ -55,7 +55,7 @@ void OnlineQuery::getCrdtRequest() {
     url.setUrl(location+request+params);
     req.setUrl(url);
     QNetworkReply* reply = manager.get(req);
-    ReplyTimeout::set(reply,1200);
+    ReplyTimeout::set(reply,3000);
     connect(reply,SIGNAL(error(QNetworkReply::NetworkError)),this,SLOT(slotErrorConnection(QNetworkReply::NetworkError)));
 
 }
