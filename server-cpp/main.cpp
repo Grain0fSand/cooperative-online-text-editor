@@ -213,7 +213,6 @@ int main() {
                         // sanitize(remoteCursor); the remote cursor is an json value so it must not be sanitized
 
                         int idUser = db.userLogged(token);
-                        idUser = 1;
 
                         if(idUser<0)
                             return crow::response(403);
@@ -228,7 +227,7 @@ int main() {
 
                         json k;
 
-                        std::vector<exchangeable_data::user> u = db.getOnlineUsers();
+                        std::vector<exchangeable_data::user> u = db.getOnlineUsers(docId);
 
                         for(exchangeable_data::user t : u){
                             k.push_back(t.get_json());

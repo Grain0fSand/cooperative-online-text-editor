@@ -28,7 +28,7 @@ public:
     std::vector<exchangeable_data::send_data> getOnlineUsers(std::string lastCrdtId,std::string uid,std::string docId);
     void eraseDB();
 
-    std::vector<exchangeable_data::user> getOnlineUsers();
+    std::vector<exchangeable_data::user> getOnlineUsers(std::string docId);
 
 private:
     SQLite::Database db;

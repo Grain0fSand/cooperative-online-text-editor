@@ -21,10 +21,15 @@ void Database::userLogout(std::string token, std::string docId)
 {
     std::string uid = std::to_string(userLogged(token));
 
-    std::string sql = "UPDATE user_document_request SET lastReq = datetime((strftime('%s','now')-31),'unixepoch','localtime') WHERE idUser = " + uid + " AND idDocument = " + docId;
+    std::string sql = "UPDATE user_document_request SET lastReq = datetime((strftime('%s','now')-16),'unixepoch','localtime') WHERE idUser = " + uid + " AND idDocument = " + docId;
     SQLite::Statement query(db, sql);
 
-    query.exec();
+    try {
+        query.exec();
+    } catch (SQLite::Exception &error) {
+        std::cout << error.getExtendedErrorCode() << " - " << error.what();
+        throw;
+    }
 }
 
 std::string Database::userLogin(std::string username,std::string password)
@@ -188,7 +193,8 @@ void Database::updateTimestamp(std::string docId,std::string uid)
 
 void Database::updateTimestamp(std::string docId,std::string uid,std::string remoteCursor)
 {
-    std::string sql = "UPDATE user_document_request SET lastReq = datetime('now','localtime'), cursor_position_json = ? WHERE idUser = " + uid + " AND idDocument = " + docId;
+    std::string sql = "UPDATE user_document_request SET lastReq = datetime('now','localtime'), cursor_position_json = ? "
+                      "WHERE idUser = " + uid + " AND idDocument = " + docId;
     SQLite::Statement query(db,sql);
     query.bind(1,remoteCursor);
     query.exec();
@@ -273,7 +279,7 @@ std::vector<exchangeable_data::send_data> Database::getCrdtUser(std::string last
         vect.push_back(exchangeable_data::send_data(id,crdt_json));
     }
 
-    updateTimestamp(docId,uid,remoteCursor);
+    updateTimestamp(docId,uid);
 
     return vect;
 }
@@ -301,9 +307,9 @@ std::string Database::random_string(size_t length)
 }
 
 std::vector<exchangeable_data::user>
-Database::getOnlineUsers() {
+Database::getOnlineUsers(std::string docId) {
 
-    std::string sql = "select id,email,username,image,(select cursor_position_json from user_document_request where lastReq >= datetime((strftime('%s','now')+30),'unixepoch','localtime')) as json_cursor from users where id in (select idUser from user_document_request where lastReq >= datetime((strftime('%s','now')-30),'unixepoch','localtime'))";
+    std::string sql = "select id,email,username,image,(select cursor_position_json from user_document_request where lastReq >= datetime((strftime('%s','now')+15),'unixepoch','localtime')) as json_cursor from users where id in (select idUser from user_document_request where idDocument = " + docId + " AND lastReq >= datetime((strftime('%s','now')-15),'unixepoch','localtime'))";
 
     SQLite::Statement query(db, sql);
     std::vector<exchangeable_data::user> vect;
