@@ -23,7 +23,7 @@ public:
     void addAction(int cursorPos, int numChars, ActionType = Deletion);
     void addAction(int cursorPos, int numChars, bool bold, bool italic, bool underlined, ActionType = TextFormatting);
     void addAction(int cursorPos, int numChars, BlockFormatType, ActionType = BlockFormatting);
-    void doReceivedAction(const Action& action, int ownerId, const std::vector<int>& all_pos);
+    int doReceivedAction(const Action& action, int ownerId, const std::vector<int>& all_pos);
     const QString &getDocumentName() const;
     void setDocumentName(const QString &documentName);
     //std::list<Action> toDoList;

@@ -258,6 +258,13 @@ std::vector<int> Crdt::symbolDeletionExt(const std::vector<std::pair<int, int>> 
     auto it = list.begin();
     auto del_it = symbol.begin();  //symbols to delete
     int i = 0;
+
+    int a = 0;
+    for (auto x : list)
+        if (!x.is_hidden())
+            ++a;
+
+
     std::vector<int> ret;
     while (it != list.end() && del_it != symbol.end()) {
         if (it->getSymbolId() == *del_it) {
@@ -267,6 +274,7 @@ std::vector<int> Crdt::symbolDeletionExt(const std::vector<std::pair<int, int>> 
                 it->hide();
             }
         }
+
         ++it;
         if (it != list.end() && !it->is_hidden())
             ++i;
@@ -300,6 +308,8 @@ Crdt::formattingExt(const std::pair<int, int> &rel_symbol, const std::vector<std
 }
 
 void Crdt::update_income(std::vector<ActionWrapper> actions) {
+
+    int  b;
 
     for(ActionWrapper actionWrapper : action_unresolved){
         actions.push_back(actionWrapper);
@@ -346,9 +356,17 @@ void Crdt::update_income(std::vector<ActionWrapper> actions) {
                 default:
                     break;
             }
+            //TODO: delete following part
+            int a = 0;
+            for (auto x : list)
+                if (!x.is_hidden())
+                    ++a;
+
             if (!all_pos.empty()) {
                 int ownerId = action_wrapper.symbol[0].second;
-                SessionData::accessToSessionData().myTextEditPointer->doReceivedAction(action, ownerId, all_pos);
+                b = SessionData::accessToSessionData().myTextEditPointer->doReceivedAction(action, ownerId, all_pos);
+                if (a != b)
+                    qDebug() << "BIIIIG ERROR CONTACT LORENZO IF YOU SEE THIS. IMPORTANT!!!";
             }
         } catch (...) {
             // TODO: leave here for debugging purpose until the last control to understand why that error is happened

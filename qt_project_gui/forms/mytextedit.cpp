@@ -69,14 +69,14 @@ void MyTextEdit::realignCopiedBlocks(int pos, int n) {
     this->document()->blockSignals(false);
 }
 
-void MyTextEdit::doReceivedAction(const Action& action, int ownerId, const std::vector<int>& all_pos )
+int MyTextEdit::doReceivedAction(const Action& action, int ownerId, const std::vector<int>& all_pos )
 {
-    int ptr_start = 0, ptr_end, n = all_pos.size();    //ptr start and ptr end are for calculating ranges of subsequent positions in all_pos
+    int ptr_start = 0, ptr_end, del_chars = 0, n = all_pos.size();    //ptr start and ptr end are for calculating ranges of subsequent positions in all_pos
     this->document()->blockSignals(true);
     while (ptr_start < n) {
         //find range of subsequent positions and apply the action (for efficiency)
         ptr_end = ptr_start;
-        this->hiddenCursorForText->setPosition(all_pos[ptr_start]);
+        this->hiddenCursorForText->setPosition(all_pos[ptr_start] - del_chars);
         while (ptr_end < n - 1 && all_pos[ptr_end] == all_pos[ptr_end + 1] - 1)
             ++ptr_end;
         switch(action.getActionType())
@@ -196,6 +196,7 @@ void MyTextEdit::doReceivedAction(const Action& action, int ownerId, const std::
             }
             case Deletion:
                 this->hiddenCursorForText->movePosition(QTextCursor::Right,QTextCursor::KeepAnchor,ptr_end + 1 - ptr_start);
+                del_chars += ptr_end + 1 - ptr_start;
                 this->hiddenCursorForText->removeSelectedText();
                 break;
             default:
@@ -205,6 +206,8 @@ void MyTextEdit::doReceivedAction(const Action& action, int ownerId, const std::
     }
     SessionData::accessToSessionData().mainWindowPointer->checkTextProperty();
     this->document()->blockSignals(false);
+    this->hiddenCursorForText->movePosition(QTextCursor::End);
+    return this->hiddenCursorForText->position();
 }
 
 QStringList MyTextEdit::getFontSizes() const
