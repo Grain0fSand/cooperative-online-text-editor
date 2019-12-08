@@ -29,7 +29,7 @@ public:
 public slots:
     void getCrdtRequest();
     void checkReply(QNetworkReply *reply);
-    void slotErrorConnection(QNetworkReply::NetworkError error);
+    void slotErrorConnection();
 
 private:
     QNetworkAccessManager manager{this};
@@ -47,6 +47,7 @@ signals:
     void request_time();
     void send_actions(std::vector<ActionWrapper> actions);
     void users_online_arrived(std::vector<exchangeable_data::user> vector);
+    void user_changed_his_status();
 };
 
 #endif // ONLINE_QUERY_H

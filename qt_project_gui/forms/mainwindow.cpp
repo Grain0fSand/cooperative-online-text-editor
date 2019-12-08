@@ -80,8 +80,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionExport_to_PDF,&QAction::triggered,this,&MainWindow::exportPDF);
     connect(ui->actionInvite,&QAction::triggered,this,&MainWindow::reqInvitationEmailAddress);
     connect(ui->actionTestCursor,&QAction::triggered,this,&MainWindow::insertRemoteCursor); //only for test
-    connect(ui->actionTestDisconnect,&QAction::triggered,this,&MainWindow::disableEditor); //only for test
-    connect(ui->actionTestColor,&QAction::toggled,ui->textEditShared,&MyTextEdit::colorText);
+    connect(ui->actionColor,&QAction::toggled,ui->textEditShared,&MyTextEdit::colorText);
 }
 
 MainWindow::~MainWindow()
@@ -102,6 +101,8 @@ void MainWindow::populateUserTagList()
 {
     QString statusLabel;
     QPixmap led;
+
+    std::sort(SessionData::accessToSessionData().onlineUsers.begin(),SessionData::accessToSessionData().onlineUsers.end());
 
     ui->listOnlineUsers->clear();
     ui->listOfflineUsers->clear();
@@ -124,11 +125,13 @@ void MainWindow::populateUserTagList()
             ui->listOfflineUsers->addItem(item);
         }
 
+        //TODO: this might be useless now
+        /*
         std::default_random_engine generator(std::chrono::system_clock::now().time_since_epoch().count());
         std::uniform_int_distribution<int> distribution(0,255);
         auto random_value = std::bind(distribution, generator);
         QColor color(random_value(),random_value(),random_value());
-
+*/
         item->setData(Qt::UserRole + 1, tag.getUsername());
         item->setData(Qt::UserRole + 2, statusLabel);
         item->setData(Qt::UserRole + 3, tag.getAvatar());
@@ -142,6 +145,52 @@ void MainWindow::arrangeUserTagList(std::vector<exchangeable_data::user> remoteV
     SessionData *sessionData = &SessionData::accessToSessionData();
 
     if(sessionData->onlineUsers!=remoteVector) {
+/*
+        std::sort(remoteVector.begin(),remoteVector.end());
+        std::vector<exchangeable_data::user> difference;
+        std::vector<UserTag>::iterator everytimeUser;
+
+        if(sessionData->onlineUsers<remoteVector) { //there is a user to add to onlinelist, check if its a new user
+            std::set_difference(remoteVector.begin(),remoteVector.end(),
+                                sessionData->onlineUsers.begin(),sessionData->onlineUsers.end(),
+                                std::back_inserter(difference));
+
+            bool found = false;
+            for(everytimeUser=sessionData->usersList.begin(); everytimeUser<sessionData->usersList.end(); everytimeUser++) {
+                if(*everytimeUser == difference.back()) {
+                    everytimeUser->setUserStatus(true);
+                    found = true;
+                    break;
+                }
+            }
+            if(!found) {
+                exchangeable_data::user newUser = difference.back();
+                UserTag userTag;
+                userTag.setUserId(std::stoi(newUser.id));
+                userTag.setUserColor(LoginWindow::chooseColorFromString(QString::fromStdString(newUser.email)));
+                userTag.setUsername(QString::fromStdString(newUser.username));
+                userTag.setAvatar(LoginWindow::recoverImageFromEncodedString(QString::fromStdString(newUser.image)));
+                userTag.setUserStatus(true);
+
+                sessionData->usersList.push_back(userTag);
+                sessionData->userColorMap[userTag.getUserId()] = userTag.getUserColor();
+            }
+        }
+        else { //there is a user to remove from onlinelist
+            std::set_difference(sessionData->onlineUsers.begin(),sessionData->onlineUsers.end(),
+                                remoteVector.begin(),remoteVector.end(),
+                                std::back_inserter(difference));
+
+            for(everytimeUser=sessionData->usersList.begin(); everytimeUser<sessionData->usersList.end(); everytimeUser++) {
+                if(*everytimeUser == difference.back()) {
+                    everytimeUser->setUserStatus(false);
+                    break;
+                }
+            }
+        }
+        */ //other version but not working for now, to delete if the current version works well
+
+
         std::vector<UserTag>::iterator everytimeUser;
         std::vector<exchangeable_data::user>::iterator onlineUser;
 
@@ -515,27 +564,55 @@ void MainWindow::reqInvitationEmailAddress()
     }
 }
 
-void MainWindow::disableEditor()
+void MainWindow::changeEditorStatus()
 {
-    ui->textEditShared->setEnabled(!ui->textEditShared->isEnabled());
-    ui->statusBar->setEnabled(!ui->statusBar->isEnabled());
-    ui->actionCopy->setEnabled(!ui->actionCopy->isEnabled());
-    ui->actionCut->setEnabled(!ui->actionCut->isEnabled());
-    ui->actionPaste->setEnabled(!ui->actionPaste->isEnabled());
+    bool isUserOnline = !SessionData::accessToSessionData().isUserOnline;
+    SessionData::accessToSessionData().isUserOnline = isUserOnline;
+
+    //operations to do BEFORE the editor changes its status
+    if(isUserOnline) {  //operations to do when back online
+        Crdt::getInstance().reset();
+    } else {    //operations to do when it turns offline
+        if(ui->listOfflineUsers->isVisible())
+            ui->offlineRollButton->click();
+        if(ui->listOnlineUsers->isVisible())
+            ui->onlineRollButton->click();
+    }
+
+    ui->textEditShared->setEnabled(isUserOnline);
+    ui->statusBar->setEnabled(isUserOnline);
+    ui->actionCopy->setEnabled(isUserOnline);
+    ui->actionCut->setEnabled(isUserOnline);
+    ui->actionPaste->setEnabled(isUserOnline);
     auto comboBoxes = ui->mainToolBar->findChildren<QComboBox*>();
-    comboBoxes[0]->setEnabled(!comboBoxes[0]->isEnabled());
-    comboBoxes[1]->setEnabled(!comboBoxes[1]->isEnabled());
-    ui->actionBold->setEnabled(!ui->actionBold->isEnabled());
-    ui->actionItalic->setEnabled(!ui->actionItalic->isEnabled());
-    ui->actionUnderlined->setEnabled(!ui->actionUnderlined->isEnabled());
-    ui->actionAlignLeft->setEnabled(!ui->actionAlignLeft->isEnabled());
-    ui->actionAlignCenter->setEnabled(!ui->actionAlignCenter->isEnabled());
-    ui->actionAlignRight->setEnabled(!ui->actionAlignRight->isEnabled());
-    ui->actionAlignJustify->setEnabled(!ui->actionAlignJustify->isEnabled());
-    ui->listOnlineUsers->setEnabled(!ui->listOnlineUsers->isEnabled());
-    ui->listOfflineUsers->setEnabled(!ui->listOfflineUsers->isEnabled());
-    ui->onlineRollButton->setEnabled(!ui->onlineRollButton->isEnabled());
-    ui->offlineRollButton->setEnabled(!ui->offlineRollButton->isEnabled());
+    comboBoxes[0]->setEnabled(isUserOnline);
+    comboBoxes[1]->setEnabled(isUserOnline);
+    ui->actionBold->setEnabled(isUserOnline);
+    ui->actionItalic->setEnabled(isUserOnline);
+    ui->actionUnderlined->setEnabled(isUserOnline);
+    ui->actionAlignLeft->setEnabled(isUserOnline);
+    ui->actionAlignCenter->setEnabled(isUserOnline);
+    ui->actionAlignRight->setEnabled(isUserOnline);
+    ui->actionAlignJustify->setEnabled(isUserOnline);
+    ui->actionColor->setEnabled(isUserOnline);
+    ui->listOnlineUsers->setEnabled(isUserOnline);
+    ui->listOfflineUsers->setEnabled(isUserOnline);
+    ui->onlineRollButton->setEnabled(isUserOnline);
+    ui->offlineRollButton->setEnabled(isUserOnline);
+
+    //operations to do POST the editor changes its status
+    if(isUserOnline) {  //operations to do when back online
+        if(!ui->listOfflineUsers->isVisible())
+            ui->offlineRollButton->click();
+        if(!ui->listOnlineUsers->isVisible())
+            ui->onlineRollButton->click();
+
+        ui->myLed->setPixmap(QPixmap(QString::fromUtf8(":/resources/greenLed.png")));
+        ui->myStatus->setText("Online");
+    } else {    //operations to do when it turns offline
+        ui->myLed->setPixmap(QPixmap(QString::fromUtf8(":/resources/redLed.png")));
+        ui->myStatus->setText("Offline");
+    }
 }
 
 void MainWindow::setupFontComboBoxes(QComboBox* comboSize, QComboBox* comboFamily)

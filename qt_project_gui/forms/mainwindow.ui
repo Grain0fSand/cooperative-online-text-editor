@@ -397,9 +397,8 @@
    <addaction name="actionAlignCenter"/>
    <addaction name="actionAlignRight"/>
    <addaction name="actionAlignJustify"/>
-   <addaction name="actionTestColor"/>
+   <addaction name="actionColor"/>
    <addaction name="actionTestCursor"/>
-   <addaction name="actionTestDisconnect"/>
   </widget>
   <widget class="QStatusBar" name="statusBar">
    <property name="sizeGripEnabled">
@@ -570,15 +569,7 @@
     <string>TestCursor</string>
    </property>
   </action>
-  <action name="actionTestDisconnect">
-   <property name="text">
-    <string>TestDisconnect</string>
-   </property>
-   <property name="toolTip">
-    <string>TestDisconnect</string>
-   </property>
-  </action>
-  <action name="actionTestColor">
+  <action name="actionColor">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -587,7 +578,7 @@
      <normaloff>:/resources/colorButtonIcon.png</normaloff>:/resources/colorButtonIcon.png</iconset>
    </property>
    <property name="text">
-    <string>TestColor</string>
+    <string>Color</string>
    </property>
    <property name="toolTip">
     <string>Highlights the text based on who entered it</string>

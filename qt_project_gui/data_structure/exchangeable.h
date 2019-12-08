@@ -49,6 +49,10 @@ namespace exchangeable_data {
             return *this;
         }
 
+        bool operator<(const user &other) const {
+            return this->id < other.id;
+        }
+
         bool operator==(const user &other) const {
             return this->id == other.id;
         }

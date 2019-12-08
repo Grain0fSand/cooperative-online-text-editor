@@ -362,7 +362,7 @@ public:
         informationWhiteFrame->setFrameShadow(QFrame::Plain);
         informationLabel = new QLabel(informationWhiteFrame);
         informationLabel->setObjectName(QString::fromUtf8("informationLabel"));
-        informationLabel->setGeometry(QRect(35, 200, 250, 100));
+        informationLabel->setGeometry(QRect(5, 200, 310, 100));
         QFont font6;
         font6.setFamily(QString::fromUtf8("Gill Sans MT"));
         font6.setPointSize(12);

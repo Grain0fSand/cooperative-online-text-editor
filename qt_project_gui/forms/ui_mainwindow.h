@@ -48,8 +48,7 @@ public:
     QAction *actionAlignJustify;
     QAction *actionInvite;
     QAction *actionTestCursor;
-    QAction *actionTestDisconnect;
-    QAction *actionTestColor;
+    QAction *actionColor;
     QWidget *centralWidget;
     QHBoxLayout *horizontalLayout;
     QWidget *docFrame;
@@ -153,14 +152,12 @@ public:
         actionInvite->setObjectName(QString::fromUtf8("actionInvite"));
         actionTestCursor = new QAction(MainWindow);
         actionTestCursor->setObjectName(QString::fromUtf8("actionTestCursor"));
-        actionTestDisconnect = new QAction(MainWindow);
-        actionTestDisconnect->setObjectName(QString::fromUtf8("actionTestDisconnect"));
-        actionTestColor = new QAction(MainWindow);
-        actionTestColor->setObjectName(QString::fromUtf8("actionTestColor"));
-        actionTestColor->setCheckable(true);
+        actionColor = new QAction(MainWindow);
+        actionColor->setObjectName(QString::fromUtf8("actionColor"));
+        actionColor->setCheckable(true);
         QIcon icon11;
         icon11.addFile(QString::fromUtf8(":/resources/colorButtonIcon.png"), QSize(), QIcon::Normal, QIcon::Off);
-        actionTestColor->setIcon(icon11);
+        actionColor->setIcon(icon11);
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QString::fromUtf8("centralWidget"));
         sizePolicy.setHeightForWidth(centralWidget->sizePolicy().hasHeightForWidth());
@@ -342,9 +339,8 @@ public:
         mainToolBar->addAction(actionAlignRight);
         mainToolBar->addAction(actionAlignJustify);
         mainToolBar->addSeparator();
-        mainToolBar->addAction(actionTestColor);
+        mainToolBar->addAction(actionColor);
         mainToolBar->addAction(actionTestCursor);
-        mainToolBar->addAction(actionTestDisconnect);
         menuBar->addAction(menuMain->menuAction());
         menuBar->addAction(menuAbout->menuAction());
         menuMain->addAction(actionInvite);
@@ -377,13 +373,9 @@ public:
         actionAlignJustify->setText(QCoreApplication::translate("MainWindow", "AlignJustify", nullptr));
         actionInvite->setText(QCoreApplication::translate("MainWindow", "Invite to Collaborate", nullptr));
         actionTestCursor->setText(QCoreApplication::translate("MainWindow", "TestCursor", nullptr));
-        actionTestDisconnect->setText(QCoreApplication::translate("MainWindow", "TestDisconnect", nullptr));
+        actionColor->setText(QCoreApplication::translate("MainWindow", "Color", nullptr));
 #if QT_CONFIG(tooltip)
-        actionTestDisconnect->setToolTip(QCoreApplication::translate("MainWindow", "TestDisconnect", nullptr));
-#endif // QT_CONFIG(tooltip)
-        actionTestColor->setText(QCoreApplication::translate("MainWindow", "TestColor", nullptr));
-#if QT_CONFIG(tooltip)
-        actionTestColor->setToolTip(QCoreApplication::translate("MainWindow", "Highlights the text based on who entered it", nullptr));
+        actionColor->setToolTip(QCoreApplication::translate("MainWindow", "Highlights the text based on who entered it", nullptr));
 #endif // QT_CONFIG(tooltip)
         textEditShared->setHtml(QCoreApplication::translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
                                                                           "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"

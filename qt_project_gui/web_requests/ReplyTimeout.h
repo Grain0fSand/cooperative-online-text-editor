@@ -10,6 +10,7 @@
 #include <QtNetwork/QNetworkReply>
 #include <QtCore/QBasicTimer>
 #include <iostream>
+#include <forms/mainwindow.h>
 
 class ReplyTimeout : public QObject {
     Q_OBJECT
@@ -17,12 +18,18 @@ class ReplyTimeout : public QObject {
 public:
     ReplyTimeout(QNetworkReply* reply, const int timeout) : QObject(reply) {
         Q_ASSERT(reply);
-        if (reply && reply->isRunning())
+        if (reply && reply->isRunning()) {
+            connect(this,&ReplyTimeout::timeoutOccurred,SessionData::accessToSessionData().mainWindowPointer,&MainWindow::changeEditorStatus);
             m_timer.start(timeout, this);
+        }
     }
     static void set(QNetworkReply* reply, const int timeout) {
         new ReplyTimeout(reply, timeout);
     }
+
+signals:
+    void timeoutOccurred();
+
 protected:
     void timerEvent(QTimerEvent * ev) override {
         if (!m_timer.isActive() || ev->timerId() != m_timer.timerId())
@@ -34,6 +41,8 @@ protected:
             reply->abort();
 
             // TODO: emit offline perchè ci ha messo troppo a rispondere
+            if(SessionData::accessToSessionData().isUserOnline)
+                emit timeoutOccurred();
             std::cout << "too mutch time for the reply" << std::endl;
         }
 

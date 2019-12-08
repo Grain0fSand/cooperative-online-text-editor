@@ -21,6 +21,7 @@ OnlineQuery::OnlineQuery(std::string docId,std::string token,QObject* m) :
     connect(this,&OnlineQuery::send_actions,&Crdt::getInstance(),&Crdt::update_income);
     connect(this,SIGNAL(update_id(std::string)),m,SLOT(update_id(std::string)));
     connect(this,&OnlineQuery::users_online_arrived,SessionData::accessToSessionData().mainWindowPointer,&MainWindow::arrangeUserTagList);
+    connect(this,&OnlineQuery::user_changed_his_status,SessionData::accessToSessionData().mainWindowPointer,&MainWindow::changeEditorStatus);
 
     // the QTObj must be always be manipulated only by
     // the QThread that create the obj, so all the code must be
@@ -55,49 +56,37 @@ void OnlineQuery::getCrdtRequest() {
     url.setUrl(location+request+params);
     req.setUrl(url);
     QNetworkReply* reply = manager.get(req);
-    ReplyTimeout::set(reply,1200);
-    connect(reply,SIGNAL(error(QNetworkReply::NetworkError)),this,SLOT(slotErrorConnection(QNetworkReply::NetworkError)));
-
+    ReplyTimeout::set(reply,800);
+    connect(reply,SIGNAL(error(QNetworkReply::NetworkError)),this,SLOT(slotErrorConnection()));
 }
 
-
-void OnlineQuery::slotErrorConnection(QNetworkReply::NetworkError error){
-    if (SessionData::accessToSessionData().isUserConnected){
-        SessionData::accessToSessionData().isUserConnected = false;
-        // TODO: emit disconnesso
-    }
+void OnlineQuery::slotErrorConnection() {
+    if (SessionData::accessToSessionData().isUserOnline)
+        emit user_changed_his_status();
 }
 
 void OnlineQuery::checkReply(QNetworkReply *reply) {
 
 
-    bool is_online = SessionData::accessToSessionData().isUserConnected;
+    bool is_online = SessionData::accessToSessionData().isUserOnline;
 
     if (is_online && reply->error() == QNetworkReply::NoError && reply->bytesAvailable()){
         std::cout << "sei online" << std::endl;
     } else {
 
         if (reply->error() == QNetworkReply::NoError && reply->bytesAvailable()){
-            SessionData::accessToSessionData().isUserConnected = true;
+            emit user_changed_his_status();
+            std::cout << "sei tornato online" << std::endl;
 
-            // TODO: sei tornato online
-
-
-        } else if (SessionData::accessToSessionData().isUserConnected){
-            SessionData::accessToSessionData().isUserConnected = false;
-            //TODO: emit disconnesso
+        } else if (is_online){
+            emit user_changed_his_status();
             std::cout << "ti sei appena scollegato" << std::endl;
         }
 
-
-        // left here, if no data are avaiable, no action need to be performed after
         return;
-        std::cout << "sei offline" << std::endl;
-
     }
 
-
-
+    //TODO: this might never be true (see the first if-else above...)
     if (reply->error()) {
         qDebug() << reply->errorString();
         return;

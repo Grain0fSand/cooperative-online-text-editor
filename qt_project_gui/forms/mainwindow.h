@@ -82,7 +82,7 @@ public slots:
     void checkTextProperty();
     void insertRemoteCursor();
     void reqInvitationEmailAddress();
-    void disableEditor();
+    void changeEditorStatus();
     void populateUserTagList();
     void arrangeUserTagList(std::vector<exchangeable_data::user>);
 
