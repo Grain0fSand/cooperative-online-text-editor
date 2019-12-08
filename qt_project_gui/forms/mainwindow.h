@@ -90,7 +90,7 @@ protected slots:
     void textChanged(int, int, int);
 
 signals:
-    void exitSignal();
+    void stopQueryLoop();
     void setComboSize(int);
     void setComboFont(int);
 

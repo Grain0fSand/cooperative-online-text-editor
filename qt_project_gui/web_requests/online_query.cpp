@@ -22,7 +22,7 @@ OnlineQuery::OnlineQuery(std::string docId,std::string token,QObject* m) :
     connect(this,SIGNAL(update_id(std::string)),m,SLOT(update_id(std::string)));
     connect(this,&OnlineQuery::users_online_arrived,SessionData::accessToSessionData().mainWindowPointer,&MainWindow::arrangeUserTagList);
     connect(this,&OnlineQuery::user_changed_his_status,SessionData::accessToSessionData().mainWindowPointer,&MainWindow::changeEditorStatus);
-
+    connect(SessionData::accessToSessionData().mainWindowPointer,&MainWindow::stopQueryLoop,this,&OnlineQuery::terminate);
     // the QTObj must be always be manipulated only by
     // the QThread that create the obj, so all the code must be
     // in the same thread: the run() method

@@ -244,8 +244,12 @@ void MainWindow::backToLogin() {
     if(reply == QMessageBox::Yes) {
         Crdt::getInstance().reset();
         SessionData::accessToSessionData().loginWindowPointer->switchFrame(-1);
+        SessionData::accessToSessionData().onlineUsers.clear();
+        SessionData::accessToSessionData().usersList.clear();
+        SessionData::accessToSessionData().userColorMap.clear();
         SessionData::accessToSessionData().youWannaLogin = true;
         SessionData::accessToSessionData().isLoginCorrect = false;
+        emit stopQueryLoop();
         this->close();
     }
 }
