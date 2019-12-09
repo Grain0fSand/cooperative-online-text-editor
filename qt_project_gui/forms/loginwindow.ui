@@ -183,7 +183,6 @@ border-style: solid;
 }
 
 QPushButton:hover {
-//widget-animation-duration: 100;
 background-color: #E4EFF9;
 border-color: #0C7BD4;
 }
@@ -476,7 +475,6 @@ border-style: solid;
 }
 
 QPushButton:hover {
-widget-animation-duration: 100;
 background-color: #E4EFF9;
 border-color: #0C7BD4;
 }
@@ -868,7 +866,6 @@ QPushButton:hover {
        }
 
        QPushButton:hover {
-       widget-animation-duration: 100;
        background-color: #E4EFF9;
        border-color: #0C7BD4;
        }
