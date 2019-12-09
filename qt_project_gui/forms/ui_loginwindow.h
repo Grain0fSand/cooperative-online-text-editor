@@ -140,7 +140,7 @@ public:
 "}\n"
 "\n"
 "QPushButton:hover {\n"
-"widget-animation-duration: 100;\n"
+//"widget-animation-duration: 100;\n"
 "background-color: #E4EFF9;\n"
 "border-color: #0C7BD4;\n"
 "}\n"
