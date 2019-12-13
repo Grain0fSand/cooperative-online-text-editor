@@ -17,7 +17,6 @@
 class Periodic_task : public QThread
 {
     Q_OBJECT
-
     int milliseconds;
     std::atomic<bool> running;
 
@@ -54,6 +53,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
+    QEvent::Type lastEventType;
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     //MainWindow(const MainWindow&) = delete;
@@ -100,7 +100,6 @@ private slots:
     void update_online_users_and_cursors_positions(std::vector<exchangeable_data::user> vector);
 
 private:
-
 
     void addUserTag(QString username, bool status, QPixmap avatar, QColor color);
     Ui::MainWindow *ui;

@@ -49,8 +49,9 @@ void MyTextEdit::paintEvent(QPaintEvent *e) {
         }
 
     }
-
+    this->document()->blockSignals(true);
     QTextEdit::paintEvent(e);
+    this->document()->blockSignals(false);
 }
 
 void MyTextEdit::addCursor(RemoteCursor *cursor)
@@ -58,11 +59,10 @@ void MyTextEdit::addCursor(RemoteCursor *cursor)
     this->cursorsList.push_back(cursor);
 }
 
-void MyTextEdit::realignCopiedBlocks(int pos, int n) {
+void MyTextEdit::realignCopiedBlocks(int pos, int n, QTextBlockFormat blockFormat) {
     this->document()->blockSignals(true);
-    this->hiddenCursorForText->setPosition(pos - 1);
-    QTextBlockFormat blockFormat = this->hiddenCursorForText->blockFormat();
-    this->hiddenCursorForText->movePosition(QTextCursor::Right,QTextCursor::KeepAnchor, n+1);
+    this->hiddenCursorForText->setPosition(pos);
+    this->hiddenCursorForText->movePosition(QTextCursor::Right,QTextCursor::KeepAnchor, n);
     this->hiddenCursorForText->setBlockFormat(blockFormat);
 
     SessionData::accessToSessionData().mainWindowPointer->checkTextProperty();
@@ -223,6 +223,7 @@ QStringList MyTextEdit::getFontFamilies() const
 void MyTextEdit::colorText(bool checked)
 {
     this->colorFeatureActive = checked;
+    this->document()->blockSignals(true);
 
     if(checked) {
         std::vector<SymbolId> *list = &Crdt::getInstance().getSymbolList();
@@ -265,6 +266,8 @@ void MyTextEdit::colorText(bool checked)
         this->hiddenCursorForColors->select(QTextCursor::Document);
         this->hiddenCursorForColors->mergeCharFormat(format);
     }
+
+    this->document()->blockSignals(false);
 }
 
 QColor MyTextEdit::chooseColorTextFromBackground(QColor& background) {

@@ -71,7 +71,7 @@ void OnlineQuery::checkReply(QNetworkReply *reply) {
     bool is_online = SessionData::accessToSessionData().isUserOnline;
 
     if (is_online && reply->error() == QNetworkReply::NoError && reply->bytesAvailable()){
-        std::cout << "sei online" << std::endl;
+       // std::cout << "sei online" << std::endl;
     } else {
 
         if (reply->error() == QNetworkReply::NoError && reply->bytesAvailable()){

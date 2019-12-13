@@ -12,7 +12,6 @@
 #include <QFontComboBox>
 #include <QComboBox>
 #include <QLabel>
-#include <QClipboard>
 #include <QPrinter>
 #include <QFileDialog>
 #include <QMessageBox>
@@ -410,10 +409,16 @@ void MainWindow::makeUnderline()
 //TODO: create multiple actions when copy pasting text with different styles
 void MainWindow::textChanged(int pos, int nDel, int nIns) {
     if(!ui->textEditShared->textCursor().hasSelection()) {
-        qDebug() << "NON ha selection | pos: " << pos << " dels: " << nDel << " inss: "<< nIns;
 
-        if(nDel==nIns) return;  //this occurs when the hidden cursor selects part of the text for coloring
-                                //(i can't find a better way for now)
+        if (lastEventType == QEvent::InputMethod)   //no idea what are these events and why they arrive here
+            return;
+
+        //IMPORTANT: Pasting text other than when the document is empty will result in unexpected behaviour
+        //https://bugreports.qt.io/browse/QTBUG-3495?focusedCommentId=264621&page=com.atlassian.jira.plugin.system.issuetabpanels%3Acomment-tabpanel#comment-264621
+        if(nIns >= ui->textEditShared->document()->characterCount()) {   //workaround of a CTRL-V bug.
+            --nIns;
+            --nDel;
+        }
 
         if (nDel>0) { //deletion
             Action action;
@@ -448,7 +453,7 @@ void MainWindow::textChanged(int pos, int nDel, int nIns) {
             else if (alignment == Qt::AlignJustify)
                 blockFormatType = AlignJustify;
 
-            SessionData::accessToSessionData().myTextEditPointer->realignCopiedBlocks(pos, nIns);
+        //    SessionData::accessToSessionData().myTextEditPointer->realignCopiedBlocks(pos, nIns, blockFormat);
             Action action(str, familyIndex, sizeIndex, bold, italic, underlined, blockFormatType);
             Crdt::getInstance().sendActionToServer(action, pos, nIns);
         }
@@ -705,6 +710,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
         }
         return false;
     } else {
+        lastEventType = event->type();
         return false;
     }
 }
