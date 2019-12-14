@@ -410,12 +410,12 @@ void MainWindow::makeUnderline()
 void MainWindow::textChanged(int pos, int nDel, int nIns) {
     if(!ui->textEditShared->textCursor().hasSelection()) {
 
-        if (lastEventType == QEvent::InputMethod)   //no idea what are these events and why they arrive here
+        if (lastEventType == QEvent::InputMethod || lastEventType == QEvent::InputMethodQuery)   //no idea what are these events and why they arrive here
             return;
 
         //IMPORTANT: Pasting text other than when the document is empty will result in unexpected behaviour
         //https://bugreports.qt.io/browse/QTBUG-3495?focusedCommentId=264621&page=com.atlassian.jira.plugin.system.issuetabpanels%3Acomment-tabpanel#comment-264621
-        if(nIns >= ui->textEditShared->document()->characterCount()) {   //workaround of a CTRL-V bug.
+        if((pos == 0 || pos + nIns == ui->textEditShared->document()->characterCount())  && nIns > 1 ) {   //workaround of a CTRL-V bug.
             --nIns;
             --nDel;
         }
@@ -431,6 +431,13 @@ void MainWindow::textChanged(int pos, int nDel, int nIns) {
             auto text_cursor = ui->textEditShared->textCursor();
             auto format = text_cursor.charFormat();
             auto font = format.font();
+
+            if (nIns > 1) {
+                text_cursor.setPosition(pos);
+                format = text_cursor.charFormat();
+                text_cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, nIns);
+                text_cursor.setCharFormat(format);
+            }
 
             QString fontSize = QString::number(font.pointSize());
             int sizeIndex = ui->textEditShared->getFontSizes().indexOf(fontSize);

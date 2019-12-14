@@ -246,7 +246,7 @@ void MyTextEdit::colorText(bool checked)
                 it++;
             } while(it->getSymbolId().second == currentId);
 
-            if(currentId!=myId)
+            if(currentId!=myId && start != end)
             {
                 this->hiddenCursorForColors->setPosition(start);
                 this->hiddenCursorForColors->movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, end-start);
