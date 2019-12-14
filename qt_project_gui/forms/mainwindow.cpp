@@ -410,7 +410,7 @@ void MainWindow::makeUnderline()
 void MainWindow::textChanged(int pos, int nDel, int nIns) {
     if(!ui->textEditShared->textCursor().hasSelection()) {
 
-        if (lastEventType == QEvent::InputMethod || lastEventType == QEvent::InputMethodQuery)   //no idea what are these events and why they arrive here
+        if (lastEventType == QEvent::InputMethod)   //no idea what are these events and why they arrive here
             return;
 
         //IMPORTANT: Pasting text other than when the document is empty will result in unexpected behaviour
@@ -701,6 +701,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
 
     if (event->type() == QEvent::KeyPress) {
+        lastEventType = event->type();
         QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
 
         // filter to remove undo and redo
