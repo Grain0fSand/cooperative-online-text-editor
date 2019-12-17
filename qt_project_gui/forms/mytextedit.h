@@ -13,6 +13,7 @@ class MyTextEdit : public QTextEdit
 public:
     MyTextEdit(QWidget *parent = nullptr);
     ~MyTextEdit();
+    QString previousSelection;
     //MyTextEdit(const MyTextEdit &) = delete;
     //MyTextEdit& operator=(const MyTextEdit &) = delete;
 
@@ -36,8 +37,7 @@ public slots:
 
 private:
 
-
-    std::list<RemoteCursor*> cursorsList;
+      std::list<RemoteCursor*> cursorsList;
   //  std::list<Action> toSendList;
    // static inline MyTextEdit* instance = nullptr;
     QStringList fontSizes;

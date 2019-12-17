@@ -9,6 +9,7 @@
 #include <chrono>
 #include <qthread.h>
 #include <atomic>
+#include <stack>
 #include "usertag.h"
 #include "web_requests/online_query.h"
 #include "../data_structure/crdt.h"
@@ -53,7 +54,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    QEvent::Type lastEventType;
+    std::deque<QEvent::Type> lastEventType;
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     //MainWindow(const MainWindow&) = delete;

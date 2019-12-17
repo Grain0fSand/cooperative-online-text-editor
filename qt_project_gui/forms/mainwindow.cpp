@@ -19,6 +19,7 @@
 #include <QPainter>
 #include <QPushButton>
 #include <QStringListModel>
+#include <QClipboard>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -71,6 +72,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     });
     connect(ui->textEditShared->document(),&QTextDocument::contentsChange,this,&MainWindow::textChanged);
+    connect(ui->textEditShared, &QTextEdit::selectionChanged,ui->textEditShared,[&](){ui->textEditShared->previousSelection = ui->textEditShared->textCursor().selectedText().count();});
     connect(ui->textEditShared,&QTextEdit::cursorPositionChanged,this,&MainWindow::checkTextProperty);
     connect(this,&MainWindow::setComboSize,comboSize,&QComboBox::setCurrentIndex);
     connect(this,&MainWindow::setComboFont,comboFamily,&QComboBox::setCurrentIndex);
@@ -285,9 +287,10 @@ void MainWindow::alignLeft()
     ui->actionAlignRight->setChecked(false);
     ui->actionAlignJustify->setChecked(false);
 
+    ui->textEditShared->document()->blockSignals(true);
     cursor.mergeBlockFormat(textBlockFormat);
     textEdit->setTextCursor(cursor);
-
+    ui->textEditShared->document()->blockSignals(false);
     Action a = Action( AlignLeft);
     Crdt::getInstance().sendActionToServer(a, cursor.selectionStart(), cursor.selectedText().length());
 }
@@ -304,8 +307,10 @@ void MainWindow::alignCenter()
     ui->actionAlignRight->setChecked(false);
     ui->actionAlignJustify->setChecked(false);
 
+    ui->textEditShared->document()->blockSignals(true);
     cursor.mergeBlockFormat(textBlockFormat);
     textEdit->setTextCursor(cursor);
+    ui->textEditShared->document()->blockSignals(false);
 
     Action a = Action( AlignCenter);
     Crdt::getInstance().sendActionToServer(a, cursor.selectionStart(), cursor.selectedText().length());
@@ -323,8 +328,10 @@ void MainWindow::alignRight()
     ui->actionAlignRight->setChecked(true);
     ui->actionAlignJustify->setChecked(false);
 
+    ui->textEditShared->document()->blockSignals(true);
     cursor.mergeBlockFormat(textBlockFormat);
     textEdit->setTextCursor(cursor);
+    ui->textEditShared->document()->blockSignals(false);
 
     Action a = Action(AlignRight);
     Crdt::getInstance().sendActionToServer(a, cursor.selectionStart(), cursor.selectedText().length());
@@ -342,8 +349,10 @@ void MainWindow::alignJustify()
     ui->actionAlignRight->setChecked(false);
     ui->actionAlignJustify->setChecked(true);
 
+    ui->textEditShared->document()->blockSignals(true);
     cursor.mergeBlockFormat(textBlockFormat);
     textEdit->setTextCursor(cursor);
+    ui->textEditShared->document()->blockSignals(false);
 
     Action a = Action(AlignJustify);
     Crdt::getInstance().sendActionToServer(a, cursor.selectionStart(), cursor.selectedText().length());
@@ -409,15 +418,21 @@ void MainWindow::makeUnderline()
 //TODO: create multiple actions when copy pasting text with different styles
 void MainWindow::textChanged(int pos, int nDel, int nIns) {
     if(!ui->textEditShared->textCursor().hasSelection()) {
-
-        if (lastEventType == QEvent::InputMethod)   //no idea what are these events and why they arrive here
+        //TODO: change lastEvent to single variable
+        if (lastEventType.front() == QEvent::InputMethod)   //no idea what are these events and why they arrive here
             return;
-
+        bool flag = false;
         //IMPORTANT: Pasting text other than when the document is empty will result in unexpected behaviour
         //https://bugreports.qt.io/browse/QTBUG-3495?focusedCommentId=264621&page=com.atlassian.jira.plugin.system.issuetabpanels%3Acomment-tabpanel#comment-264621
-        if((pos == 0 || pos + nIns == ui->textEditShared->document()->characterCount())  && nIns > 1 ) {   //workaround of a CTRL-V bug.
-            --nIns;
-            --nDel;
+        //TODO:Elia here's the problem, event filter at line 702
+
+        if((pos == 0 || nIns > ui->textEditShared->document()->characterCount())  && nIns > 1 &&  nDel > 1) {   //workaround of a CTRL-V bug.
+            auto clipboard = QApplication::clipboard();
+            QString  originalText = clipboard->text();
+            std::string s = ui->textEditShared->textCursor().selectedText().toStdString();
+            std::cout << s << endl << this->sender()->metaObject()->className() <<std::endl;
+            nIns = clipboard->text().count();
+            nDel = ui->textEditShared->previousSelection.count();
         }
 
         if (nDel>0) { //deletion
@@ -430,15 +445,15 @@ void MainWindow::textChanged(int pos, int nDel, int nIns) {
             //check all properties of inserted chars
             auto text_cursor = ui->textEditShared->textCursor();
             auto format = text_cursor.charFormat();
-            auto font = format.font();
 
-            if (nIns > 1) {
+            if (flag) {
                 text_cursor.setPosition(pos);
                 format = text_cursor.charFormat();
                 text_cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, nIns);
                 text_cursor.setCharFormat(format);
             }
 
+            auto font = format.font();
             QString fontSize = QString::number(font.pointSize());
             int sizeIndex = ui->textEditShared->getFontSizes().indexOf(fontSize);
             int familyIndex = ui->textEditShared->getFontFamilies().indexOf(font.family());
@@ -701,7 +716,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
 
     if (event->type() == QEvent::KeyPress) {
-        lastEventType = event->type();
+        lastEventType.push_front(event->type());
         QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
 
         // filter to remove undo and redo
@@ -718,7 +733,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
         }
         return false;
     } else {
-        lastEventType = event->type();
+        lastEventType.push_front(event->type());
         return false;
     }
 }
