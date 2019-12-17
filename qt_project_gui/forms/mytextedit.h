@@ -7,13 +7,13 @@
 #include "../data_structure/action.h"
 #include <data_structure/crdt.h>
 #include <QPointer>
-
+#include <stack>
 class MyTextEdit : public QTextEdit
 {
 public:
     MyTextEdit(QWidget *parent = nullptr);
     ~MyTextEdit();
-    QString previousSelection;
+    std::stack<int> previousSelection;
     //MyTextEdit(const MyTextEdit &) = delete;
     //MyTextEdit& operator=(const MyTextEdit &) = delete;
 

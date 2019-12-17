@@ -54,7 +54,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    std::deque<QEvent::Type> lastEventType;
+    QEvent::Type lastEventType;
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     //MainWindow(const MainWindow&) = delete;

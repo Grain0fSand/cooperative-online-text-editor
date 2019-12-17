@@ -204,13 +204,7 @@ void Crdt::sendActionToServer(Action &action, int cursorPos, int numChars) {
     // no need to free: https://stackoverflow.com/questions/26714492/how-to-release-memory-of-qthread-object
     QThread *sender = new OnlineSender(str.dump(), docId, token);
     sender->start();
-//    std::cout << str;
 
-//    //flush server buffer,  the documents only gets refreshed AFTER local action
-//    while (!action_queue.empty()) {
-//        receiveActionFromServer(action_queue.front());
-//        action_queue.pop();
-//    }
     std::cout << "Action done: " << action_wrapper.get_json() << std::endl;
 }
 
@@ -294,7 +288,7 @@ Crdt::formattingExt(const std::pair<int, int> &rel_symbol, const std::vector<std
         if (it->getSymbolId() == *form_it) {
             ++form_it;
             //version
-            if (!it->is_hidden() && it->compareVersion(rel_symbol.first, rel_symbol.second, select)) {
+            if (it->compareVersion(rel_symbol.first, rel_symbol.second, select)) {
                 ret.push_back(i - 1);  //get absolute position
                 it->setVersion(rel_symbol.first, rel_symbol.second, select);
             }

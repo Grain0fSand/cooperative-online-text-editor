@@ -72,7 +72,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     });
     connect(ui->textEditShared->document(),&QTextDocument::contentsChange,this,&MainWindow::textChanged);
-    connect(ui->textEditShared, &QTextEdit::selectionChanged,ui->textEditShared,[&](){ui->textEditShared->previousSelection = ui->textEditShared->textCursor().selectedText().count();});
+    connect(ui->textEditShared, &QTextEdit::selectionChanged,ui->textEditShared,[&](){ui->textEditShared->previousSelection.push(ui->textEditShared->textCursor().selectedText().count());});
     connect(ui->textEditShared,&QTextEdit::cursorPositionChanged,this,&MainWindow::checkTextProperty);
     connect(this,&MainWindow::setComboSize,comboSize,&QComboBox::setCurrentIndex);
     connect(this,&MainWindow::setComboFont,comboFamily,&QComboBox::setCurrentIndex);
@@ -415,24 +415,23 @@ void MainWindow::makeUnderline()
     }
 }
 
-//TODO: create multiple actions when copy pasting text with different styles
+//TODO: create multiple actions when copy pasting text with different styles?
 void MainWindow::textChanged(int pos, int nDel, int nIns) {
     if(!ui->textEditShared->textCursor().hasSelection()) {
-        //TODO: change lastEvent to single variable
-        if (lastEventType.front() == QEvent::InputMethod)   //no idea what are these events and why they arrive here
+        if (lastEventType == QEvent::InputMethod)   //no idea what are these events and why they arrive here
             return;
         bool flag = false;
         //IMPORTANT: Pasting text other than when the document is empty will result in unexpected behaviour
         //https://bugreports.qt.io/browse/QTBUG-3495?focusedCommentId=264621&page=com.atlassian.jira.plugin.system.issuetabpanels%3Acomment-tabpanel#comment-264621
-        //TODO:Elia here's the problem, event filter at line 702
 
         if((pos == 0 || nIns > ui->textEditShared->document()->characterCount())  && nIns > 1 &&  nDel > 1) {   //workaround of a CTRL-V bug.
             auto clipboard = QApplication::clipboard();
             QString  originalText = clipboard->text();
-            std::string s = ui->textEditShared->textCursor().selectedText().toStdString();
-            std::cout << s << endl << this->sender()->metaObject()->className() <<std::endl;
+//            std::string s = ui->textEditShared->textCursor().selectedText().toStdString();
+//            std::cout << s << endl << this->sender()->metaObject()->className() <<std::endl;
             nIns = clipboard->text().count();
-            nDel = ui->textEditShared->previousSelection.count();
+            ui->textEditShared->previousSelection.pop();
+            nDel = ui->textEditShared->previousSelection.top();
         }
 
         if (nDel>0) { //deletion
@@ -716,7 +715,6 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
 
     if (event->type() == QEvent::KeyPress) {
-        lastEventType.push_front(event->type());
         QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
 
         // filter to remove undo and redo
@@ -733,7 +731,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
         }
         return false;
     } else {
-        lastEventType.push_front(event->type());
+        lastEventType = event->type();
         return false;
     }
 }
