@@ -75,7 +75,9 @@ public:
     //void actionsArrived(std::list<Action> actions);   //queue non needed
     void receiveActionFromServer(ActionWrapper& actionWrapper);
     void sendActionToServer(Action& action, int cursorPos, int numChars);
-    std::pair<int,int> findRelativePosition(int left_pos); //for cursor sending
+    std::pair<int,int> findRelativePosition(int left_pos);
+    int findAbsolutePosition(std::pair<int,int>);
+
 };
 
 

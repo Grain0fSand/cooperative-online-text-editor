@@ -76,7 +76,7 @@ int MyTextEdit::doReceivedAction(const Action& action, int ownerId, const std::v
     while (ptr_start < n) {
         //find range of subsequent positions and apply the action (for efficiency)
         ptr_end = ptr_start;
-        this->hiddenCursorForText->setPosition(all_pos[ptr_start] - del_chars);
+        this->hiddenCursorForText->setPosition(all_pos[ptr_start] + (all_pos[ptr_start] == -1) - del_chars);
         while (ptr_end < n - 1 && all_pos[ptr_end] == all_pos[ptr_end + 1] - 1)
             ++ptr_end;
         switch(action.getActionType())

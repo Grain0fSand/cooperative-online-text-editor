@@ -46,9 +46,21 @@ std::pair<int, int> Crdt::findRelativePosition(int left_pos) {
     }
 
     if (cmp != left_pos)
-        throw "error: char not present in the memory";
+        throw "error: char not present";
     return left_sym;
 }
+
+int Crdt::findAbsolutePosition(std::pair<int,int> symbol) {
+    int ret = 0;
+    for (auto it = list.begin(); it != list.end(); ++it) {
+        if (!it->is_hidden())
+            ++ret;
+        if (it->getSymbolId() == symbol)
+            break;
+    }
+    return ret;
+}
+
 
 
 void Crdt::symbolInsertion(const std::pair<int, int> &left_sym, int n, const std::pair<int, int> &symbol,
@@ -253,12 +265,6 @@ std::vector<int> Crdt::symbolDeletionExt(const std::vector<std::pair<int, int>> 
     auto del_it = symbol.begin();  //symbols to delete
     int i = 0;
 
-    int a = 0;
-    for (auto x : list)
-        if (!x.is_hidden())
-            ++a;
-
-
     std::vector<int> ret;
     while (it != list.end() && del_it != symbol.end()) {
         if (it->getSymbolId() == *del_it) {
@@ -288,8 +294,8 @@ Crdt::formattingExt(const std::pair<int, int> &rel_symbol, const std::vector<std
         if (it->getSymbolId() == *form_it) {
             ++form_it;
             //version
-            if (it->compareVersion(rel_symbol.first, rel_symbol.second, select)) {
-                ret.push_back(i - 1);  //get absolute position
+            if ((!it->is_hidden()  || it == list.begin()) && it->compareVersion(rel_symbol.first, rel_symbol.second, select)) {
+                ret.push_back(i);  //get absolute position
                 it->setVersion(rel_symbol.first, rel_symbol.second, select);
             }
         }
