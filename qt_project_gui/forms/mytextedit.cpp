@@ -59,15 +59,15 @@ void MyTextEdit::addCursor(RemoteCursor *cursor)
     this->cursorsList.push_back(cursor);
 }
 
-void MyTextEdit::realignCopiedBlocks(int pos, int n, QTextBlockFormat blockFormat) {
-    this->document()->blockSignals(true);
-    this->hiddenCursorForText->setPosition(pos);
-    this->hiddenCursorForText->movePosition(QTextCursor::Right,QTextCursor::KeepAnchor, n);
-    this->hiddenCursorForText->setBlockFormat(blockFormat);
-
-    SessionData::accessToSessionData().mainWindowPointer->checkTextProperty();
-    this->document()->blockSignals(false);
-}
+//void MyTextEdit::realignCopiedBlocks(int pos, int n, QTextBlockFormat blockFormat) {
+//    this->document()->blockSignals(true);
+//    this->hiddenCursorForText->setPosition(pos);
+//    this->hiddenCursorForText->movePosition(QTextCursor::Right,QTextCursor::KeepAnchor, n);
+//    this->hiddenCursorForText->setBlockFormat(blockFormat);
+//
+//    SessionData::accessToSessionData().mainWindowPointer->checkTextProperty();
+//    this->document()->blockSignals(false);
+//}
 
 int MyTextEdit::doReceivedAction(const Action& action, int ownerId, const std::vector<int>& all_pos )
 {
@@ -106,41 +106,26 @@ int MyTextEdit::doReceivedAction(const Action& action, int ownerId, const std::v
 
                 this->hiddenCursorForText->setCharFormat(format);
 
-                //this is because only first paragraph gets block alignment when copying multiple paragraphs
-//                std::string st = action.getChars().toStdString();
-//                unsigned int i;
-//                for (i = 0; i < st.size(); ++i) {
-//                    if (st[i] == '\n')
-//                        break;
-//                }
-//                this->hiddenCursorForText->movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, all_pos[ptr_start] + i + 1);
-//                QTextBlockFormat bFormat;
-//                switch(action.getBlockFormat())
-//                {
-//                    case NoBlockFormatType:
-//                        qDebug()  << "Invalid block formatting to do";
-//                        break;
-//                    case AlignLeft:
-//                        bFormat.setAlignment(Qt::AlignLeft);
-//                        break;
-//                    case AlignCenter:
-//                        bFormat.setAlignment(Qt::AlignCenter);
-//                        break;
-//                    case AlignRight:
-//                        bFormat.setAlignment(Qt::AlignRight);
-//                        break;
-//                    case AlignJustify:
-//                        bFormat.setAlignment(Qt::AlignJustify);
-//                        break;
-//                }
-//                this->hiddenCursorForText->setBlockFormat(bFormat);
-//                if (i != st.size()) {
-//                    this->hiddenCursorForText->setPosition(all_pos[ptr_start] + i + 1);
-//                    this->hiddenCursorForText->movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, st.size() - i);
-//                    QTextBlockFormat bFormat;
-//                    bFormat.setAlignment(Qt::AlignLeft);
-//                    this->hiddenCursorForText->setBlockFormat(bFormat);
-//                }
+                QTextBlockFormat blockFormat;
+                switch(action.getBlockFormat())
+                {
+                    case NoBlockFormatType:
+                        qDebug()  << "Invalid block formatting to do";
+                        break;
+                    case AlignLeft:
+                        blockFormat.setAlignment(Qt::AlignLeft);
+                        break;
+                    case AlignCenter:
+                        blockFormat.setAlignment(Qt::AlignCenter);
+                        break;
+                    case AlignRight:
+                        blockFormat.setAlignment(Qt::AlignRight);
+                        break;
+                    case AlignJustify:
+                        blockFormat.setAlignment(Qt::AlignJustify);
+                        break;
+                }
+                this->hiddenCursorForText->setBlockFormat(blockFormat);
                 break;
             }
             case BlockFormatting:

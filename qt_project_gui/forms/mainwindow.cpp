@@ -420,7 +420,6 @@ void MainWindow::textChanged(int pos, int nDel, int nIns) {
     if(!ui->textEditShared->textCursor().hasSelection()) {
         if (lastEventType == QEvent::InputMethod)   //no idea what are these events and why they arrive here
             return;
-        bool flag = false;
         //IMPORTANT: Pasting text other than when the document is empty will result in unexpected behaviour
         //https://bugreports.qt.io/browse/QTBUG-3495?focusedCommentId=264621&page=com.atlassian.jira.plugin.system.issuetabpanels%3Acomment-tabpanel#comment-264621
 
@@ -443,14 +442,9 @@ void MainWindow::textChanged(int pos, int nDel, int nIns) {
             QString str = ui->textEditShared->document()->toPlainText().mid(pos, nIns);
             //check all properties of inserted chars
             auto text_cursor = ui->textEditShared->textCursor();
+            if (nIns > 1)
+                text_cursor.movePosition(QTextCursor::Left, QTextCursor::MoveAnchor, nIns);
             auto format = text_cursor.charFormat();
-
-            if (flag) {
-                text_cursor.setPosition(pos);
-                format = text_cursor.charFormat();
-                text_cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, nIns);
-                text_cursor.setCharFormat(format);
-            }
 
             auto font = format.font();
             QString fontSize = QString::number(font.pointSize());
@@ -473,8 +467,27 @@ void MainWindow::textChanged(int pos, int nDel, int nIns) {
                 blockFormatType = AlignRight;
             else if (alignment == Qt::AlignJustify)
                 blockFormatType = AlignJustify;
+            if (nIns > 1)
+                text_cursor.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor, nIns);
+            //following part is for pasting multiple blocks, creates 2 actions because the alignment of the cursor is kept only for the first pasted block
+           if (blockFormatType != AlignLeft){
+                int i = 0;
+                for (; i < str.size(); ++i) {
+                    if (str[i] == '\n') {
+                        ++i;
+                        break;
+                    }
+                }
+                if (i < str.size()) {
+                    Action action(str.left(i), familyIndex, sizeIndex, bold, italic, underlined, blockFormatType);
+                    Crdt::getInstance().sendActionToServer(action, pos, i);
+                    pos += i;
+                    nIns = str.size() - i;
+                    str = str.right(str.size() - i);
+                    blockFormatType = AlignLeft;
+                }
+           }
 
-        //    SessionData::accessToSessionData().myTextEditPointer->realignCopiedBlocks(pos, nIns, blockFormat);
             Action action(str, familyIndex, sizeIndex, bold, italic, underlined, blockFormatType);
             Crdt::getInstance().sendActionToServer(action, pos, nIns);
         }

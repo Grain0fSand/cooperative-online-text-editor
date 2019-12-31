@@ -295,7 +295,7 @@ Crdt::formattingExt(const std::pair<int, int> &rel_symbol, const std::vector<std
             ++form_it;
             //version
             if ((!it->is_hidden()  || it == list.begin()) && it->compareVersion(rel_symbol.first, rel_symbol.second, select)) {
-                ret.push_back(i);  //get absolute position
+                ret.push_back(i - 1);  //get absolute position
                 it->setVersion(rel_symbol.first, rel_symbol.second, select);
             }
         }
