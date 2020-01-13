@@ -37,7 +37,7 @@ public:
     std::vector<exchangeable_data::user> onlineUsers;
     std::map<int,QColor> userColorMap;
 
-    bool isUserOnline = true;
+    bool isUserOnline = false;
     bool isLoginCorrect = false;
     bool youWannaLogin = false;
 

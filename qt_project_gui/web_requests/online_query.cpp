@@ -6,6 +6,7 @@
 #include <QtNetwork/QNetworkConfigurationManager>
 #include <QProcess>
 #include <QtCore/QBasicTimer>
+#include <QTimer>
 
 #define IP_ADDRESS "47.53.242.167"
 //#define IP_ADDRESS "192.168.1.114"
@@ -19,9 +20,9 @@ OnlineQuery::OnlineQuery(std::string docId,std::string token,QObject* m) :
     // because the background thread cannot communicate with the gui thread
     connect(this,&OnlineQuery::request_time,this,&OnlineQuery::getCrdtRequest);
     connect(this,&OnlineQuery::send_actions,&Crdt::getInstance(),&Crdt::update_income);
-    connect(this,SIGNAL(update_id(std::string)),m,SLOT(update_id(std::string)));
     connect(this,&OnlineQuery::users_online_arrived,SessionData::accessToSessionData().mainWindowPointer,&MainWindow::arrangeUserTagList);
     connect(this,&OnlineQuery::user_changed_his_status,SessionData::accessToSessionData().mainWindowPointer,&MainWindow::changeEditorStatus);
+    connect(SessionData::accessToSessionData().mainWindowPointer,&MainWindow::userGoneOffline,[&](){lastCrdtId="";});
     connect(SessionData::accessToSessionData().mainWindowPointer,&MainWindow::stopQueryLoop,this,&OnlineQuery::terminate);
     // the QTObj must be always be manipulated only by
     // the QThread that create the obj, so all the code must be
@@ -56,7 +57,7 @@ void OnlineQuery::getCrdtRequest() {
     url.setUrl(location+request+params);
     req.setUrl(url);
     QNetworkReply* reply = manager.get(req);
-    //ReplyTimeout::set(reply,800);
+    ReplyTimeout::set(reply,750);
     connect(reply,SIGNAL(error(QNetworkReply::NetworkError)),this,SLOT(slotErrorConnection()));
 }
 
@@ -145,9 +146,12 @@ void OnlineQuery::checkReply(QNetworkReply *reply) {
             qDebug() << t.action.getChars().toUtf8();
         else qDebug() << t.action.getActionType();
 
-    emit update_id(lastCrdtId);
+    if (lastCrdtId!="")
+        SessionData::accessToSessionData().lastCrdtId = lastCrdtId;
+
     emit send_actions(actions);
 
+//    SessionData::accessToSessionData().myTextEditPointer->refreshCursors();
     //emit response_arrived(answer);
 }
 

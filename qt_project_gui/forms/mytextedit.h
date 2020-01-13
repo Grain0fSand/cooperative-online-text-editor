@@ -20,6 +20,8 @@ public:
     void paintEvent(QPaintEvent *e);
     void createCursor(int pos, QString text, QColor color);
     void addCursor(RemoteCursor *cursor);
+    //void removeCursor(QString userName);
+    //void refreshCursors();
     void addAction(int cursorPos, int numChars, QString str, ActionType = Insertion);
     void addAction(int cursorPos, int numChars, ActionType = Deletion);
     void addAction(int cursorPos, int numChars, bool bold, bool italic, bool underlined, ActionType = TextFormatting);
