@@ -192,7 +192,6 @@ int main() {
                         // sanitize(remoteCursor); the remote cursor is an json value so it must not be sanitized
 
                         int idUser = db.userLogged(token);
-                        idUser = 1;
 
                         if (idUser < 0)
                             return crow::response(403);
