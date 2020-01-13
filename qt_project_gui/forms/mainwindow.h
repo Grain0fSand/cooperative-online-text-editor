@@ -67,7 +67,6 @@ public:
     void setupStatusBar();
 
 public slots:
-    void update_id(std::string id);
     void exitFromEditor();
     void backToLogin();
     void exportPDF();
@@ -91,6 +90,7 @@ protected slots:
     void textChanged(int, int, int);
 
 signals:
+    void userGoneOffline();
     void stopQueryLoop();
     void setComboSize(int);
     void setComboFont(int);
@@ -98,7 +98,6 @@ signals:
 private slots:
     void on_onlineRollButton_clicked();
     void on_offlineRollButton_clicked();
-    void update_online_users_and_cursors_positions(std::vector<exchangeable_data::user> vector);
 
 private:
 
@@ -106,6 +105,7 @@ private:
     Ui::MainWindow *ui;
     Periodic_task background_task;
     OnlineQuery* query; // for online updates of crdt
+    int offlineCounter = 0;
 };
 
 #endif // MAINWINDOW_H

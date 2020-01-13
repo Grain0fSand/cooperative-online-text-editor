@@ -73,8 +73,7 @@ set(SOURCES
 		main.cpp
 		data_structure/action.cpp
 		data_structure/action.h
-		data_structure/remotecursor.cpp
-		data_structure/remotecursor.h
+        data_structure/remotecursor.h
 		data_structure/crdt.cpp
 		data_structure/crdt.h
 		data_structure/exchangeable.h

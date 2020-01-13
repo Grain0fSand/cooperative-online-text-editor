@@ -62,23 +62,7 @@ int main() {
     Database db;
     crow::SimpleApp app;
 
-    CROW_ROUTE(app, "/logout")
-            .methods("GET"_method)
-                    ([&](const crow::request &req) {
-                        auto params = req.url_params;
-
-                        if (params.get("token") == nullptr || params.get("docId") == nullptr)
-                            return crow::response(500);
-
-                        std::string token = params.get("token");
-                        std::string docId = params.get("docId");
-
-                        db.userLogout(token, docId);
-
-                        return crow::response{0};
-                    });
-
-    CROW_ROUTE(app, "/try_registration")
+    CROW_ROUTE(app,"/try_registration")
             .methods("GET"_method)
                     ([&](const crow::request &req) {
                         auto params = req.url_params;

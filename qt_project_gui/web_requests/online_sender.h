@@ -18,7 +18,6 @@ public:
     OnlineSender(std::string json_to_send,std::string docId,std::string token); //for crdt push
     OnlineSender(QString email,QString username,QString password,QString encodedAvatar); //for registration
     OnlineSender(QString username,QString password); //for login
-    OnlineSender(QString token, std::string docId); //for logout
     OnlineSender(std::string token,std::string newDocName); //for new doc creation
     OnlineSender(std::string token,QString existingDocName); //for open an existing doc
     OnlineSender(std::string token, QString username, QString encodedAvatar, QString password); //for updating user data
@@ -30,7 +29,6 @@ public slots:
     void pushCrdtRequest();
     void tryRegistrationRequest();
     void tryLoginRequest();
-    void logoutRequest();
     void newDocRequest();
     void getPartecipantsRequest();
     void updateUserDataRequest();

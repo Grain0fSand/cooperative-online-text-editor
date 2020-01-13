@@ -25,6 +25,7 @@ public:
 
     void run() override;
     void stop() { continue_run = false; }
+    void resetLastCrdtId();
 
 public slots:
     void getCrdtRequest();

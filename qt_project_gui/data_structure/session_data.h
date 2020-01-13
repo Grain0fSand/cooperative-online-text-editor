@@ -41,8 +41,9 @@ public:
     std::string json_cursor="last";
 
     bool go_down = true;
-    bool isUserOnline = true;
+    bool isUserOnline = false;
     bool isLoginCorrect = false;
+    bool skipChanges = false;
     bool youWannaLogin = false;
 
     MyTextEdit* myTextEditPointer;

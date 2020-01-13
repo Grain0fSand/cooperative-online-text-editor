@@ -251,6 +251,14 @@ QColor MyTextEdit::chooseColorTextFromBackground(QColor& background) {
     return {Qt::black};
 }
 
+void MyTextEdit::clearDocument() {
+    //this->blockSignals(true);
+    SessionData::accessToSessionData().skipChanges = true;
+    this->document()->clear();
+    SessionData::accessToSessionData().skipChanges = false;
+    //this->blockSignals(false);
+}
+
 void MyTextEdit::createCursor(int pos, QString text, QColor color) {
 
     QTextCursor tmpCursor(this->document());
