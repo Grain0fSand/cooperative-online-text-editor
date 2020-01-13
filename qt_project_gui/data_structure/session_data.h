@@ -39,6 +39,7 @@ public:
 
     bool isUserOnline = false;
     bool isLoginCorrect = false;
+    bool skipChanges = false;
     bool youWannaLogin = false;
 
     MyTextEdit* myTextEditPointer;

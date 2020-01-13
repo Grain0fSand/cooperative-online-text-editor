@@ -82,6 +82,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionInvite,&QAction::triggered,this,&MainWindow::reqInvitationEmailAddress);
     connect(ui->actionTestCursor,&QAction::triggered,this,&MainWindow::insertRemoteCursor); //only for test
     connect(ui->actionColor,&QAction::toggled,ui->textEditShared,&MyTextEdit::colorText);
+    connect(this,&MainWindow::userGoneOffline,query,&OnlineQuery::resetLastCrdtId);
 }
 
 MainWindow::~MainWindow()
@@ -411,6 +412,10 @@ void MainWindow::makeUnderline()
 
 //TODO: create multiple actions when copy pasting text with different styles?
 void MainWindow::textChanged(int pos, int nDel, int nIns) {
+
+    if(SessionData::accessToSessionData().skipChanges)
+        return;
+
     if(!ui->textEditShared->textCursor().hasSelection()) {
         if (lastEventType == QEvent::InputMethod)   //no idea what are these events and why they arrive here
             return;
@@ -608,7 +613,7 @@ void MainWindow::changeEditorStatus()
 
     //operations to do BEFORE the editor changes its status
     if(isUserOnline) {  //operations to do when back online
-        Crdt::getInstance().reset();
+        ui->textEditShared->clearDocument();
     } else {    //operations to do when it turns offline
         if(ui->listOfflineUsers->isVisible())
             ui->offlineRollButton->click();
@@ -649,6 +654,9 @@ void MainWindow::changeEditorStatus()
     } else {    //operations to do when it turns offline
         ui->myLed->setPixmap(QPixmap(QString::fromUtf8(":/resources/redLed.png")));
         ui->myStatus->setText("Offline");
+
+        Crdt::getInstance().reset();
+        emit userGoneOffline();
     }
 }
 

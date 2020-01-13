@@ -39,6 +39,9 @@ public:
     void reset() {
         op = 0;
         list.clear();
+        list.push_back(SymbolId());
+        list.front().setBlockStart();
+        list.front().hide();
         action_unresolved.clear();
     }
 

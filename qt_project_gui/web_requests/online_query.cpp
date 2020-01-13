@@ -22,7 +22,6 @@ OnlineQuery::OnlineQuery(std::string docId,std::string token,QObject* m) :
     connect(this,&OnlineQuery::send_actions,&Crdt::getInstance(),&Crdt::update_income);
     connect(this,&OnlineQuery::users_online_arrived,SessionData::accessToSessionData().mainWindowPointer,&MainWindow::arrangeUserTagList);
     connect(this,&OnlineQuery::user_changed_his_status,SessionData::accessToSessionData().mainWindowPointer,&MainWindow::changeEditorStatus);
-    connect(SessionData::accessToSessionData().mainWindowPointer,&MainWindow::userGoneOffline,[&](){lastCrdtId="";});
     connect(SessionData::accessToSessionData().mainWindowPointer,&MainWindow::stopQueryLoop,this,&OnlineQuery::terminate);
     // the QTObj must be always be manipulated only by
     // the QThread that create the obj, so all the code must be
@@ -36,6 +35,10 @@ void OnlineQuery::run() {
         emit request_time();
         std::this_thread::sleep_for(std::chrono::milliseconds(800));
     }
+}
+
+void OnlineQuery::resetLastCrdtId() {
+    lastCrdtId = "";
 }
 
 void OnlineQuery::getCrdtRequest() {
@@ -57,7 +60,7 @@ void OnlineQuery::getCrdtRequest() {
     url.setUrl(location+request+params);
     req.setUrl(url);
     QNetworkReply* reply = manager.get(req);
-    ReplyTimeout::set(reply,750);
+    ReplyTimeout::set(reply,799);
     connect(reply,SIGNAL(error(QNetworkReply::NetworkError)),this,SLOT(slotErrorConnection()));
 }
 
