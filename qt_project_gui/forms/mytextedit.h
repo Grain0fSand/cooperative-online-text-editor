@@ -13,7 +13,7 @@ class MyTextEdit : public QTextEdit
 public:
     MyTextEdit(QWidget *parent = nullptr);
     ~MyTextEdit();
-    std::stack<int> previousSelection;
+    int previousSelection;
     //MyTextEdit(const MyTextEdit &) = delete;
     //MyTextEdit& operator=(const MyTextEdit &) = delete;
 
@@ -31,7 +31,6 @@ public:
     QStringList getFontSizes() const;
     QStringList getFontFamilies() const;
     static QColor chooseColorTextFromBackground(QColor& background);
-    void realignCopiedBlocks(int pos, int n, QTextBlockFormat blockFormat);
 public slots:
     void colorText(bool checked);
 

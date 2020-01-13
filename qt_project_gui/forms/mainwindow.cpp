@@ -72,7 +72,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     });
     connect(ui->textEditShared->document(),&QTextDocument::contentsChange,this,&MainWindow::textChanged);
-    connect(ui->textEditShared, &QTextEdit::selectionChanged,ui->textEditShared,[&](){ui->textEditShared->previousSelection.push(ui->textEditShared->textCursor().selectedText().count()); std::cout << ui->textEditShared->textCursor().selectedText().toStdString() << std::endl;});
+    connect(ui->textEditShared, &QTextEdit::selectionChanged,ui->textEditShared,[&](){ui->textEditShared->previousSelection = ui->textEditShared->textCursor().selectedText().count();});
     connect(ui->textEditShared,&QTextEdit::cursorPositionChanged,this,&MainWindow::checkTextProperty);
     connect(this,&MainWindow::setComboSize,comboSize,&QComboBox::setCurrentIndex);
     connect(this,&MainWindow::setComboFont,comboFamily,&QComboBox::setCurrentIndex);
@@ -430,7 +430,7 @@ void MainWindow::textChanged(int pos, int nDel, int nIns) {
             std::cout << s << endl << this->sender()->metaObject()->className() <<std::endl;
             nIns = clipboard->text().count();
           //  ui->textEditShared->previousSelection.pop();
-            nDel = ui->textEditShared->previousSelection.top();
+            nDel = ui->textEditShared->previousSelection;
         }
 
         if (nDel>0) { //deletion
