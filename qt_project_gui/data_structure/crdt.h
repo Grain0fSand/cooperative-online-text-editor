@@ -40,6 +40,9 @@ public:
         op = 0;
         list.clear();
         action_unresolved.clear();
+        list.push_back(SymbolId());
+        list.front().setBlockStart();
+        list.front().hide();
     }
 
     //TODO: verify usefulness
