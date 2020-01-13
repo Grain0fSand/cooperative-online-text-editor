@@ -105,6 +105,7 @@ private:
     Ui::MainWindow *ui;
     Periodic_task background_task;
     OnlineQuery* query; // for online updates of crdt
+    int offlineCounter = 0;
 };
 
 #endif // MAINWINDOW_H

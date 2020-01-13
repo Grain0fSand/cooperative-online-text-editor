@@ -608,12 +608,20 @@ void MainWindow::reqInvitationEmailAddress()
 
 void MainWindow::changeEditorStatus()
 {
+    if(offlineCounter<4) {
+        offlineCounter++;
+        qDebug() << offlineCounter;
+        return;
+    }
+
     bool isUserOnline = !SessionData::accessToSessionData().isUserOnline;
     SessionData::accessToSessionData().isUserOnline = isUserOnline;
 
     //operations to do BEFORE the editor changes its status
     if(isUserOnline) {  //operations to do when back online
         ui->textEditShared->clearDocument();
+        offlineCounter = 0;
+        qDebug() << offlineCounter;
     } else {    //operations to do when it turns offline
         if(ui->listOfflineUsers->isVisible())
             ui->offlineRollButton->click();
