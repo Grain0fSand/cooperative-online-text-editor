@@ -22,10 +22,9 @@
 #include <QClipboard>
 
 MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow),
-    background_task(200)
-{
+        QMainWindow(parent),
+        ui(new Ui::MainWindow),
+        background_task(200) {
     ui->setupUi(this);
 
     SessionData::accessToSessionData().youWannaLogin = false;
@@ -33,7 +32,7 @@ MainWindow::MainWindow(QWidget *parent) :
     SessionData::accessToSessionData().myTextEditPointer = ui->textEditShared;
 
     Crdt::getInstance().init(std::stoi(SessionData::accessToSessionData().userId));
-    query = new OnlineQuery{SessionData::accessToSessionData().docId,SessionData::accessToSessionData().token,this};
+    query = new OnlineQuery{SessionData::accessToSessionData().docId, SessionData::accessToSessionData().token, this};
     query->start();
 
     ui->myUsername->setText(QString::fromStdString(SessionData::accessToSessionData().username));
@@ -53,73 +52,77 @@ MainWindow::MainWindow(QWidget *parent) :
     populateUserTagList();
 
     // setting up my connect event
-    connect(ui->actionCopy,&QAction::triggered,ui->textEditShared,&QTextEdit::copy);
-    connect(ui->actionCut,&QAction::triggered,ui->textEditShared,&QTextEdit::cut);
-    connect(ui->actionPaste,&QAction::triggered,ui->textEditShared,&QTextEdit::paste);
-    connect(comboFamily,SIGNAL(activated(int)),this,SLOT(selectFont(int)));
-    connect(comboSize,SIGNAL(activated(int)),this,SLOT(selectSize(int)));
-    connect(ui->actionBold,&QAction::triggered,this,&MainWindow::makeBold);
-    connect(ui->actionItalic,&QAction::triggered,this,&MainWindow::makeItalic);
-    connect(ui->actionUnderlined,&QAction::triggered,this,&MainWindow::makeUnderline);
-    connect(ui->actionAlignLeft,&QAction::triggered,this,&MainWindow::alignLeft);
-    connect(ui->actionAlignCenter,&QAction::triggered,this,&MainWindow::alignCenter);
-    connect(ui->actionAlignRight,&QAction::triggered,this,&MainWindow::alignRight);
-    connect(ui->actionAlignJustify,&QAction::triggered,this,&MainWindow::alignJustify);
+    connect(ui->actionCopy, &QAction::triggered, ui->textEditShared, &QTextEdit::copy);
+    connect(ui->actionCut, &QAction::triggered, ui->textEditShared, &QTextEdit::cut);
+    connect(ui->actionPaste, &QAction::triggered, ui->textEditShared, &QTextEdit::paste);
+    connect(comboFamily, SIGNAL(activated(int)), this, SLOT(selectFont(int)));
+    connect(comboSize, SIGNAL(activated(int)), this, SLOT(selectSize(int)));
+    connect(ui->actionBold, &QAction::triggered, this, &MainWindow::makeBold);
+    connect(ui->actionItalic, &QAction::triggered, this, &MainWindow::makeItalic);
+    connect(ui->actionUnderlined, &QAction::triggered, this, &MainWindow::makeUnderline);
+    connect(ui->actionAlignLeft, &QAction::triggered, this, &MainWindow::alignLeft);
+    connect(ui->actionAlignCenter, &QAction::triggered, this, &MainWindow::alignCenter);
+    connect(ui->actionAlignRight, &QAction::triggered, this, &MainWindow::alignRight);
+    connect(ui->actionAlignJustify, &QAction::triggered, this, &MainWindow::alignJustify);
 
-    connect(ui->textEditShared->document(),&QTextDocument::contentsChange,this,[&](){
+    connect(ui->textEditShared->document(), &QTextDocument::contentsChange, this, [&]() {
         //for debbuging on text modifications
 
 
     });
-    connect(ui->textEditShared->document(),&QTextDocument::contentsChange,this,&MainWindow::textChanged);
-    connect(ui->textEditShared, &QTextEdit::selectionChanged,ui->textEditShared,[&](){ui->textEditShared->previousSelection = ui->textEditShared->textCursor().selectedText().count();});
-    connect(ui->textEditShared,&QTextEdit::cursorPositionChanged,this,&MainWindow::checkTextProperty);
-    connect(this,&MainWindow::setComboSize,comboSize,&QComboBox::setCurrentIndex);
-    connect(this,&MainWindow::setComboFont,comboFamily,&QComboBox::setCurrentIndex);
-    connect(ui->actionExit,&QAction::triggered,this,&MainWindow::exitFromEditor);
-    connect(ui->actionBack,&QAction::triggered,this,&MainWindow::backToLogin);
-    connect(ui->actionExport_to_PDF,&QAction::triggered,this,&MainWindow::exportPDF);
-    connect(ui->actionInvite,&QAction::triggered,this,&MainWindow::reqInvitationEmailAddress);
-    connect(ui->actionTestCursor,&QAction::triggered,this,&MainWindow::insertRemoteCursor); //only for test
-    connect(ui->actionColor,&QAction::toggled,ui->textEditShared,&MyTextEdit::colorText);
+    connect(ui->textEditShared->document(), &QTextDocument::contentsChange, this, &MainWindow::textChanged);
+    connect(ui->textEditShared, &QTextEdit::selectionChanged, ui->textEditShared,
+            [&]() { ui->textEditShared->previousSelection = ui->textEditShared->textCursor().selectedText().count();
+                if (ui->textEditShared->previousPreviousSelection != ui->textEditShared->previousSelection)
+                    ui->textEditShared->colorText(ui->textEditShared->colorFeatureActive);
+                ui->textEditShared->previousPreviousSelection = ui->textEditShared->previousSelection;
+    });
+    connect(ui->textEditShared, &QTextEdit::cursorPositionChanged, this, &MainWindow::checkTextProperty);
+    connect(this, &MainWindow::setComboSize, comboSize, &QComboBox::setCurrentIndex);
+    connect(this, &MainWindow::setComboFont, comboFamily, &QComboBox::setCurrentIndex);
+    connect(ui->actionExit, &QAction::triggered, this, &MainWindow::exitFromEditor);
+    connect(ui->actionBack, &QAction::triggered, this, &MainWindow::backToLogin);
+    connect(ui->actionExport_to_PDF, &QAction::triggered, this, &MainWindow::exportPDF);
+    connect(ui->actionInvite, &QAction::triggered, this, &MainWindow::reqInvitationEmailAddress);
+    connect(ui->actionTestCursor, &QAction::triggered, this, &MainWindow::insertRemoteCursor); //only for test
+    connect(ui->actionColor, &QAction::toggled, ui->textEditShared, &MyTextEdit::colorText);
 }
 
-MainWindow::~MainWindow()
-{
+MainWindow::~MainWindow() {
     background_task.cancel();
     background_task.wait();
     delete ui;
 }
 
-void MainWindow::closeEvent ( QCloseEvent * event ) {
+void MainWindow::closeEvent(QCloseEvent *event) {
     event->ignore();
-    QThread* sender = new OnlineSender(QString::fromStdString(SessionData::accessToSessionData().token), SessionData::accessToSessionData().docId);
+    QThread *sender = new OnlineSender(QString::fromStdString(SessionData::accessToSessionData().token),
+                                       SessionData::accessToSessionData().docId);
     sender->start();
     event->accept();
 }
 
-void MainWindow::populateUserTagList()
-{
+void MainWindow::populateUserTagList() {
     QString statusLabel;
     QPixmap led;
 
-    std::sort(SessionData::accessToSessionData().onlineUsers.begin(),SessionData::accessToSessionData().onlineUsers.end());
+    std::sort(SessionData::accessToSessionData().onlineUsers.begin(),
+              SessionData::accessToSessionData().onlineUsers.end());
 
     ui->listOnlineUsers->clear();
     ui->listOfflineUsers->clear();
 
-    for(auto &tag : SessionData::accessToSessionData().usersList) {
-        if(tag.getUserId()==std::stoi(SessionData::accessToSessionData().userId))
+    for (auto &tag : SessionData::accessToSessionData().usersList) {
+        if (tag.getUserId() == std::stoi(SessionData::accessToSessionData().userId))
             continue;
 
         auto item = new QListWidgetItem();
-        if(tag.getStatus()) {
+        if (tag.getStatus()) {
             led.load(":/resources/greenLed.png");
             statusLabel = "Online";
             ui->listOnlineUsers->setItemDelegate(&tag);
             ui->listOnlineUsers->addItem(item);
-        }
-        else {
+        } else {
             led.load(":/resources/redLed.png");
             statusLabel = "Offline";
             ui->listOfflineUsers->setItemDelegate(&tag);
@@ -145,7 +148,7 @@ void MainWindow::arrangeUserTagList(std::vector<exchangeable_data::user> remoteV
 
     SessionData *sessionData = &SessionData::accessToSessionData();
 
-    if(sessionData->onlineUsers!=remoteVector) {
+    if (sessionData->onlineUsers != remoteVector) {
 /*
         std::sort(remoteVector.begin(),remoteVector.end());
         std::vector<exchangeable_data::user> difference;
@@ -195,28 +198,31 @@ void MainWindow::arrangeUserTagList(std::vector<exchangeable_data::user> remoteV
         std::vector<UserTag>::iterator everytimeUser;
         std::vector<exchangeable_data::user>::iterator onlineUser;
 
-        for(everytimeUser=sessionData->usersList.begin(); everytimeUser<sessionData->usersList.end(); everytimeUser++) {
+        for (everytimeUser = sessionData->usersList.begin();
+             everytimeUser < sessionData->usersList.end(); everytimeUser++) {
             everytimeUser->setUserStatus(false);
         }
 
-        for(onlineUser=remoteVector.begin(); onlineUser<remoteVector.end(); onlineUser++) {
-            if(onlineUser->id==sessionData->userId)
+        for (onlineUser = remoteVector.begin(); onlineUser < remoteVector.end(); onlineUser++) {
+            if (onlineUser->id == sessionData->userId)
                 continue;
 
             bool found = false;
-            for(everytimeUser=sessionData->usersList.begin(); everytimeUser<sessionData->usersList.end(); everytimeUser++) {
-                if(*everytimeUser==*onlineUser) {
+            for (everytimeUser = sessionData->usersList.begin();
+                 everytimeUser < sessionData->usersList.end(); everytimeUser++) {
+                if (*everytimeUser == *onlineUser) {
                     everytimeUser->setUserStatus(true);
                     found = true;
                     break;
                 }
             }
-            if(!found) {
+            if (!found) {
                 UserTag userTag;
                 userTag.setUserId(std::stoi(onlineUser->id));
                 userTag.setUserColor(LoginWindow::chooseColorFromString(QString::fromStdString(onlineUser->email)));
                 userTag.setUsername(QString::fromStdString(onlineUser->username));
-                userTag.setAvatar(LoginWindow::recoverImageFromEncodedString(QString::fromStdString(onlineUser->image)));
+                userTag.setAvatar(
+                        LoginWindow::recoverImageFromEncodedString(QString::fromStdString(onlineUser->image)));
                 userTag.setUserStatus(true);
 
                 sessionData->usersList.push_back(userTag);
@@ -228,21 +234,23 @@ void MainWindow::arrangeUserTagList(std::vector<exchangeable_data::user> remoteV
     }
 }
 
-void MainWindow::update_id(std::string id){
-    if (id.compare("")!=0)
+void MainWindow::update_id(std::string id) {
+    if (id.compare("") != 0)
         SessionData::accessToSessionData().lastCrdtId = id;
 }
 
 void MainWindow::exitFromEditor() {
-    QMessageBox::StandardButton reply = QMessageBox::question(this,"Exit from Simulpad","Are you sure you want to quit?");
-    if(reply == QMessageBox::Yes) {
+    QMessageBox::StandardButton reply = QMessageBox::question(this, "Exit from Simulpad",
+                                                              "Are you sure you want to quit?");
+    if (reply == QMessageBox::Yes) {
         this->close();
     }
 }
 
 void MainWindow::backToLogin() {
-    QMessageBox::StandardButton reply = QMessageBox::question(this,"Back to Login","Are you sure you want to logout?");
-    if(reply == QMessageBox::Yes) {
+    QMessageBox::StandardButton reply = QMessageBox::question(this, "Back to Login",
+                                                              "Are you sure you want to logout?");
+    if (reply == QMessageBox::Yes) {
         Crdt::getInstance().reset();
         SessionData::accessToSessionData().loginWindowPointer->switchFrame(-1);
         SessionData::accessToSessionData().onlineUsers.clear();
@@ -255,28 +263,25 @@ void MainWindow::backToLogin() {
     }
 }
 
-void MainWindow::exportPDF()
-{
-    QString file_path = QFileDialog::getSaveFileName(this,"Export to PDF..","","Pdf file (*.pdf);;All Files (*)");
+void MainWindow::exportPDF() {
+    QString file_path = QFileDialog::getSaveFileName(this, "Export to PDF..", "", "Pdf file (*.pdf);;All Files (*)");
 
-    if(file_path!="") {
+    if (file_path != "") {
         QPrinter printer(QPrinter::PrinterResolution);
         printer.setOutputFormat(QPrinter::PdfFormat);
         printer.setOutputFileName(file_path);
         printer.setPaperSize(QPrinter::A4);
         ui->textEditShared->print(&printer);
         QString file_name = file_path.split("/").last();
-        if (printer.printerState()<2) {
-            QMessageBox::information(this,"Export to PDF","File "+file_name+" exported successfully.");
-        }
-        else {
-            QMessageBox::information(this,"Error","Error exporting "+file_name+".");
+        if (printer.printerState() < 2) {
+            QMessageBox::information(this, "Export to PDF", "File " + file_name + " exported successfully.");
+        } else {
+            QMessageBox::information(this, "Error", "Error exporting " + file_name + ".");
         }
     }
 }
 
-void MainWindow::alignLeft()
-{
+void MainWindow::alignLeft() {
     auto textEdit = ui->textEditShared;
     auto cursor = textEdit->textCursor();
     auto textBlockFormat = cursor.blockFormat();
@@ -291,12 +296,11 @@ void MainWindow::alignLeft()
     cursor.mergeBlockFormat(textBlockFormat);
     textEdit->setTextCursor(cursor);
     ui->textEditShared->document()->blockSignals(false);
-    Action a = Action( AlignLeft);
+    Action a = Action(AlignLeft);
     Crdt::getInstance().sendActionToServer(a, cursor.selectionStart(), cursor.selectedText().length());
 }
 
-void MainWindow::alignCenter()
-{
+void MainWindow::alignCenter() {
     auto textEdit = ui->textEditShared;
     auto cursor = textEdit->textCursor();
     auto textBlockFormat = cursor.blockFormat();
@@ -312,12 +316,11 @@ void MainWindow::alignCenter()
     textEdit->setTextCursor(cursor);
     ui->textEditShared->document()->blockSignals(false);
 
-    Action a = Action( AlignCenter);
+    Action a = Action(AlignCenter);
     Crdt::getInstance().sendActionToServer(a, cursor.selectionStart(), cursor.selectedText().length());
 }
 
-void MainWindow::alignRight()
-{
+void MainWindow::alignRight() {
     auto textEdit = ui->textEditShared;
     auto cursor = textEdit->textCursor();
     auto textBlockFormat = cursor.blockFormat();
@@ -337,8 +340,7 @@ void MainWindow::alignRight()
     Crdt::getInstance().sendActionToServer(a, cursor.selectionStart(), cursor.selectedText().length());
 }
 
-void MainWindow::alignJustify()
-{
+void MainWindow::alignJustify() {
     auto textEdit = ui->textEditShared;
     auto cursor = textEdit->textCursor();
     auto textBlockFormat = cursor.blockFormat();
@@ -377,8 +379,7 @@ void MainWindow::makeBold() {
     }
 }
 
-void MainWindow::makeItalic()
-{
+void MainWindow::makeItalic() {
     auto textEdit = ui->textEditShared;
     auto cursor = textEdit->textCursor();
 
@@ -396,8 +397,7 @@ void MainWindow::makeItalic()
     }
 }
 
-void MainWindow::makeUnderline()
-{
+void MainWindow::makeUnderline() {
     auto textEdit = ui->textEditShared;
     auto cursor = textEdit->textCursor();
 
@@ -417,28 +417,31 @@ void MainWindow::makeUnderline()
 
 //TODO: create multiple actions when copy pasting text with different styles?
 void MainWindow::textChanged(int pos, int nDel, int nIns) {
-    if(!ui->textEditShared->textCursor().hasSelection()) {
+    if (!ui->textEditShared->textCursor().hasSelection()) {
         if (lastEventType == QEvent::InputMethod)   //no idea what are these events and why they arrive here
             return;
         //IMPORTANT: Pasting text other than when the document is empty will result in unexpected behaviour
         //https://bugreports.qt.io/browse/QTBUG-3495?focusedCommentId=264621&page=com.atlassian.jira.plugin.system.issuetabpanels%3Acomment-tabpanel#comment-264621
 
-        if((pos == 0 || nIns > ui->textEditShared->document()->characterCount())  && nIns > 1 ) {   //workaround of a CTRL-V bug.
+        if ((pos == 0 || nIns > ui->textEditShared->document()->characterCount()) &&
+            nIns > 1) {   //workaround of a CTRL-V bug.
+
+
             auto clipboard = QApplication::clipboard();
-            QString  originalText = clipboard->text();
+            QString originalText = clipboard->text();
             std::string s = ui->textEditShared->textCursor().selectedText().toStdString();
-            std::cout << s << endl << this->sender()->metaObject()->className() <<std::endl;
+            std::cout << s << endl << this->sender()->metaObject()->className() << std::endl;
             nIns = clipboard->text().count();
-          //  ui->textEditShared->previousSelection.pop();
+            //  ui->textEditShared->previousSelection.pop();
             nDel = ui->textEditShared->previousSelection;
         }
 
-        if (nDel>0) { //deletion
+        if (nDel > 0) { //deletion
             Action action;
             Crdt::getInstance().sendActionToServer(action, pos + 1, nDel);
         }
 
-        if (nIns>0) { //insertion
+        if (nIns > 0) { //insertion
             QString str = ui->textEditShared->document()->toPlainText().mid(pos, nIns);
             //check all properties of inserted chars
             auto text_cursor = ui->textEditShared->textCursor();
@@ -470,7 +473,7 @@ void MainWindow::textChanged(int pos, int nDel, int nIns) {
             if (nIns > 1)
                 text_cursor.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor, nIns);
             //following part is for pasting multiple blocks, creates 2 actions because the alignment of the cursor is kept only for the first pasted block
-           if (blockFormatType != AlignLeft){
+            if (blockFormatType != AlignLeft) {
                 int i = 0;
                 for (; i < str.size(); ++i) {
                     if (str[i] == '\n') {
@@ -486,7 +489,7 @@ void MainWindow::textChanged(int pos, int nDel, int nIns) {
                     str = str.right(str.size() - i);
                     blockFormatType = AlignLeft;
                 }
-           }
+            }
 
             Action action(str, familyIndex, sizeIndex, bold, italic, underlined, blockFormatType);
             Crdt::getInstance().sendActionToServer(action, pos, nIns);
@@ -494,8 +497,7 @@ void MainWindow::textChanged(int pos, int nDel, int nIns) {
     }
 }
 
-void MainWindow::selectFont(int familyIndex)
-{
+void MainWindow::selectFont(int familyIndex) {
     auto textEdit = ui->textEditShared;
     auto cursor = textEdit->textCursor();
 
@@ -510,8 +512,7 @@ void MainWindow::selectFont(int familyIndex)
         Crdt::getInstance().sendActionToServer(a, cursor.selectionStart() + 1, cursor.selectedText().length());
 }
 
-void MainWindow::selectSize(int sizeIndex)
-{
+void MainWindow::selectSize(int sizeIndex) {
     auto textEdit = ui->textEditShared;
     auto cursor = textEdit->textCursor();
 
@@ -526,8 +527,7 @@ void MainWindow::selectSize(int sizeIndex)
         Crdt::getInstance().sendActionToServer(a, cursor.selectionStart() + 1, cursor.selectedText().length());
 }
 
-void MainWindow::checkTextProperty()
-{
+void MainWindow::checkTextProperty() {
     auto text_cursor = ui->textEditShared->textCursor();
 
     bool cursor_visible = !text_cursor.hasSelection();
@@ -554,71 +554,72 @@ void MainWindow::checkTextProperty()
     ui->actionCopy->setEnabled(ui->textEditShared->textCursor().hasSelection());
     ui->actionCut->setEnabled(ui->textEditShared->textCursor().hasSelection());
 
-    ui->statusBar->findChild<QLabel*>("charCount")->setText("Chars: "+QString::number(ui->textEditShared->document()->characterCount()-1));
-    ui->statusBar->findChild<QLabel*>("lineCount")->setText("Lines: "+QString::number(ui->textEditShared->document()->lineCount()));
-    ui->statusBar->findChild<QLabel*>("cursorPos")->setText("pos: "+QString::number(ui->textEditShared->textCursor().position()));
-    ui->statusBar->findChild<QLabel*>("cursorColumn")->setText("col: "+QString::number(ui->textEditShared->textCursor().columnNumber()));
-    ui->statusBar->findChild<QLabel*>("cursorSelectionCount")->setText("sel: "+QString::number(ui->textEditShared->textCursor().selectedText().length()));
+    ui->statusBar->findChild<QLabel *>("charCount")->setText(
+            "Chars: " + QString::number(ui->textEditShared->document()->characterCount() - 1));
+    ui->statusBar->findChild<QLabel *>("lineCount")->setText(
+            "Lines: " + QString::number(ui->textEditShared->document()->lineCount()));
+    ui->statusBar->findChild<QLabel *>("cursorPos")->setText(
+            "pos: " + QString::number(ui->textEditShared->textCursor().position()));
+    ui->statusBar->findChild<QLabel *>("cursorColumn")->setText(
+            "col: " + QString::number(ui->textEditShared->textCursor().columnNumber()));
+    ui->statusBar->findChild<QLabel *>("cursorSelectionCount")->setText(
+            "sel: " + QString::number(ui->textEditShared->textCursor().selectedText().length()));
 
     ui->textEditShared->setTextColor({Qt::black});
     ui->textEditShared->setTextBackgroundColor({Qt::white});
 }
 
 void MainWindow::insertRemoteCursor() {
-    ui->textEditShared->createCursor(ui->textEditShared->textCursor().position(),"prova1",Qt::red);
+    ui->textEditShared->createCursor(ui->textEditShared->textCursor().position(), "prova1", Qt::red);
     ui->textEditShared->repaint();
 }
 
-void MainWindow::reqInvitationEmailAddress()
-{
+void MainWindow::reqInvitationEmailAddress() {
     QString message = "";
     QInputDialog dialog(this);
     dialog.setLabelText("Insert destination Email address:");
     dialog.setModal(true);
-    while(true) {
+    while (true) {
         bool error = false;
-        if(dialog.exec()==QDialog::Accepted) {
-            if(dialog.textValue()=="") {
-                error=true;
+        if (dialog.exec() == QDialog::Accepted) {
+            if (dialog.textValue() == "") {
+                error = true;
                 message = "You left the field empty!\nEnter a valid Email address";
-            }
-            else {
+            } else {
                 QRegExp mailRegex("\\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}\\b");
                 mailRegex.setCaseSensitivity(Qt::CaseInsensitive);
-                if(!mailRegex.exactMatch(dialog.textValue())) {
-                    error=true;
+                if (!mailRegex.exactMatch(dialog.textValue())) {
+                    error = true;
                     message = "Email address not valid\n"
                               "Insert a valid one";
                 }
             }
 
-            if(error) {
+            if (error) {
                 QMessageBox advice(this);
                 advice.setText(message);
                 advice.setIcon(QMessageBox::Critical);
                 advice.exec();
-            }
-            else {
-                sendInvitationEmail(QString::fromStdString(SessionData::accessToSessionData().docName), dialog.textValue());
+            } else {
+                sendInvitationEmail(QString::fromStdString(SessionData::accessToSessionData().docName),
+                                    dialog.textValue());
                 break;
             }
-        }
-        else break;
+        } else break;
     }
 }
 
-void MainWindow::changeEditorStatus()
-{
+void MainWindow::changeEditorStatus() {
     bool isUserOnline = !SessionData::accessToSessionData().isUserOnline;
     SessionData::accessToSessionData().isUserOnline = isUserOnline;
 
     //operations to do BEFORE the editor changes its status
-    if(isUserOnline) {  //operations to do when back online
+    if (isUserOnline) {  //operations to do when back online
         Crdt::getInstance().reset();
     } else {    //operations to do when it turns offline
-        if(ui->listOfflineUsers->isVisible())
+        if (ui->listOfflineUsers->isVisible())
             ui->offlineRollButton->click();
-        if(ui->listOnlineUsers->isVisible())
+        if (ui->listOnlineUsers->isVisible())
             ui->onlineRollButton->click();
     }
 
@@ -627,7 +628,7 @@ void MainWindow::changeEditorStatus()
     ui->actionCopy->setEnabled(isUserOnline);
     ui->actionCut->setEnabled(isUserOnline);
     ui->actionPaste->setEnabled(isUserOnline);
-    auto comboBoxes = ui->mainToolBar->findChildren<QComboBox*>();
+    auto comboBoxes = ui->mainToolBar->findChildren<QComboBox *>();
     comboBoxes[0]->setEnabled(isUserOnline);
     comboBoxes[1]->setEnabled(isUserOnline);
     ui->actionBold->setEnabled(isUserOnline);
@@ -644,10 +645,10 @@ void MainWindow::changeEditorStatus()
     ui->offlineRollButton->setEnabled(isUserOnline);
 
     //operations to do POST the editor changes its status
-    if(isUserOnline) {  //operations to do when back online
-        if(!ui->listOfflineUsers->isVisible())
+    if (isUserOnline) {  //operations to do when back online
+        if (!ui->listOfflineUsers->isVisible())
             ui->offlineRollButton->click();
-        if(!ui->listOnlineUsers->isVisible())
+        if (!ui->listOnlineUsers->isVisible())
             ui->onlineRollButton->click();
 
         ui->myLed->setPixmap(QPixmap(QString::fromUtf8(":/resources/greenLed.png")));
@@ -658,8 +659,7 @@ void MainWindow::changeEditorStatus()
     }
 }
 
-void MainWindow::setupFontComboBoxes(QComboBox* comboSize, QComboBox* comboFamily)
-{
+void MainWindow::setupFontComboBoxes(QComboBox *comboSize, QComboBox *comboFamily) {
     auto font = comboSize->font();
     font.setPointSize(13);
     comboSize->setFont(font);
@@ -670,7 +670,7 @@ void MainWindow::setupFontComboBoxes(QComboBox* comboSize, QComboBox* comboFamil
 
     comboFamily->addItems(ui->textEditShared->getFontFamilies());
     QIcon icon(":/resources/font_icon.png");
-    for(int i=0; i<comboFamily->count(); i++) {
+    for (int i = 0; i < comboFamily->count(); i++) {
         comboFamily->setItemIcon(i, icon);
     }
     comboFamily->setCurrentText(ui->textEditShared->currentFont().family());
@@ -679,19 +679,19 @@ void MainWindow::setupFontComboBoxes(QComboBox* comboSize, QComboBox* comboFamil
     ui->mainToolBar->insertWidget(ui->mainToolBar->actions()[6], comboSize);
 }
 
-void MainWindow::setupStatusBar()
-{
-    auto docName = new QLabel("Document: "+ui->textEditShared->getDocumentName()+".sim");
+void MainWindow::setupStatusBar() {
+    auto docName = new QLabel("Document: " + ui->textEditShared->getDocumentName() + ".sim");
     docName->setObjectName("docName");
-    auto charCount = new QLabel("Chars: "+QString::number(ui->textEditShared->document()->characterCount()-1));
+    auto charCount = new QLabel("Chars: " + QString::number(ui->textEditShared->document()->characterCount() - 1));
     charCount->setObjectName("charCount");
-    auto lineCount = new QLabel("Lines: "+QString::number(ui->textEditShared->document()->lineCount()));
+    auto lineCount = new QLabel("Lines: " + QString::number(ui->textEditShared->document()->lineCount()));
     lineCount->setObjectName("lineCount");
-    auto cursorPos = new QLabel("pos: "+QString::number(ui->textEditShared->textCursor().position()));
+    auto cursorPos = new QLabel("pos: " + QString::number(ui->textEditShared->textCursor().position()));
     cursorPos->setObjectName("cursorPos");
-    auto cursorColumn = new QLabel("col: "+QString::number(ui->textEditShared->textCursor().columnNumber()));
+    auto cursorColumn = new QLabel("col: " + QString::number(ui->textEditShared->textCursor().columnNumber()));
     cursorColumn->setObjectName("cursorColumn");
-    auto cursorSelectionCount = new QLabel("sel: "+QString::number(ui->textEditShared->textCursor().selectedText().length()));
+    auto cursorSelectionCount = new QLabel(
+            "sel: " + QString::number(ui->textEditShared->textCursor().selectedText().length()));
     cursorSelectionCount->setObjectName("cursorSelectionCount");
 
     ui->statusBar->addWidget(docName, 2);
@@ -702,46 +702,62 @@ void MainWindow::setupStatusBar()
     ui->statusBar->addWidget(cursorSelectionCount, 2);
 }
 
-void MainWindow::sendInvitationEmail(QString docName, QString destEmailAddress)
-{
-    QString base64Name= docName.toLocal8Bit().toBase64(QByteArray::OmitTrailingEquals);
+void MainWindow::sendInvitationEmail(QString docName, QString destEmailAddress) {
+    QString base64Name = docName.toLocal8Bit().toBase64(QByteArray::OmitTrailingEquals);
 
     SmtpClient smtp;
     smtp.setUser("simulpad.texteditor@gmail.com");
     smtp.setPassword("progettomalnati");
-    smtp.setMailSender("simulpad.texteditor@gmail.com","SimulPad");
-    smtp.setMailDestination(destEmailAddress,"no_name");
+    smtp.setMailSender("simulpad.texteditor@gmail.com", "SimulPad");
+    smtp.setMailDestination(destEmailAddress, "no_name");
     smtp.setMailSubject("Someone invites to collaborate on SimulPad");
-    smtp.prepareMailText("ftp://simulpad.archive/document#"+base64Name);
+    smtp.prepareMailText("ftp://simulpad.archive/document#" + base64Name);
 
-    if(smtp.connectToHost()) {
-        if(smtp.login()) {
-            if(smtp.sendMail()) {
-                QMessageBox::information(this,"Succeed","Your invitation was sent to "+destEmailAddress);
+    if (smtp.connectToHost()) {
+        if (smtp.login()) {
+            if (smtp.sendMail()) {
+                QMessageBox::information(this, "Succeed", "Your invitation was sent to " + destEmailAddress);
             }
         }
     }
     smtp.quit();
 }
 
-bool MainWindow::eventFilter(QObject *obj, QEvent *event)
-{
+bool MainWindow::eventFilter(QObject *obj, QEvent *event) {
+
+    if (event->type() == QEvent::KeyPress || event->type() == QEvent::KeyRelease) {
+        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+
+        // disabling/ the ability to send enter in the document
+        if (keyEvent->key() == Qt::Key_Shift) {
+            if (keyEvent->type() == QEvent::KeyPress) {
+                SessionData::accessToSessionData().go_down = false;
+            } else {
+                SessionData::accessToSessionData().go_down = true;
+            }
+        }
+    }
 
     if (event->type() == QEvent::KeyPress) {
-        QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
 
         // filter to remove undo and redo
 
-        if (keyEvent->matches(QKeySequence::Undo))
-        {
+        if (keyEvent->matches(QKeySequence::Undo)) {
             qDebug() << "Undo pressed" << keyEvent->key();
             return true;
         }
-        if (keyEvent->matches(QKeySequence::Redo))
-        {
+        if (keyEvent->matches(QKeySequence::Redo)) {
             qDebug() << "Redo pressed" << keyEvent->key();
             return true;
         }
+
+        // based on enter send enter
+        if ((keyEvent->key() == Qt::Key_Enter) || (keyEvent->key() == Qt::Key_Return)) {
+            if (!SessionData::accessToSessionData().go_down)
+                return true;
+        }
+
         return false;
     } else {
         lastEventType = event->type();
@@ -749,44 +765,43 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
     }
 }
 
-void MainWindow::on_onlineRollButton_clicked()
-{
+void MainWindow::on_onlineRollButton_clicked() {
     ui->listOnlineUsers->setVisible(!ui->listOnlineUsers->isVisible());
-    if(ui->listOnlineUsers->isVisible()) {
+    if (ui->listOnlineUsers->isVisible()) {
         ui->onlineRollButton->setIcon(QIcon(":/resources/arrow_up.png"));
-    }
-    else {
+    } else {
         ui->onlineRollButton->setIcon(QIcon(":/resources/arrow_down.png"));
     }
 }
-void MainWindow::on_offlineRollButton_clicked()
-{
+
+void MainWindow::on_offlineRollButton_clicked() {
     ui->listOfflineUsers->setVisible(!ui->listOfflineUsers->isVisible());
-    if(ui->listOfflineUsers->isVisible()) {
+    if (ui->listOfflineUsers->isVisible()) {
         ui->offlineRollButton->setIcon(QIcon(":/resources/arrow_up.png"));
-    }
-    else {
+    } else {
         ui->offlineRollButton->setIcon(QIcon(":/resources/arrow_down.png"));
     }
 }
 
 
-void MainWindow::update_online_users_and_cursors_positions(std::vector<exchangeable_data::user> vector){
+void MainWindow::update_online_users_and_cursors_positions(std::vector<exchangeable_data::user> vector) {
     // NB: è ancora da debuggare andando a creare dei dati fittizzi dentro userBar in modo
     // da verificare che tutto funzioni, il problema è che non so come creare degli oggetti di tipo
     // UserTag, perdonami ma senza di te mi è difficile utilizzarlo
-    std::vector<UserTag>& usersBar = SessionData::accessToSessionData().usersList;
+    std::vector<UserTag> &usersBar = SessionData::accessToSessionData().usersList;
     std::vector<UserTag> userBarUpdated;
 
-    for(exchangeable_data::user u : vector){
-        auto iterator_user = std::find(usersBar.begin(),usersBar.end(),u);
+    for (exchangeable_data::user u : vector) {
+        auto iterator_user = std::find(usersBar.begin(), usersBar.end(), u);
 
-        if (iterator_user != usersBar.end()){
+        if (iterator_user != usersBar.end()) {
             // the user was already present, i only copy it in the new bar updated
             UserTag user = *iterator_user; //  called copy constructor
             // TODO: dario check if is correct use true
-            user.setUserStatus(true); // was more clear use like: user.setUserIsOnline(...) status is not auto explicative
-            userBarUpdated.push_back(std::move(user)); // forwarded using movement semantic, std::move is optional, the compiler
+            user.setUserStatus(
+                    true); // was more clear use like: user.setUserIsOnline(...) status is not auto explicative
+            userBarUpdated.push_back(
+                    std::move(user)); // forwarded using movement semantic, std::move is optional, the compiler
             // is smart enought to understand it automatically, is only for you dario with love
         } else {
             // TODO: dario please call che constructor correctly i'm not sure of how to calc the data like color for eg
@@ -802,20 +817,21 @@ void MainWindow::update_online_users_and_cursors_positions(std::vector<exchangea
     // please for working the original data must be sorted in the same way that i will now use to sort the new list
     // this also is required for the draw operation otherwise the list will change from an instant to the next also
     // in the order
-    std::sort(userBarUpdated.begin(),userBarUpdated.end(),[](const UserTag& u1,const UserTag& u2) -> bool {
-        return u1.getUsername().compare(u2.getUsername()); // get... is java like syntax, cpp programmer tend to prefer more concise syntax in general
+    std::sort(userBarUpdated.begin(), userBarUpdated.end(), [](const UserTag &u1, const UserTag &u2) -> bool {
+        return u1.getUsername().compare(
+                u2.getUsername()); // get... is java like syntax, cpp programmer tend to prefer more concise syntax in general
         // is absolutely not wrong, i had written only because the cpp general way of programming is that
     });
 
     std::vector<UserTag> difference;
 
     std::set_difference(
-            usersBar.begin(),usersBar.end(),
-            userBarUpdated.begin(),userBarUpdated.end(),
+            usersBar.begin(), usersBar.end(),
+            userBarUpdated.begin(), userBarUpdated.end(),
             std::back_inserter(difference)
-            );
+    );
 
-    for(UserTag& user : difference){
+    for (UserTag &user : difference) {
         user.setUserStatus(false); // TODO: dario check if correct, that are the users that are offline
         userBarUpdated.push_back(user);
     }
@@ -825,7 +841,7 @@ void MainWindow::update_online_users_and_cursors_positions(std::vector<exchangea
 
     // TODO: now that data are updated need to be refreshed the interface
 
-    for(exchangeable_data::user u : vector){
+    for (exchangeable_data::user u : vector) {
         std::cout << "manage the remote cursor json : " << u.lastCursorPositionJson << std::endl;
     }
 

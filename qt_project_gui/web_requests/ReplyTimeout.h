@@ -43,7 +43,7 @@ protected:
             // TODO: emit offline perchè ci ha messo troppo a rispondere
             if(SessionData::accessToSessionData().isUserOnline)
                 emit timeoutOccurred();
-            std::cout << "too mutch time for the reply" << std::endl;
+            std::cout << "too much time for the reply" << std::endl;
         }
 
         m_timer.stop();
