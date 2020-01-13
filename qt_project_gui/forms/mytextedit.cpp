@@ -59,16 +59,6 @@ void MyTextEdit::addCursor(RemoteCursor *cursor)
     this->cursorsList.push_back(cursor);
 }
 
-//void MyTextEdit::realignCopiedBlocks(int pos, int n, QTextBlockFormat blockFormat) {
-//    this->document()->blockSignals(true);
-//    this->hiddenCursorForText->setPosition(pos);
-//    this->hiddenCursorForText->movePosition(QTextCursor::Right,QTextCursor::KeepAnchor, n);
-//    this->hiddenCursorForText->setBlockFormat(blockFormat);
-//
-//    SessionData::accessToSessionData().mainWindowPointer->checkTextProperty();
-//    this->document()->blockSignals(false);
-//}
-
 int MyTextEdit::doReceivedAction(const Action& action, int ownerId, const std::vector<int>& all_pos )
 {
     int ptr_start = 0, ptr_end, del_chars = 0, n = all_pos.size();    //ptr start and ptr end are for calculating ranges of subsequent positions in all_pos

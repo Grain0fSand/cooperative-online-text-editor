@@ -37,6 +37,7 @@ public:
     std::vector<exchangeable_data::user> onlineUsers;
     std::map<int,QColor> userColorMap;
 
+    bool go_down = true;
     bool isUserOnline = false;
     bool isLoginCorrect = false;
     bool skipChanges = false;

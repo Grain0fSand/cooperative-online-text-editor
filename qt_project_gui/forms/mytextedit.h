@@ -13,7 +13,8 @@ class MyTextEdit : public QTextEdit
 public:
     MyTextEdit(QWidget *parent = nullptr);
     ~MyTextEdit();
-    std::stack<int> previousSelection;
+    int previousSelection, previousPreviousSelection;
+    bool colorFeatureActive = false;
     //MyTextEdit(const MyTextEdit &) = delete;
     //MyTextEdit& operator=(const MyTextEdit &) = delete;
 
@@ -48,7 +49,7 @@ private:
     QTextCursor* hiddenCursorForText;
     QTextCursor* hiddenCursorForColors;
     QString documentName;
-    bool colorFeatureActive = false;
+
     int user_id;
 };
 
