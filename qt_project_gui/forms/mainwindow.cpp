@@ -72,7 +72,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     });
     connect(ui->textEditShared->document(),&QTextDocument::contentsChange,this,&MainWindow::textChanged);
-    connect(ui->textEditShared, &QTextEdit::selectionChanged,ui->textEditShared,[&](){ui->textEditShared->previousSelection.push(ui->textEditShared->textCursor().selectedText().count());});
+    connect(ui->textEditShared, &QTextEdit::selectionChanged,ui->textEditShared,[&](){ui->textEditShared->previousSelection.push(ui->textEditShared->textCursor().selectedText().count()); std::cout << ui->textEditShared->textCursor().selectedText().toStdString() << std::endl;});
     connect(ui->textEditShared,&QTextEdit::cursorPositionChanged,this,&MainWindow::checkTextProperty);
     connect(this,&MainWindow::setComboSize,comboSize,&QComboBox::setCurrentIndex);
     connect(this,&MainWindow::setComboFont,comboFamily,&QComboBox::setCurrentIndex);
@@ -423,13 +423,13 @@ void MainWindow::textChanged(int pos, int nDel, int nIns) {
         //IMPORTANT: Pasting text other than when the document is empty will result in unexpected behaviour
         //https://bugreports.qt.io/browse/QTBUG-3495?focusedCommentId=264621&page=com.atlassian.jira.plugin.system.issuetabpanels%3Acomment-tabpanel#comment-264621
 
-        if((pos == 0 || nIns > ui->textEditShared->document()->characterCount())  && nIns > 1 &&  nDel > 1) {   //workaround of a CTRL-V bug.
+        if((pos == 0 || nIns > ui->textEditShared->document()->characterCount())  && nIns > 1 ) {   //workaround of a CTRL-V bug.
             auto clipboard = QApplication::clipboard();
             QString  originalText = clipboard->text();
-//            std::string s = ui->textEditShared->textCursor().selectedText().toStdString();
-//            std::cout << s << endl << this->sender()->metaObject()->className() <<std::endl;
+            std::string s = ui->textEditShared->textCursor().selectedText().toStdString();
+            std::cout << s << endl << this->sender()->metaObject()->className() <<std::endl;
             nIns = clipboard->text().count();
-            ui->textEditShared->previousSelection.pop();
+          //  ui->textEditShared->previousSelection.pop();
             nDel = ui->textEditShared->previousSelection.top();
         }
 
