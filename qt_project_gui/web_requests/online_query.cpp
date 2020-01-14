@@ -84,16 +84,17 @@ void OnlineQuery::checkReply(QNetworkReply *reply) {
     bool is_online = SessionData::accessToSessionData().isUserOnline;
     SessionData::accessToSessionData().mutex_online.unlock();
     if (is_online && reply->error() == QNetworkReply::NoError && reply->bytesAvailable()){
+        SessionData::accessToSessionData().mutex_online.lock();
         SessionData::accessToSessionData().offlineCounter = 0;
+        SessionData::accessToSessionData().mutex_online.unlock();
     } else {
-
         if (reply->error() == QNetworkReply::NoError && reply->bytesAvailable()){
             emit user_changed_his_status();
-            std::cout << "sei tornato online" << std::endl;
+            std::cout << "You are back online" << std::endl;
 
         } else if (is_online){
             emit user_changed_his_status();
-            std::cout << "ti sei appena scollegato" << std::endl;
+            std::cout << "One request has expired" << std::endl;
         }
 
         return;

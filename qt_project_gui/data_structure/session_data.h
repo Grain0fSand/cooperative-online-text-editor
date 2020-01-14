@@ -42,7 +42,7 @@ public:
 
     bool go_down = true;
     QMutex mutex_online;
-    bool isUserOnline = false;
+    bool isUserOnline = true;
     bool isLoginCorrect = false;
     bool skipChanges = false;
     bool youWannaLogin = false;
