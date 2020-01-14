@@ -508,6 +508,7 @@ void MainWindow::selectFont(int familyIndex)
     format.setFontFamily(family);
     cursor.mergeCharFormat(format);
     textEdit->setTextCursor(cursor);
+    textEdit->setFocus();
 
     Action a = Action(3, familyIndex);
     if (cursor.selectedText().length())
@@ -524,6 +525,7 @@ void MainWindow::selectSize(int sizeIndex)
     format.setFontPointSize(size);
     cursor.mergeCharFormat(format);
     textEdit->setTextCursor(cursor);
+    textEdit->setFocus();
 
     Action a = Action(4, sizeIndex);
     if (cursor.selectedText().length())
@@ -615,7 +617,6 @@ void MainWindow::changeEditorStatus()
 {
     if(offlineCounter<4) {
         offlineCounter++;
-        qDebug() << offlineCounter;
         return;
     }
 
@@ -626,7 +627,6 @@ void MainWindow::changeEditorStatus()
     if(isUserOnline) {  //operations to do when back online
         ui->textEditShared->clearDocument();
         offlineCounter = 0;
-        qDebug() << offlineCounter;
     } else {    //operations to do when it turns offline
         if(ui->listOfflineUsers->isVisible())
             ui->offlineRollButton->click();

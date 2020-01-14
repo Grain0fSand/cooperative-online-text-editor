@@ -485,6 +485,7 @@ void LoginWindow::showLoginResponse(bool goodResponse, QString responseText,  QS
         this->docsList = replyParts[3].split("|",QString::SkipEmptyParts);
 
         SessionData::accessToSessionData().username = ui->loginUsernameInput->text().toStdString();
+        SessionData::accessToSessionData().password = ui->loginPasswordInput->text().toStdString();
         ui->loggedUsernameLabel->setText(ui->loginUsernameInput->text());
         ui->loggedAvatar->setPixmap(SessionData::accessToSessionData().avatar);
     }
