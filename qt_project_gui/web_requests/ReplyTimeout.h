@@ -42,9 +42,10 @@ protected:
 
             // TODO: emit offline perchè ci ha messo troppo a rispondere
             SessionData::accessToSessionData().mutex_online.lock();
-            if(SessionData::accessToSessionData().isUserOnline)
-                emit timeoutOccurred();
+            bool tmp = SessionData::accessToSessionData().isUserOnline;
             SessionData::accessToSessionData().mutex_online.unlock();
+            if(tmp)
+                emit timeoutOccurred();
 
             std::cout << "too much time for the reply" << std::endl;
         }

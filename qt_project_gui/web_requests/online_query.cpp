@@ -71,9 +71,10 @@ void OnlineQuery::getCrdtRequest() {
 
 void OnlineQuery::slotErrorConnection() {
     SessionData::accessToSessionData().mutex_online.lock();
-    if (SessionData::accessToSessionData().isUserOnline)
-        emit user_changed_his_status();
+    bool tmp = SessionData::accessToSessionData().isUserOnline;
     SessionData::accessToSessionData().mutex_online.unlock();
+    if (tmp)
+        emit user_changed_his_status();
 
 }
 
@@ -154,9 +155,6 @@ void OnlineQuery::checkReply(QNetworkReply *reply) {
         if(t.action.getActionType() == Insertion)
             qDebug() << t.action.getChars().toUtf8();
         else qDebug() << t.action.getActionType();
-
-//    if (lastCrdtId!="")
-//        SessionData::accessToSessionData().lastCrdtId = lastCrdtId;
 
     emit send_actions(actions);
 

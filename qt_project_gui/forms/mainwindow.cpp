@@ -625,7 +625,6 @@ void MainWindow::changeEditorStatus()
 
     bool isUserOnline = !SessionData::accessToSessionData().isUserOnline;
     SessionData::accessToSessionData().isUserOnline = isUserOnline;
-    SessionData::accessToSessionData().mutex_online.unlock();
 
     //operations to do BEFORE the editor changes its status
     if(isUserOnline) {  //operations to do when back online
@@ -636,7 +635,6 @@ void MainWindow::changeEditorStatus()
         if(ui->listOnlineUsers->isVisible())
             ui->onlineRollButton->click();
     }
-    SessionData::accessToSessionData().mutex_online.lock();
     ui->textEditShared->setEnabled(isUserOnline);
     ui->statusBar->setEnabled(isUserOnline);
     ui->actionCopy->setEnabled(isUserOnline);
