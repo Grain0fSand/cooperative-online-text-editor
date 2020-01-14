@@ -520,7 +520,9 @@ void LoginWindow::showNewDocResponse(bool goodResponse, QString responseText, QS
     if(goodResponse) {
         QStringList replyParts = replyString.split("|");
         SessionData::accessToSessionData().docId = replyParts[0].toStdString();
+        SessionData::accessToSessionData().mutex_online.lock();
         SessionData::accessToSessionData().isUserOnline = true;
+        SessionData::accessToSessionData().mutex_online.unlock();
         SessionData::accessToSessionData().isLoginCorrect = true;
 
         close();
@@ -548,7 +550,9 @@ void LoginWindow::getPartecipantsResponse(QString responseString)
             SessionData::accessToSessionData().userColorMap[userElements[0].toInt()] = userTag.getUserColor();
 
         }
+        SessionData::accessToSessionData().mutex_online.lock();
         SessionData::accessToSessionData().isUserOnline = true;
+        SessionData::accessToSessionData().mutex_online.unlock();
         SessionData::accessToSessionData().isLoginCorrect = true;
 
         close();

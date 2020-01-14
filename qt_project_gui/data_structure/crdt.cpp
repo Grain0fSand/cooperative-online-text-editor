@@ -315,57 +315,62 @@ void Crdt::update_income(std::vector<ActionWrapper> actions) {
     // after if are not already resolved are filled again
     action_unresolved.clear();
 
-    //catch action wrappers sent mistakenly and belonging to the user who received them
-    if (list.size() > 1) {
-        int u = usr_id;
-        actions.erase(std::remove_if(actions.begin(), actions.end(), [u](ActionWrapper action_wrapper) {
-            if (action_wrapper.action.getActionType() == Insertion)
-                return (action_wrapper.symbol.empty() || action_wrapper.symbol.front().second == u);
-            return action_wrapper.rel_symbol.second == u;
-        }), actions.end());
-    }
+    if (!actions.empty()) {
+        //catch action wrappers sent mistakenly and belonging to the user who received them
+        if (list.size() > 1) {
+            int u = usr_id;
+            actions.erase(std::remove_if(actions.begin(), actions.end(), [u](ActionWrapper action_wrapper) {
+                if (action_wrapper.action.getActionType() == Insertion)
+                    return (action_wrapper.symbol.empty() || action_wrapper.symbol.front().second == u);
+                return action_wrapper.rel_symbol.second == u;
+            }), actions.end());
+        }
 
-    // solving the monoticity problem!!!!!
-    std::sort(std::begin(actions), std::end(actions));
+        // solving the monoticity problem!!!!!
+        std::sort(std::begin(actions), std::end(actions));
 
-    for (ActionWrapper action_wrapper : actions) {
-        Action &action = action_wrapper.action;
-        std::vector<int> all_pos;
-        try {
-            switch (action.getActionType()) {
-                case Insertion:
-                    all_pos = symbolInsertionExt(action_wrapper.rel_symbol, action.getChars().size(),
-                                                 action_wrapper.symbol.front(), action.getChars());
-                    op += action.getChars().size();
-                    break;
-                case Deletion:
-                    all_pos = symbolDeletionExt(action_wrapper.symbol);
-                    ++op;
-                    break;
-                case TextFormatting:
-                case BlockFormatting:
-                    all_pos = formattingExt(action_wrapper.rel_symbol, action_wrapper.symbol,
-                                            action.getSelection());
-                    ++op;
-                    break;
-                default:
-                    break;
+        for (ActionWrapper action_wrapper : actions) {
+            Action &action = action_wrapper.action;
+            std::vector<int> all_pos;
+            try {
+                switch (action.getActionType()) {
+                    case Insertion:
+                        all_pos = symbolInsertionExt(action_wrapper.rel_symbol, action.getChars().size(),
+                                                     action_wrapper.symbol.front(), action.getChars());
+                        op += action.getChars().size();
+                        break;
+                    case Deletion:
+                        all_pos = symbolDeletionExt(action_wrapper.symbol);
+                        ++op;
+                        break;
+                    case TextFormatting:
+                    case BlockFormatting:
+                        all_pos = formattingExt(action_wrapper.rel_symbol, action_wrapper.symbol,
+                                                action.getSelection());
+                        ++op;
+                        break;
+                    default:
+                        break;
+                }
+                int ownerId = action_wrapper.symbol[0].second;
+                b = SessionData::accessToSessionData().myTextEditPointer->doReceivedAction(action, ownerId, all_pos);
+            } catch (...) {
+                // TODO: leave here for debugging purpose until the last control to understand why that error is happened
+                std::cout << "DEBUG: cannot insert symbol " << action_wrapper.get_json() << std::endl;
+                action_unresolved.push_back(action_wrapper);
             }
-            int ownerId = action_wrapper.symbol[0].second;
-            b = SessionData::accessToSessionData().myTextEditPointer->doReceivedAction(action, ownerId, all_pos);
-        } catch (...) {
-            // TODO: leave here for debugging purpose until the last control to understand why that error is happened
-            std::cout << "DEBUG: cannot insert symbol " << action_wrapper.get_json() << std::endl;
-            action_unresolved.push_back(action_wrapper);
         }
     }
-
+    else {
+        std::vector<int> tmp = {};
+        b = SessionData::accessToSessionData().myTextEditPointer->doReceivedAction(Action(), 0, tmp);
+    }
     //check crdt/document consistency
     int a = 0;
     for (auto x : list)
         if (!x.is_hidden())
             ++a;
-    if (a == b) {
+    if (a != b) {
         qDebug() << "ERROR: Reloading whole document";
         SessionData::accessToSessionData().myTextEditPointer->clearDocument();
         this->reset();

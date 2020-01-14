@@ -40,6 +40,7 @@ public:
     std::string json_cursor="last";
 
     bool go_down = true;
+    QMutex mutex_online;
     bool isUserOnline = false;
     bool isLoginCorrect = false;
     bool skipChanges = false;

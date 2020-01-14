@@ -70,15 +70,18 @@ void OnlineQuery::getCrdtRequest() {
 }
 
 void OnlineQuery::slotErrorConnection() {
+    SessionData::accessToSessionData().mutex_online.lock();
     if (SessionData::accessToSessionData().isUserOnline)
         emit user_changed_his_status();
+    SessionData::accessToSessionData().mutex_online.unlock();
+
 }
 
 void OnlineQuery::checkReply(QNetworkReply *reply) {
 
-
+    SessionData::accessToSessionData().mutex_online.lock();
     bool is_online = SessionData::accessToSessionData().isUserOnline;
-
+    SessionData::accessToSessionData().mutex_online.unlock();
     if (is_online && reply->error() == QNetworkReply::NoError && reply->bytesAvailable()){
        // std::cout << "sei online" << std::endl;
     } else {
@@ -152,8 +155,8 @@ void OnlineQuery::checkReply(QNetworkReply *reply) {
             qDebug() << t.action.getChars().toUtf8();
         else qDebug() << t.action.getActionType();
 
-    if (lastCrdtId!="")
-        SessionData::accessToSessionData().lastCrdtId = lastCrdtId;
+//    if (lastCrdtId!="")
+//        SessionData::accessToSessionData().lastCrdtId = lastCrdtId;
 
     emit send_actions(actions);
 

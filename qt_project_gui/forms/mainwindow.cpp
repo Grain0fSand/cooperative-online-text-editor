@@ -616,13 +616,16 @@ void MainWindow::reqInvitationEmailAddress()
 
 void MainWindow::changeEditorStatus()
 {
+    SessionData::accessToSessionData().mutex_online.lock();
     if(SessionData::accessToSessionData().isUserOnline && offlineCounter<5) {
         offlineCounter++;
+        SessionData::accessToSessionData().mutex_online.unlock();
         return;
     }
 
     bool isUserOnline = !SessionData::accessToSessionData().isUserOnline;
     SessionData::accessToSessionData().isUserOnline = isUserOnline;
+    SessionData::accessToSessionData().mutex_online.unlock();
 
     //operations to do BEFORE the editor changes its status
     if(isUserOnline) {  //operations to do when back online
@@ -633,7 +636,7 @@ void MainWindow::changeEditorStatus()
         if(ui->listOnlineUsers->isVisible())
             ui->onlineRollButton->click();
     }
-
+    SessionData::accessToSessionData().mutex_online.lock();
     ui->textEditShared->setEnabled(isUserOnline);
     ui->statusBar->setEnabled(isUserOnline);
     ui->actionCopy->setEnabled(isUserOnline);
@@ -672,6 +675,7 @@ void MainWindow::changeEditorStatus()
         Crdt::getInstance().reset();
         emit userGoneOffline();
     }
+    SessionData::accessToSessionData().mutex_online.unlock();
 }
 
 void MainWindow::setupFontComboBoxes(QComboBox* comboSize, QComboBox* comboFamily)
