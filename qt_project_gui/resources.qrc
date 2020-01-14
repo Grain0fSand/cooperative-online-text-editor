@@ -34,5 +34,6 @@
         <file>resources/loader.gif</file>
         <file>resources/correct_icon.gif</file>
         <file>resources/error_icon.gif</file>
+        <file>resources/ASMAN.TTF</file>
     </qresource>
 </RCC>

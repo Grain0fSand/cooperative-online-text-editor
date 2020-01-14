@@ -17,7 +17,7 @@ MyTextEdit::MyTextEdit(QWidget *parent)
     this->fontFamilies << "Arial" << "Arial Black" << "Berlin Sans FB" << "Calibri" << "Century Gothic" <<
                           "Consolas" << "Constantia" << "Freestyle Script" << "Georgia" << "Gill Sans MT" <<
                           "Informal Roman" << "Lucida Calligraphy" << "MS Shell Dlg 2" <<
-                          "Palatino Linotype" << "Tahoma" << "Times New Roman" << "Verdana" << "Vivaldi";
+                          "Palatino Linotype" << "Tahoma" << "Times New Roman" << "Verdana" << "Vivaldi" << "ASMAN";
 }
 
 MyTextEdit::~MyTextEdit() {}

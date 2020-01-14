@@ -10,6 +10,11 @@ int main(int argc, char *argv[])
     a.setStyle(QStyleFactory::create("Fusion")); // for uniform style
     int exitCode=0;
 
+    //QFile fontFile(":/resources/ASMAN.TTF");
+    //fontFile.open(QFile::ReadOnly);
+    //qDebug() << "exist? " << fontFile.exists();
+
+
     LoginWindow loginWindow;
     do {
         //SessionData::accessToSessionData().youWannaLogin = false;

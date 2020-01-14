@@ -87,6 +87,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionInvite, &QAction::triggered, this, &MainWindow::reqInvitationEmailAddress);
     connect(ui->actionTestCursor, &QAction::triggered, this, &MainWindow::insertRemoteCursor); //only for test
     connect(ui->actionColor, &QAction::toggled, ui->textEditShared, &MyTextEdit::colorText);
+
+    QFontDatabase::addApplicationFont(":/resources/ASMAN.TTF");
 }
 
 MainWindow::~MainWindow()

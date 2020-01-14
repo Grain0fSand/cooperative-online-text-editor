@@ -11,6 +11,7 @@
 #include <QListView>
 #include <QStringListModel>
 #include <QLayout>
+#include <QFontDatabase>
 
 LoginWindow::LoginWindow(QWidget *parent) :
     QDialog(parent),
