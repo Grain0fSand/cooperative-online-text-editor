@@ -15,9 +15,10 @@ MyTextEdit::MyTextEdit(QWidget *parent)
                        "14" << "16" << "18" << "20" << "22" <<
                        "24" << "26" << "28" << "36" << "48" << "72";
     this->fontFamilies << "Arial" << "Arial Black" << "Berlin Sans FB" << "Calibri" << "Century Gothic" <<
-                          "Consolas" << "Constantia" << "Freestyle Script" << "Georgia" << "Gill Sans MT" <<
-                          "Informal Roman" << "Lucida Calligraphy" << "MS Shell Dlg 2" <<
-                          "Palatino Linotype" << "Tahoma" << "Times New Roman" << "Verdana" << "Vivaldi" << "ASMAN";
+                          "Consolas" << "Constantia" << "Forte" << "Freestyle Script" << "Georgia" <<
+                          "Gill Sans MT" << "Harrington" << "Informal Roman" << "Lucida Calligraphy" <<
+                          "Palatino Linotype" << "Segoe Script" << "Tahoma" << "Times New Roman" <<
+                          "Verdana" << "Vivaldi";
 }
 
 MyTextEdit::~MyTextEdit() {}

@@ -87,8 +87,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionInvite, &QAction::triggered, this, &MainWindow::reqInvitationEmailAddress);
     connect(ui->actionTestCursor, &QAction::triggered, this, &MainWindow::insertRemoteCursor); //only for test
     connect(ui->actionColor, &QAction::toggled, ui->textEditShared, &MyTextEdit::colorText);
-
-    QFontDatabase::addApplicationFont(":/resources/ASMAN.TTF");
 }
 
 MainWindow::~MainWindow()
@@ -677,6 +675,27 @@ void MainWindow::changeEditorStatus()
 
 void MainWindow::setupFontComboBoxes(QComboBox* comboSize, QComboBox* comboFamily)
 {
+    QFontDatabase::addApplicationFont(":/resources/fonts/Arial.ttf");
+    QFontDatabase::addApplicationFont(":/resources/fonts/Arial Black.ttf");
+    QFontDatabase::addApplicationFont(":/resources/fonts/Berlin Sans FB.ttf");
+    QFontDatabase::addApplicationFont(":/resources/fonts/Calibri.ttf");
+    QFontDatabase::addApplicationFont(":/resources/fonts/Century Gothic.ttf");
+    QFontDatabase::addApplicationFont(":/resources/fonts/Consolas.ttf");
+    QFontDatabase::addApplicationFont(":/resources/fonts/Constantia.ttf");
+    QFontDatabase::addApplicationFont(":/resources/fonts/Forte.ttf");
+    QFontDatabase::addApplicationFont(":/resources/fonts/Freestyle Script.ttf");
+    QFontDatabase::addApplicationFont(":/resources/fonts/Georgia.ttf");
+    QFontDatabase::addApplicationFont(":/resources/fonts/Gill Sans MT.ttf");
+    QFontDatabase::addApplicationFont(":/resources/fonts/Harrington.ttf");
+    QFontDatabase::addApplicationFont(":/resources/fonts/Informal Roman.ttf");
+    QFontDatabase::addApplicationFont(":/resources/fonts/Lucida Calligraphy.ttf");
+    QFontDatabase::addApplicationFont(":/resources/fonts/Palatino Linotype.ttf");
+    QFontDatabase::addApplicationFont(":/resources/fonts/Segoe Script.ttf");
+    QFontDatabase::addApplicationFont(":/resources/fonts/Tahoma.ttf");
+    QFontDatabase::addApplicationFont(":/resources/fonts/Times New Roman.ttf");
+    QFontDatabase::addApplicationFont(":/resources/fonts/Verdana.ttf");
+    QFontDatabase::addApplicationFont(":/resources/fonts/Vivaldi.ttf");
+
     auto font = comboSize->font();
     font.setPointSize(13);
     comboSize->setFont(font);
