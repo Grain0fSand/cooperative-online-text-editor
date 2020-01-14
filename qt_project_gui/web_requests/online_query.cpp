@@ -44,6 +44,11 @@ void OnlineQuery::resetLastCrdtId() {
 void OnlineQuery::getCrdtRequest() {
     // body of webrequest and json decode/unmarshaling
 
+    // QMutex
+    SessionData::accessToSessionData().mutex_cursor_pos.lock();
+    std::string json_cursor = SessionData::accessToSessionData().json_cursor;
+    SessionData::accessToSessionData().mutex_cursor_pos.unlock();
+
     QString ip_address = IP_ADDRESS;
     QString port = PORT;
     QString location = "http://" + ip_address + ":" + PORT + "/";
@@ -55,7 +60,7 @@ void OnlineQuery::getCrdtRequest() {
     params += "&";
     params += "docId=" + QString::fromStdString(docId);
     params += "&";
-    params += "remoteCursor="; //TODO: add the crdt symbol relative to cursor position
+    params += "remoteCursor=" + QString::fromStdString(json_cursor); //TODO: add the crdt symbol relative to cursor position
 
     url.setUrl(location+request+params);
     req.setUrl(url);
@@ -117,8 +122,6 @@ void OnlineQuery::checkReply(QNetworkReply *reply) {
         arrayOnlineUser.push_back(user);
     }
 
-    emit users_online_arrived(arrayOnlineUser);
-
     for (auto& element : j) {
         exchangeable_data::send_data data;
         exchangeable_data::send_data::from_json(data, element);
@@ -153,6 +156,15 @@ void OnlineQuery::checkReply(QNetworkReply *reply) {
         SessionData::accessToSessionData().lastCrdtId = lastCrdtId;
 
     emit send_actions(actions);
+
+    // TODO: chiamare: findAbsolutePosition() vuole pair int
+    // TODO: mandare a lorenzo per posizione crdt in posizione effettiva
+
+    for(auto user : arrayOnlineUser){
+        // TODO: here
+    }
+
+    emit users_online_arrived(arrayOnlineUser);
 
 //    SessionData::accessToSessionData().myTextEditPointer->refreshCursors();
     //emit response_arrived(answer);

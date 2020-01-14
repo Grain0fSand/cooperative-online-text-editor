@@ -37,6 +37,9 @@ public:
     std::vector<exchangeable_data::user> onlineUsers;
     std::map<int,QColor> userColorMap;
 
+    QMutex mutex_cursor_pos;
+    std::string json_cursor="last";
+
     bool go_down = true;
     bool isUserOnline = false;
     bool isLoginCorrect = false;

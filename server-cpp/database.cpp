@@ -249,6 +249,15 @@ std::vector<exchangeable_data::send_data> Database::getCrdtUser(std::string last
 //        sql = "SELECT id,crdt_json FROM crdt WHERE id IN (SELECT idCrdt from crdt_delvery WHERE idUser=" + uid + " AND idDoc=" + docId + ")";
 //    }
 
+    sql = "UPDATE user_document_request SET cursor_position_json = '" + remoteCursor + "' WHERE idUser='" + uid +
+          "' AND idDocument='" + docId + "';";
+
+    std::cout << sql << std::endl;
+
+    SQLite::Statement query2(db, sql);
+    query2.exec();
+
+
     if (lastCrdtId == "")
         sql = "SELECT id, crdt_json FROM crdt WHERE idDoc = " + docId;
     else
@@ -272,7 +281,7 @@ std::vector<exchangeable_data::send_data> Database::getCrdtUser(std::string last
 std::string Database::hashed_pass(std::string pass)
 {
     //TODO: io dico che questo ci dimentichiamo di modificarlo
-    return sha256(pass + "my crazy random salt porcamadonna PDS");
+    return sha256(pass + "my crazy random salt PDS");
 }
 
 std::string Database::random_string(size_t length)

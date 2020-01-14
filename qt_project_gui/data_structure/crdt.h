@@ -43,6 +43,9 @@ public:
         list.front().setBlockStart();
         list.front().hide();
         action_unresolved.clear();
+        list.push_back(SymbolId());
+        list.front().setBlockStart();
+        list.front().hide();
     }
 
     //TODO: verify usefulness
