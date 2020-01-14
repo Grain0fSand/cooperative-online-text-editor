@@ -87,7 +87,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionInvite, &QAction::triggered, this, &MainWindow::reqInvitationEmailAddress);
     connect(ui->actionTestCursor, &QAction::triggered, this, &MainWindow::insertRemoteCursor); //only for test
     connect(ui->actionColor, &QAction::toggled, ui->textEditShared, &MyTextEdit::colorText);
-    connect(this,&MainWindow::userGoneOffline,query,&OnlineQuery::resetLastCrdtId);
+    connect(&Crdt::getInstance(),&Crdt::needToResetLastCrdtId,query,&OnlineQuery::resetLastCrdtId);
 }
 
 MainWindow::~MainWindow()
@@ -671,7 +671,6 @@ void MainWindow::changeEditorStatus()
 
         offlineCounter = 0;
         Crdt::getInstance().reset();
-        emit userGoneOffline();
     }
     SessionData::accessToSessionData().mutex_online.unlock();
 }

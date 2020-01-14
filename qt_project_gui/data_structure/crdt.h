@@ -49,6 +49,9 @@ public:
 public slots:
     void update_income(std::vector<ActionWrapper> actions);
 
+signals:
+    void needToResetLastCrdtId();
+
 private:
 
     // TODO: check if necessary lock shared between local and server updates

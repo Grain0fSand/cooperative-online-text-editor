@@ -385,4 +385,5 @@ void Crdt::reset() {
     list.front().setBlockStart();
     list.front().hide();
     action_unresolved.clear();
+    emit needToResetLastCrdtId();
 }
