@@ -617,8 +617,8 @@ void MainWindow::reqInvitationEmailAddress()
 void MainWindow::changeEditorStatus()
 {
     SessionData::accessToSessionData().mutex_online.lock();
-    if(SessionData::accessToSessionData().isUserOnline && offlineCounter<5) {
-        offlineCounter++;
+    if(SessionData::accessToSessionData().isUserOnline && SessionData::accessToSessionData().offlineCounter<5) {
+        SessionData::accessToSessionData().offlineCounter++;
         SessionData::accessToSessionData().mutex_online.unlock();
         return;
     }
@@ -669,7 +669,6 @@ void MainWindow::changeEditorStatus()
         ui->myLed->setPixmap(QPixmap(QString::fromUtf8(":/resources/redLed.png")));
         ui->myStatus->setText("Offline");
 
-        offlineCounter = 0;
         Crdt::getInstance().reset();
     }
     SessionData::accessToSessionData().mutex_online.unlock();

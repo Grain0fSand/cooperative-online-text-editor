@@ -36,6 +36,7 @@ public:
     std::vector<exchangeable_data::user> onlineUsers;
     std::map<int,QColor> userColorMap;
 
+    int offlineCounter = 0;
     QMutex mutex_cursor_pos;
     std::string json_cursor="last";
 
