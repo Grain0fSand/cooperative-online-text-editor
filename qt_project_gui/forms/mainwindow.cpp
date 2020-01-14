@@ -87,6 +87,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionInvite, &QAction::triggered, this, &MainWindow::reqInvitationEmailAddress);
     connect(ui->actionTestCursor, &QAction::triggered, this, &MainWindow::insertRemoteCursor); //only for test
     connect(ui->actionColor, &QAction::toggled, ui->textEditShared, &MyTextEdit::colorText);
+    connect(this,&MainWindow::userGoneOffline,query,&OnlineQuery::resetLastCrdtId);
 }
 
 MainWindow::~MainWindow()
@@ -615,7 +616,7 @@ void MainWindow::reqInvitationEmailAddress()
 
 void MainWindow::changeEditorStatus()
 {
-    if(offlineCounter<4) {
+    if(SessionData::accessToSessionData().isUserOnline && offlineCounter<5) {
         offlineCounter++;
         return;
     }
@@ -626,7 +627,6 @@ void MainWindow::changeEditorStatus()
     //operations to do BEFORE the editor changes its status
     if(isUserOnline) {  //operations to do when back online
         ui->textEditShared->clearDocument();
-        offlineCounter = 0;
     } else {    //operations to do when it turns offline
         if(ui->listOfflineUsers->isVisible())
             ui->offlineRollButton->click();
@@ -668,6 +668,7 @@ void MainWindow::changeEditorStatus()
         ui->myLed->setPixmap(QPixmap(QString::fromUtf8(":/resources/redLed.png")));
         ui->myStatus->setText("Offline");
 
+        offlineCounter = 0;
         Crdt::getInstance().reset();
         emit userGoneOffline();
     }
