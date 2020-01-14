@@ -29,7 +29,6 @@ public:
     std::string docName;
     std::string userId;
     std::string token;
-    std::string lastCrdtId;
     std::string username;
     std::string password;
     QPixmap avatar;

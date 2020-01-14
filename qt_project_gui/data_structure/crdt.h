@@ -36,17 +36,7 @@ public:
        return instance;
     }
 
-    void reset() {
-        op = 0;
-        list.clear();
-        list.push_back(SymbolId());
-        list.front().setBlockStart();
-        list.front().hide();
-        action_unresolved.clear();
-        list.push_back(SymbolId());
-        list.front().setBlockStart();
-        list.front().hide();
-    }
+    void reset();
 
     //TODO: verify usefulness
     // no race condition because of the single threaded application

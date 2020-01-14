@@ -4,10 +4,7 @@
 #include "../utility/json_comunicator.h"
 #include "../forms/mainwindow.h"
 #include <thread>
-#include "exchangeable.h"
 #include <exception>
-
-
 
 class CrdtMonotonicityException : public std::exception
 {
@@ -309,17 +306,15 @@ Crdt::formattingExt(const std::pair<int, int> &rel_symbol, const std::vector<std
 
 void Crdt::update_income(std::vector<ActionWrapper> actions) {
 
-    int  b;
+    int b;
 
-    for(ActionWrapper actionWrapper : action_unresolved){
+    for (ActionWrapper actionWrapper : action_unresolved) {
         actions.push_back(actionWrapper);
     }
     // now the cycle continue again, the action_unresolved are clear and
     // after if are not already resolved are filled again
     action_unresolved.clear();
 
-    if (actions.empty())
-        return;
     //catch action wrappers sent mistakenly and belonging to the user who received them
     if (list.size() > 1) {
         int u = usr_id;
@@ -331,7 +326,7 @@ void Crdt::update_income(std::vector<ActionWrapper> actions) {
     }
 
     // solving the monoticity problem!!!!!
-    std::sort(std::begin(actions),std::end(actions));
+    std::sort(std::begin(actions), std::end(actions));
 
     for (ActionWrapper action_wrapper : actions) {
         Action &action = action_wrapper.action;
@@ -356,26 +351,33 @@ void Crdt::update_income(std::vector<ActionWrapper> actions) {
                 default:
                     break;
             }
-            //TODO: delete following part
-            int a = 0;
-            for (auto x : list)
-                if (!x.is_hidden())
-                    ++a;
-
-            if (!all_pos.empty()) {
-                int ownerId = action_wrapper.symbol[0].second;
-                b = SessionData::accessToSessionData().myTextEditPointer->doReceivedAction(action, ownerId, all_pos);
-                if (a != b)
-                    qDebug() << "BIIIIG ERROR CONTACT LORENZO IF YOU SEE THIS. IMPORTANT!!!";
-            }
+            int ownerId = action_wrapper.symbol[0].second;
+            b = SessionData::accessToSessionData().myTextEditPointer->doReceivedAction(action, ownerId, all_pos);
         } catch (...) {
             // TODO: leave here for debugging purpose until the last control to understand why that error is happened
             std::cout << "DEBUG: cannot insert symbol " << action_wrapper.get_json() << std::endl;
             action_unresolved.push_back(action_wrapper);
         }
-
     }
-//    for (SymbolId s : list)
-//        std::cout << s.getIncId() << s.getUsrId() << s.is_hidden() << ' ';
-//    std::cout << std::endl;
+
+    //check crdt/document consistency
+    int a = 0;
+    for (auto x : list)
+        if (!x.is_hidden())
+            ++a;
+    if (a == b) {
+        qDebug() << "ERROR: Reloading whole document";
+        SessionData::accessToSessionData().myTextEditPointer->clearDocument();
+        this->reset();
+    }
+}
+
+
+void Crdt::reset() {
+    op = 0;
+    list.clear();
+    list.push_back(SymbolId());
+    list.front().setBlockStart();
+    list.front().hide();
+    action_unresolved.clear();
 }
