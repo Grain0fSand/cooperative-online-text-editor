@@ -315,16 +315,18 @@ void Crdt::update_income(std::vector<ActionWrapper> actions) {
     // after if are not already resolved are filled again
     action_unresolved.clear();
 
+
+    //catch action wrappers sent mistakenly and belonging to the user who received them
+    if (list.size() > 1) {
+        int u = usr_id;
+        actions.erase(std::remove_if(actions.begin(), actions.end(), [u](ActionWrapper action_wrapper) {
+            if (action_wrapper.action.getActionType() == Insertion)
+                return (action_wrapper.symbol.empty() || action_wrapper.symbol.front().second == u);
+            return action_wrapper.rel_symbol.second == u;
+        }), actions.end());
+    }
+
     if (!actions.empty()) {
-        //catch action wrappers sent mistakenly and belonging to the user who received them
-        if (list.size() > 1) {
-            int u = usr_id;
-            actions.erase(std::remove_if(actions.begin(), actions.end(), [u](ActionWrapper action_wrapper) {
-                if (action_wrapper.action.getActionType() == Insertion)
-                    return (action_wrapper.symbol.empty() || action_wrapper.symbol.front().second == u);
-                return action_wrapper.rel_symbol.second == u;
-            }), actions.end());
-        }
 
         // solving the monoticity problem!!!!!
         std::sort(std::begin(actions), std::end(actions));
