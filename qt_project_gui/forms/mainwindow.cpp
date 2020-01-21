@@ -261,11 +261,12 @@ void MainWindow::exportPDF() {
     QString file_path = QFileDialog::getSaveFileName(this, "Export to PDF..", "", "Pdf file (*.pdf);;All Files (*)");
 
     if (file_path != "") {
-        QPrinter printer(QPrinter::PrinterResolution);
+        QPrinter printer(QPrinter::ScreenResolution);
         printer.setOutputFormat(QPrinter::PdfFormat);
         printer.setOutputFileName(file_path);
         printer.setPaperSize(QPrinter::A4);
-        ui->textEditShared->print(&printer);
+        printer.setPageSizeMM(QSizeF(228.5,317));
+        ui->textEditShared->document()->print(&printer);
         QString file_name = file_path.split("/").last();
         if (printer.printerState()<2) {
             QMessageBox::information(this,"Export to PDF","File "+file_name+" exported successfully.");

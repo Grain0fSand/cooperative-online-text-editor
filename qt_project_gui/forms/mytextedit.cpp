@@ -8,7 +8,7 @@
 MyTextEdit::MyTextEdit(QWidget *parent)
 {
     this->setCurrentFont(QFont("Calibri",11,-1,false));
-    this->document()->setDocumentMargin(11);
+    this->document()->setDocumentMargin(30);
     this->hiddenCursorForText = new QTextCursor(this->document());
     this->hiddenCursorForColors = new QTextCursor(this->document());
     this->fontSizes << "8" << "9" << "10" << "11" << "12" <<
