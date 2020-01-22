@@ -280,7 +280,6 @@ std::vector<exchangeable_data::send_data> Database::getCrdtUser(std::string last
 
 std::string Database::hashed_pass(std::string pass)
 {
-    //TODO: io dico che questo ci dimentichiamo di modificarlo
     return sha256(pass + "my crazy random salt PDS");
 }
 

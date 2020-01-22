@@ -249,7 +249,7 @@ int main() {
 
     // to test launch and open
     // TODO: add remoteCursor parameter
-    // http://localhost:8080/push_crdt?token=1&crdt=mannaggia il porco&docId=1
+    // http://localhost:8080/push_crdt?token=1&crdt=qualcosa&docId=1
     CROW_ROUTE(app, "/push_crdt")
             .methods("POST"_method)
                     ([&](const crow::request &req) {
