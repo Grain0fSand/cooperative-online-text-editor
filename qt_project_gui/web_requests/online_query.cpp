@@ -46,7 +46,7 @@ void OnlineQuery::getCrdtRequest() {
 
     // QMutex
     SessionData::accessToSessionData().mutex_cursor_pos.lock();
-    std::string json_cursor = json(SessionData::accessToSessionData().cursor);
+    std::string json_cursor = std::to_string(SessionData::accessToSessionData().cursor.first) + ',' + std::to_string(SessionData::accessToSessionData().cursor.second);
     SessionData::accessToSessionData().mutex_cursor_pos.unlock();
 
     QString ip_address = IP_ADDRESS;

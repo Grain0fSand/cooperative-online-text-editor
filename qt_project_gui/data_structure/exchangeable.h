@@ -74,7 +74,11 @@ namespace exchangeable_data {
             d.id = j.at("id").get<std::string>();
             d.username = j.at("username").get<std::string>();
             d.image = j.at("image").get<std::string>();
-            d.lastCursorPosition = j.at("cursor_json").get<std::pair<int,int>>();
+
+            std::string str = j.at("cursor_json").get<std::string>();
+            int index = str.find(',');
+            d.lastCursorPosition = std::make_pair(std::stoi(str.substr(0,index)), std::stoi(str.substr(index+1)));
+
             d.email = j.at("email").get<std::string>();
         }
     };
