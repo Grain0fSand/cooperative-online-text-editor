@@ -38,7 +38,7 @@ public:
 
     int offlineCounter = 0;
     QMutex mutex_cursor_pos;
-    std::string json_cursor="last";
+    std::pair<int,int> cursor;
 
     bool go_down = true;
     QMutex mutex_online;
