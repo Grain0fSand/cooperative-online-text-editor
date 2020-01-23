@@ -214,7 +214,7 @@ void Crdt::sendActionToServer(Action &action, int cursorPos, int numChars) {
     QThread *sender = new OnlineSender(str.dump(), docId, token);
     sender->start();
 
-    std::cout << "Action done: " << action_wrapper.get_json() << std::endl;
+    //std::cout << "Action done: " << action_wrapper.get_json() << std::endl;
 }
 
 std::vector<int> Crdt::symbolInsertionExt(const std::pair<int, int> &left_sym, int n, const std::pair<int, int> &symbol,
@@ -373,7 +373,7 @@ void Crdt::update_income(std::vector<ActionWrapper> actions) {
         if (!x.is_hidden())
             ++a;
     if (a != b) {
-        qDebug() << "ERROR: Reloading whole document";
+       // qDebug() << "ERROR: Reloading whole document";
         SessionData::accessToSessionData().myTextEditPointer->clearDocument();
         this->reset();
     }

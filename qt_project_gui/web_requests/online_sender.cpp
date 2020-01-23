@@ -100,8 +100,8 @@ void OnlineSender::pushCrdtRequest()
     buffer.write(json_to_send.c_str());
     QString encodedCrdt = buffer.data().toBase64(QByteArray::Base64UrlEncoding);
 
-    std::cout << "the url sent: " << (location+request).toStdString() << std::endl;
-    std::cout << "the encoded non base64 version of the crdt: " << json_to_send << std::endl;
+//    std::cout << "the url sent: " << (location+request).toStdString() << std::endl;
+//    std::cout << "the encoded non base64 version of the crdt: " << json_to_send << std::endl;
 
     url.setUrl(location+request);
     req.setUrl(url);
@@ -259,11 +259,9 @@ void OnlineSender::checkPushCrdtReply(QNetworkReply *reply)
     }
 
     std::string answer = reply->readAll().toStdString();
-    std::cout << answer;
     if (answer != "1")
         std::cout << "error: the server is not reachable";
-    // TODO: remove comment here
-    //emit responsePushCrdtArrived(answer);
+
 }
 
 void OnlineSender::checkTryRegistrationReply(QNetworkReply *reply)

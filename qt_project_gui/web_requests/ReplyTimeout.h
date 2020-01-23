@@ -46,7 +46,7 @@ protected:
             if(tmp)
                 emit timeoutOccurred();
 
-            std::cout << "Too much time for the reply" << std::endl;
+           // std::cout << "Too much time for the reply" << std::endl;
         }
 
         m_timer.stop();

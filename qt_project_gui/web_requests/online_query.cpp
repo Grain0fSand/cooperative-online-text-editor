@@ -94,7 +94,7 @@ void OnlineQuery::checkReply(QNetworkReply *reply) {
 
         } else if (is_online){
             emit user_changed_his_status();
-            std::cout << "One request has expired" << std::endl;
+            //std::cout << "One request has expired" << std::endl;
         }
 
         return;
@@ -151,10 +151,10 @@ void OnlineQuery::checkReply(QNetworkReply *reply) {
         actions.push_back(w);
     }
 
-    for (auto t : actions)
-        if(t.action.getActionType() == Insertion)
-            qDebug() << t.action.getChars().toUtf8();
-        else qDebug() << t.action.getActionType();
+//    for (auto t : actions)
+//        if(t.action.getActionType() == Insertion)
+//            qDebug() << t.action.getChars().toUtf8();
+//        else qDebug() << t.action.getActionType();
 
     emit send_actions(actions);
     emit users_online_arrived(arrayOnlineUser);

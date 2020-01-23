@@ -387,7 +387,6 @@ void MainWindow::textChanged(int pos, int nDel, int nIns) {
             auto clipboard = QApplication::clipboard();
             QString originalText = clipboard->text();
             std::string s = ui->textEditShared->textCursor().selectedText().toStdString();
-            std::cout << s << endl << this->sender()->metaObject()->className() << std::endl;
             nIns = clipboard->text().count();
             //  ui->textEditShared->previousSelection.pop();
             nDel = ui->textEditShared->previousSelection;
