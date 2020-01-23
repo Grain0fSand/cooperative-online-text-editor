@@ -1,13 +1,7 @@
 #include "database.h"
 
 Database::Database() :
-    db(dbUri, SQLite::OPEN_READWRITE|SQLite::OPEN_CREATE)
-{
-    // TODO: only for test, remove it
-    std::cout << "db opened";
-    sessionLogged["1"] = 1;
-    sessionLogged["2"] = 2;
-}
+    db(dbUri, SQLite::OPEN_READWRITE|SQLite::OPEN_CREATE) {}
 
 int Database::userLogged(std::string token)
 {
@@ -252,8 +246,6 @@ std::vector<exchangeable_data::send_data> Database::getCrdtUser(std::string last
     sql = "UPDATE user_document_request SET cursor_position_json = '" + remoteCursor + "' WHERE idUser='" + uid +
           "' AND idDocument='" + docId + "';";
 
-    std::cout << sql << std::endl;
-
     SQLite::Statement query2(db, sql);
     query2.exec();
 
@@ -302,7 +294,7 @@ std::string Database::random_string(size_t length)
 std::vector<exchangeable_data::user>
 Database::getOnlineUsers(std::string docId) {
 
-    std::string sql = "select id,email,username,image,(select cursor_position_json from user_document_request where lastReq >= datetime((strftime('%s','now')+3),'unixepoch','localtime')) as json_cursor from users where id in (select idUser from user_document_request where idDocument = " + docId + " AND lastReq >= datetime((strftime('%s','now')-3),'unixepoch','localtime'))";
+    std::string sql = "select id,email,username,image,(select cursor_position_json from user_document_request where lastReq >= datetime((strftime('%s','now')-3),'unixepoch','localtime')) as json_cursor from users where id in (select idUser from user_document_request where idDocument = " + docId + " AND lastReq >= datetime((strftime('%s','now')-3),'unixepoch','localtime'))";
 
     SQLite::Statement query(db, sql);
     std::vector<exchangeable_data::user> vect;
