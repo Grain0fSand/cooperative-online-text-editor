@@ -7,7 +7,7 @@
 #include <QtCore/QUrlQuery>
 
 #define IP_ADDRESS "47.53.242.167"
-//#define IP_ADDRESS "192.168.43.238"
+//#define IP_ADDRESS "192.168.1.5"
 #define PORT "6969"
 
 OnlineSender::OnlineSender(std::string json_to_send,std::string docId,std::string token) :

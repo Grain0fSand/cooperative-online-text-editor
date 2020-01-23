@@ -86,7 +86,6 @@ set(SOURCES
 		forms/mytextedit.h
 		forms/usertag.cpp
 		forms/usertag.h
-		utility/image_utility.h
 		utility/json_comunicator.cpp
 		utility/json_comunicator.h
 		utility/shared_editor.h

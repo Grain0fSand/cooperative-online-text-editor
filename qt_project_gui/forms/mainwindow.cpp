@@ -97,19 +97,10 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::closeEvent(QCloseEvent *event) {
-    event->ignore();
-
-    event->accept();
-}
-
 void MainWindow::populateUserTagList()
 {
     QString statusLabel;
     QPixmap led;
-
-    std::sort(SessionData::accessToSessionData().onlineUsers.begin(),
-              SessionData::accessToSessionData().onlineUsers.end());
 
     ui->listOnlineUsers->clear();
     ui->listOfflineUsers->clear();
@@ -130,14 +121,6 @@ void MainWindow::populateUserTagList()
             ui->listOfflineUsers->setItemDelegate(&tag);
             ui->listOfflineUsers->addItem(item);
         }
-
-        //TODO: this might be useless now
-        /*
-        std::default_random_engine generator(std::chrono::system_clock::now().time_since_epoch().count());
-        std::uniform_int_distribution<int> distribution(0,255);
-        auto random_value = std::bind(distribution, generator);
-        QColor color(random_value(),random_value(),random_value());
-*/
         item->setData(Qt::UserRole + 1, tag.getUsername());
         item->setData(Qt::UserRole + 2, statusLabel);
         item->setData(Qt::UserRole + 3, tag.getAvatar());
@@ -151,52 +134,8 @@ void MainWindow::arrangeUserTagList(std::vector<exchangeable_data::user> remoteV
     SessionData *sessionData = &SessionData::accessToSessionData();
 
     if (sessionData->onlineUsers != remoteVector) {
-/*
-        std::sort(remoteVector.begin(),remoteVector.end());
-        std::vector<exchangeable_data::user> difference;
-        std::vector<UserTag>::iterator everytimeUser;
 
-        if(sessionData->onlineUsers<remoteVector) { //there is a user to add to onlinelist, check if its a new user
-            std::set_difference(remoteVector.begin(),remoteVector.end(),
-                                sessionData->onlineUsers.begin(),sessionData->onlineUsers.end(),
-                                std::back_inserter(difference));
-
-            bool found = false;
-            for(everytimeUser=sessionData->usersList.begin(); everytimeUser<sessionData->usersList.end(); everytimeUser++) {
-                if(*everytimeUser == difference.back()) {
-                    everytimeUser->setUserStatus(true);
-                    found = true;
-                    break;
-                }
-            }
-            if(!found) {
-                exchangeable_data::user newUser = difference.back();
-                UserTag userTag;
-                userTag.setUserId(std::stoi(newUser.id));
-                userTag.setUserColor(LoginWindow::chooseColorFromString(QString::fromStdString(newUser.email)));
-                userTag.setUsername(QString::fromStdString(newUser.username));
-                userTag.setAvatar(LoginWindow::recoverImageFromEncodedString(QString::fromStdString(newUser.image)));
-                userTag.setUserStatus(true);
-
-                sessionData->usersList.push_back(userTag);
-                sessionData->userColorMap[userTag.getUserId()] = userTag.getUserColor();
-            }
-        }
-        else { //there is a user to remove from onlinelist
-            std::set_difference(sessionData->onlineUsers.begin(),sessionData->onlineUsers.end(),
-                                remoteVector.begin(),remoteVector.end(),
-                                std::back_inserter(difference));
-
-            for(everytimeUser=sessionData->usersList.begin(); everytimeUser<sessionData->usersList.end(); everytimeUser++) {
-                if(*everytimeUser == difference.back()) {
-                    everytimeUser->setUserStatus(false);
-                    break;
-                }
-            }
-        }
-        */ //other version but not working for now, to delete if the current version works well
-
-
+        ui->textEditShared->clearRemoteCursorList();
         std::vector<UserTag>::iterator everytimeUser;
         std::vector<exchangeable_data::user>::iterator onlineUser;
 
@@ -227,9 +166,22 @@ void MainWindow::arrangeUserTagList(std::vector<exchangeable_data::user> remoteV
                 sessionData->usersList.push_back(userTag);
                 sessionData->userColorMap[userTag.getUserId()] = userTag.getUserColor();
             }
+
+            int pos = Crdt::getInstance().findAbsolutePosition(onlineUser->lastCursorPosition);
+            QColor color = LoginWindow::chooseColorFromString(QString::fromStdString(onlineUser->email));
+            ui->textEditShared->createRemoteCursor(std::stoi(onlineUser->id),pos,QString::fromStdString(onlineUser->username),color);
         }
         sessionData->onlineUsers = remoteVector;
+        std::sort(sessionData->onlineUsers.begin(), sessionData->onlineUsers.end());
+
         populateUserTagList();
+    }
+
+    for(auto user : remoteVector){
+        if(user.id!=sessionData->userId) {
+            int pos = Crdt::getInstance().findAbsolutePosition(user.lastCursorPosition);
+            ui->textEditShared->updateRemoteCursorPosition(std::stoi(user.id),pos);
+        }
     }
 }
 
@@ -420,6 +372,8 @@ void MainWindow::makeUnderline()
 //TODO: create multiple actions when copy pasting text with different styles?
 void MainWindow::textChanged(int pos, int nDel, int nIns) {
 
+    //ui->textEditShared->refreshCursorsPosition();               //ATTENZIONE!!!!!!
+
     if(SessionData::accessToSessionData().skipChanges)
         return;
 
@@ -568,13 +522,17 @@ void MainWindow::checkTextProperty()
     ui->statusBar->findChild<QLabel*>("cursorColumn")->setText("col: "+QString::number(ui->textEditShared->textCursor().columnNumber()));
     ui->statusBar->findChild<QLabel*>("cursorSelectionCount")->setText("sel: "+QString::number(ui->textEditShared->textCursor().selectedText().length()));
 
-    ui->textEditShared->setTextColor({Qt::black});
-    ui->textEditShared->setTextBackgroundColor({Qt::white});
+    SessionData::accessToSessionData().mutex_cursor_pos.lock();
+    SessionData::accessToSessionData().cursor = Crdt::getInstance().findRelativePosition(text_cursor.position());
+    SessionData::accessToSessionData().mutex_cursor_pos.unlock();
+
+    //TODO: to be removed if no longer needed
+    //ui->textEditShared->setTextColor({Qt::black});
+    //ui->textEditShared->setTextBackgroundColor({Qt::white});
 }
 
-void MainWindow::insertRemoteCursor() {
-    ui->textEditShared->createCursor(ui->textEditShared->textCursor().position(), "prova1", Qt::red);
-    ui->textEditShared->repaint();
+void MainWindow::insertRemoteCursor() {  //TODO: to remove when testCursor button has been removed
+    ui->textEditShared->createRemoteCursor(0,ui->textEditShared->textCursor().position(), "prova1", Qt::red);
 }
 
 void MainWindow::reqInvitationEmailAddress()

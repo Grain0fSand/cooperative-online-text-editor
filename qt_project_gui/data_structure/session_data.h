@@ -38,7 +38,7 @@ public:
 
     int offlineCounter = 0;
     QMutex mutex_cursor_pos;
-    std::pair<int,int> cursor;
+    std::pair<int,int> cursor = {0,0};
 
     bool go_down = true;
     QMutex mutex_online;

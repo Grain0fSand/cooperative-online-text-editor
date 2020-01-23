@@ -29,35 +29,34 @@ void MyTextEdit::paintEvent(QPaintEvent *e) {
         QPainter painter(this->viewport());
         QFont font("Gill Sans MT",9,QFont::Bold);
 
-        std::list<RemoteCursor*>::iterator it;
+        QTextCursor tmpCursor(this->document());
+        QRect cursorRect;
+
+        std::list<RemoteCursor>::iterator it;
         for(it=this->cursorsList.begin(); it!=this->cursorsList.end(); it++) {
+            tmpCursor.setPosition(it->getPos());
+            cursorRect = this->cursorRect(tmpCursor);
 
             painter.setPen(Qt::black);
+            QString userName(it->getText());
 
-            QString userName((*it)->getText());
-
-            QRect rect((*it)->getX(),(*it)->getY()-12,10+6*userName.length(),14);
+            QRect rect(cursorRect.x(),cursorRect.y()-12,10+6*userName.length(),14);
             painter.drawRect(rect);
-            painter.fillRect(rect,(*it)->getColor());
+            painter.fillRect(rect,it->getColor());
 
-            QLine line((*it)->getX(),(*it)->getY(),(*it)->getX(),(*it)->getY()+(*it)->getVerticalOffset()-2);
-            painter.setPen((*it)->getColor());
+            QLine line(cursorRect.x(),cursorRect.y(),cursorRect.x(),cursorRect.y()+cursorRect.height()-2);
+            painter.setPen(it->getColor());
             painter.drawLine(line);
 
-            painter.setPen(Qt::white);
+            painter.setPen(MyTextEdit::chooseColorTextFromBackground(it->getColor()));
             painter.setFont(font);
-            painter.drawText((*it)->getX()+4,(*it)->getY()-1,userName);
+            painter.drawText(cursorRect.x()+4,cursorRect.y()-1,userName);
         }
-
     }
     this->document()->blockSignals(true);
     QTextEdit::paintEvent(e);
+    this->viewport()->update();
     this->document()->blockSignals(false);
-}
-
-void MyTextEdit::addCursor(RemoteCursor *cursor)
-{
-    this->cursorsList.push_back(cursor);
 }
 
 int MyTextEdit::doReceivedAction(const Action& action, int ownerId, const std::vector<int>& all_pos )
@@ -246,7 +245,7 @@ void MyTextEdit::colorText(bool checked)
     this->document()->blockSignals(false);
 }
 
-QColor MyTextEdit::chooseColorTextFromBackground(QColor& background) {
+QColor MyTextEdit::chooseColorTextFromBackground(const QColor& background) {
     if((background.red()*299 + background.green()*587 + background.blue()*114)/1000 < 123)
         return {Qt::white};
     return {Qt::black};
@@ -258,20 +257,26 @@ void MyTextEdit::clearDocument() {
     SessionData::accessToSessionData().skipChanges = false;
 }
 
-void MyTextEdit::createCursor(int pos, QString text, QColor color) {
+void MyTextEdit::createRemoteCursor(int id, int pos, QString text, QColor color) {
 
-    QTextCursor tmpCursor(this->document());
-    tmpCursor.setPosition(pos);
-    QRect cursorRect = this->cursorRect(tmpCursor);
+    RemoteCursor newCursor;
+    newCursor.setId(id);
+    newCursor.setPos(pos);
+    newCursor.setText(text);
+    newCursor.setColor(color);
 
-    RemoteCursor* newCursor = new RemoteCursor;
-    newCursor->setX(cursorRect.x());
-    newCursor->setY(cursorRect.y());
-    newCursor->setVerticalOffset(cursorRect.height());
-    newCursor->setText(text);
-    newCursor->setColor(color);
+    this->cursorsList.push_back(newCursor);
+}
 
-    this->addCursor(newCursor);
+void MyTextEdit::updateRemoteCursorPosition(int id, int pos) {
+    for(auto& cursor : this->cursorsList) {
+        if(cursor.getId() == id)
+            cursor.setPos(pos);
+    }
+}
+
+void MyTextEdit::clearRemoteCursorList() {
+    this->cursorsList.clear();
 }
 
 const QString &MyTextEdit::getDocumentName() const {

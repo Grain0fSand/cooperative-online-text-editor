@@ -9,7 +9,7 @@
 #include <QTimer>
 
 #define IP_ADDRESS "47.53.242.167"
-//#define IP_ADDRESS "192.168.43.238"
+//#define IP_ADDRESS "192.168.1.5"
 #define PORT "6969"
 
 OnlineQuery::OnlineQuery(std::string docId,std::string token,QObject* m) :
@@ -158,17 +158,6 @@ void OnlineQuery::checkReply(QNetworkReply *reply) {
         else qDebug() << t.action.getActionType();
 
     emit send_actions(actions);
-
-    // TODO: chiamare: findAbsolutePosition() vuole pair int
-    // TODO: mandare a lorenzo per posizione crdt in posizione effettiva
-
-    for(auto user : arrayOnlineUser){
-        // TODO: here
-    }
-
     emit users_online_arrived(arrayOnlineUser);
-
-//    SessionData::accessToSessionData().myTextEditPointer->refreshCursors();
-    //emit response_arrived(answer);
 }
 

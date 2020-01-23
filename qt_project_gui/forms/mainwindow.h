@@ -61,7 +61,6 @@ public:
     //MainWindow& operator=(const MainWindow&) = delete;
 
     bool eventFilter(QObject *obj,QEvent* event);
-    void closeEvent ( QCloseEvent * event );
     void sendInvitationEmail(QString docName, QString destEmailAddress);
     void setupFontComboBoxes(QComboBox *comboSize, QComboBox *comboFamily);
     void setupStatusBar();
@@ -90,7 +89,6 @@ protected slots:
     void textChanged(int, int, int);
 
 signals:
-    void userGoneOffline();
     void stopQueryLoop();
     void setComboSize(int);
     void setComboFont(int);
