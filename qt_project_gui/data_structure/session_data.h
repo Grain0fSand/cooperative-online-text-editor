@@ -60,9 +60,6 @@ public:
 private:
     explicit SessionData() = default;
     ~SessionData() = default;
-    // TODO: add list of user
-    // TODO: add list of cursor
-    // TODO: add list of online user
 };
 
 #endif //TRANSLATOR_SESSION_DATA_H

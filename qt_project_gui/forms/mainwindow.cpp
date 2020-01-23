@@ -133,7 +133,7 @@ void MainWindow::arrangeUserTagList(std::vector<exchangeable_data::user> remoteV
 
     SessionData *sessionData = &SessionData::accessToSessionData();
 
-    if (sessionData->onlineUsers != remoteVector) {
+    if (sessionData->onlineUsers != remoteVector) {   //number of user change
 
         ui->textEditShared->clearRemoteCursorList();
         std::vector<UserTag>::iterator everytimeUser;
@@ -175,12 +175,15 @@ void MainWindow::arrangeUserTagList(std::vector<exchangeable_data::user> remoteV
         std::sort(sessionData->onlineUsers.begin(), sessionData->onlineUsers.end());
 
         populateUserTagList();
+    } else {
+        sessionData->onlineUsers = remoteVector;
+        std::sort(sessionData->onlineUsers.begin(), sessionData->onlineUsers.end());
     }
 
-    for(auto user : remoteVector){
-        if(user.id!=sessionData->userId) {
+    for (auto user : remoteVector) {
+        if (user.id != sessionData->userId) {
             int pos = Crdt::getInstance().findAbsolutePosition(user.lastCursorPosition);
-            ui->textEditShared->updateRemoteCursorPosition(std::stoi(user.id),pos);
+            ui->textEditShared->updateRemoteCursorPosition(std::stoi(user.id), pos);
         }
     }
 }
@@ -369,10 +372,7 @@ void MainWindow::makeUnderline()
     }
 }
 
-//TODO: create multiple actions when copy pasting text with different styles?
 void MainWindow::textChanged(int pos, int nDel, int nIns) {
-
-    //ui->textEditShared->refreshCursorsPosition();               //ATTENZIONE!!!!!!
 
     if(SessionData::accessToSessionData().skipChanges)
         return;
@@ -451,6 +451,12 @@ void MainWindow::textChanged(int pos, int nDel, int nIns) {
             Action action(str, familyIndex, sizeIndex, bold, italic, underlined, blockFormatType);
             Crdt::getInstance().sendActionToServer(action, pos, nIns);
         }
+        for(auto user : SessionData::accessToSessionData().onlineUsers){
+            if(user.id != SessionData::accessToSessionData().userId) {
+                int pos = Crdt::getInstance().findAbsolutePosition(user.lastCursorPosition);
+                ui->textEditShared->updateRemoteCursorPosition(std::stoi(user.id), pos);
+            }
+        }
     }
 }
 
@@ -526,9 +532,6 @@ void MainWindow::checkTextProperty()
     SessionData::accessToSessionData().cursor = Crdt::getInstance().findRelativePosition(text_cursor.position());
     SessionData::accessToSessionData().mutex_cursor_pos.unlock();
 
-    //TODO: to be removed if no longer needed
-    //ui->textEditShared->setTextColor({Qt::black});
-    //ui->textEditShared->setTextBackgroundColor({Qt::white});
 }
 
 void MainWindow::insertRemoteCursor() {  //TODO: to remove when testCursor button has been removed
@@ -784,6 +787,3 @@ void MainWindow::on_offlineRollButton_clicked()
         ui->offlineRollButton->setIcon(QIcon(":/resources/arrow_down.png"));
     }
 }
-
-//TODO: clicking on bold/cursive/etc. with nothing highlighted sends an action but it shouldn't
-//TODO: block formatting doesn't result in sending an action but it should

@@ -60,7 +60,7 @@ void OnlineQuery::getCrdtRequest() {
     params += "&";
     params += "docId=" + QString::fromStdString(docId);
     params += "&";
-    params += "remoteCursor=" + QString::fromStdString(json_cursor); //TODO: add the crdt symbol relative to cursor position
+    params += "remoteCursor=" + QString::fromStdString(json_cursor);
 
     url.setUrl(location+request+params);
     req.setUrl(url);
@@ -100,7 +100,6 @@ void OnlineQuery::checkReply(QNetworkReply *reply) {
         return;
     }
 
-    //TODO: this might never be true (see the first if-else above...)
     if (reply->error()) {
         qDebug() << reply->errorString();
         return;

@@ -24,7 +24,6 @@ MyTextEdit::MyTextEdit(QWidget *parent)
 MyTextEdit::~MyTextEdit() {}
 
 void MyTextEdit::paintEvent(QPaintEvent *e) {
-
     if(!cursorsList.empty()) {
         QPainter painter(this->viewport());
         QFont font("Gill Sans MT",9,QFont::Bold);

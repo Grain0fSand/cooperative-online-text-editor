@@ -49,7 +49,6 @@ public:
     void setBlockFormat(const BlockFormatType &value);
 
 private:
-    //TODO: inserted strings must have uniform formatting
     ActionType actionType;
     QString chars;
     int select;  //indicates which style feature is being changed

@@ -358,7 +358,7 @@ void Crdt::update_income(std::vector<ActionWrapper> actions) {
                 b = SessionData::accessToSessionData().myTextEditPointer->doReceivedAction(action, ownerId, all_pos);
             } catch (...) {
                 // TODO: leave here for debugging purpose until the last control to understand why that error is happened
-                std::cout << "DEBUG: cannot insert symbol " << action_wrapper.get_json() << std::endl;
+               // std::cout << "DEBUG: cannot insert symbol " << action_wrapper.get_json() << std::endl;
                 action_unresolved.push_back(action_wrapper);
             }
         }

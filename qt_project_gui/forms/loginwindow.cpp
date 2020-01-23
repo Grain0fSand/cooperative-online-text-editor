@@ -376,11 +376,6 @@ void LoginWindow::tryLogin()
     else if(password.isEmpty()) {
         ui->loginErrorLabel->setText("Password field is empty");
     }
-    else if(username=="test2" && password=="test2") { //TODO: remember to remove this
-        ui->loggedUsernameLabel->setText(username);
-        ui->loggedAvatar->setPixmap(QPixmap(":/resources/avatar.png"));
-        this->switchFrame(1);
-    }
     else {
         QThread* sender = new OnlineSender(username, password);
         sender->start();
@@ -390,7 +385,6 @@ void LoginWindow::tryLogin()
     ui->loginErrorLabel->setVisible(true);
 }
 
-//TODO: (optional) first check email and username on DB, if ok let choose an image
 void LoginWindow::tryRegister()
 {
     QString email(ui->registerEmailInput->text());

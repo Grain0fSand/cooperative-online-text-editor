@@ -40,7 +40,6 @@ protected:
             reply->close();
             reply->abort();
 
-            // TODO: emit offline perchè ci ha messo troppo a rispondere
             SessionData::accessToSessionData().mutex_online.lock();
             bool tmp = SessionData::accessToSessionData().isUserOnline;
             SessionData::accessToSessionData().mutex_online.unlock();

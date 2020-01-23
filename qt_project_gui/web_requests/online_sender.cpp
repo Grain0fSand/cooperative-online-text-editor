@@ -95,7 +95,6 @@ void OnlineSender::pushCrdtRequest()
     QString location = "http://" + ip_address + ":" + PORT + "/";
     QString request = "push_crdt";
 
-    // TODO: check correctness
     QBuffer buffer;
     buffer.open(QBuffer::ReadWrite);
     buffer.write(json_to_send.c_str());
@@ -106,7 +105,7 @@ void OnlineSender::pushCrdtRequest()
 
     url.setUrl(location+request);
     req.setUrl(url);
-    // TODO: check if this do problems with lengths
+
     req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
     QUrlQuery params;
 
