@@ -22,6 +22,8 @@ MyTextEdit::MyTextEdit(QWidget *parent)
                           "Verdana" << "Vivaldi";
 }
 
+MyTextEdit::~MyTextEdit() {}
+
 int MyTextEdit::doReceivedAction(const Action& action, int ownerId, const std::vector<int>& all_pos )
 {
     int ptr_start = 0, ptr_end, del_chars = 0, n = all_pos.size();    //ptr start and ptr end are for calculating ranges of subsequent positions in all_pos

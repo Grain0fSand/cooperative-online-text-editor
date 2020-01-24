@@ -37,7 +37,6 @@ public slots:
     void showRemoteCursors(bool checked);
 
 private:
-
     QStringList fontSizes;
     QStringList fontFamilies;
     QTextCursor* hiddenCursorForText;
