@@ -178,7 +178,6 @@ int main() {
 
                         if (params.get("token") == nullptr || params.get("lastcrdt") == nullptr
                             || params.get("docId") == nullptr || params.get("remoteCursor") == nullptr)
-                            // TODO: see remoteCursor param
                             return crow::response(500);
 
                         std::string token = params.get("token");
@@ -198,7 +197,7 @@ int main() {
 
                         std::vector<exchangeable_data::send_data> d = db.getCrdtUser(lastcrdt, std::to_string(idUser),
                                                                                      docId, remoteCursor);
-                        // TODO: check if now gui crash
+
                         json j;
 
                         for (exchangeable_data::send_data t : d) {
@@ -232,7 +231,6 @@ int main() {
                         auto params = req.url_params;
 
                         if (params.get("pass") == nullptr)
-                            // TODO: see remoteCursor param
                             return crow::response(500);
 
                         std::string pass = params.get("pass");
@@ -248,7 +246,6 @@ int main() {
                     });
 
     // to test launch and open
-    // TODO: add remoteCursor parameter
     // http://localhost:8080/push_crdt?token=1&crdt=qualcosa&docId=1
     CROW_ROUTE(app, "/push_crdt")
             .methods("POST"_method)

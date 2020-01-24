@@ -3,6 +3,7 @@
 #include <QPainter>
 #include <QDebug>
 #include <QPaintEvent>
+#include <QLabel>
 
 
 MyTextEdit::MyTextEdit(QWidget *parent)
@@ -19,43 +20,6 @@ MyTextEdit::MyTextEdit(QWidget *parent)
                           "Gill Sans MT" << "Harrington" << "Informal Roman" << "Lucida Calligraphy" <<
                           "Palatino Linotype" << "Segoe Script" << "Tahoma" << "Times New Roman" <<
                           "Verdana" << "Vivaldi";
-}
-
-MyTextEdit::~MyTextEdit() {}
-
-void MyTextEdit::paintEvent(QPaintEvent *e) {
-    if(!cursorsList.empty()) {
-        QPainter painter(this->viewport());
-        QFont font("Gill Sans MT",9,QFont::Bold);
-
-        QTextCursor tmpCursor(this->document());
-        QRect cursorRect;
-
-        std::list<RemoteCursor>::iterator it;
-        for(it=this->cursorsList.begin(); it!=this->cursorsList.end(); it++) {
-            tmpCursor.setPosition(it->getPos());
-            cursorRect = this->cursorRect(tmpCursor);
-
-            painter.setPen(Qt::black);
-            QString userName(it->getText());
-
-            QRect rect(cursorRect.x(),cursorRect.y()-12,10+6*userName.length(),14);
-            painter.drawRect(rect);
-            painter.fillRect(rect,it->getColor());
-
-            QLine line(cursorRect.x(),cursorRect.y(),cursorRect.x(),cursorRect.y()+cursorRect.height()-2);
-            painter.setPen(it->getColor());
-            painter.drawLine(line);
-
-            painter.setPen(MyTextEdit::chooseColorTextFromBackground(it->getColor()));
-            painter.setFont(font);
-            painter.drawText(cursorRect.x()+4,cursorRect.y()-1,userName);
-        }
-    }
-    this->document()->blockSignals(true);
-    QTextEdit::paintEvent(e);
-    this->viewport()->update();
-    this->document()->blockSignals(false);
 }
 
 int MyTextEdit::doReceivedAction(const Action& action, int ownerId, const std::vector<int>& all_pos )
@@ -244,6 +208,10 @@ void MyTextEdit::colorText(bool checked)
     this->document()->blockSignals(false);
 }
 
+void MyTextEdit::showRemoteCursors(bool checked) {
+    this->wantToShowCursors = checked;
+}
+
 QColor MyTextEdit::chooseColorTextFromBackground(const QColor& background) {
     if((background.red()*299 + background.green()*587 + background.blue()*114)/1000 < 123)
         return {Qt::white};
@@ -284,4 +252,52 @@ const QString &MyTextEdit::getDocumentName() const {
 
 void MyTextEdit::setDocumentName(const QString &documentName) {
     MyTextEdit::documentName = documentName;
+}
+
+OverlayWidget::OverlayWidget(QWidget *parent) : QWidget{parent} {
+    textEditor = SessionData::accessToSessionData().myTextEditPointer;
+}
+
+OverlayWidget::~OverlayWidget() {}
+
+void OverlayWidget::paintEvent(QPaintEvent *e) {
+
+    if(textEditor->wantToShowCursors) {
+        if(!textEditor->cursorsList.empty()) {
+            //QPainter painter(this->viewport());
+            QPainter painter(this);
+            QFont font("Gill Sans MT",9,QFont::Bold);
+
+            QTextCursor tmpCursor(textEditor->document());
+            QRect cursorRect;
+
+            std::list<RemoteCursor>::iterator it;
+            for(it=textEditor->cursorsList.begin(); it!=textEditor->cursorsList.end(); it++) {
+                tmpCursor.setPosition(it->getPos());
+                cursorRect = textEditor->cursorRect(tmpCursor);
+                tmpCursor.movePosition(QTextCursor::Right);
+                QFontMetrics metrics(tmpCursor.charFormat().font());
+                int y = cursorRect.bottom()-(cursorRect.height()/4)-metrics.ascent()+(metrics.descent()/2)*(tmpCursor.charFormat().font().pointSize()/20);
+
+                painter.setPen(Qt::black);
+                QString userName(it->getText());
+
+                QRect rect(cursorRect.x(), y-12, 10+6*userName.length(), 14);
+                painter.drawRect(rect);
+                painter.fillRect(rect,it->getColor());
+
+                QLine line(cursorRect.x(), y, cursorRect.x(), y+metrics.ascent()+3);
+                painter.setPen(it->getColor());
+                painter.drawLine(line);
+
+                painter.setPen(MyTextEdit::chooseColorTextFromBackground(it->getColor()));
+                painter.setFont(font);
+                painter.drawText(cursorRect.x()+4, y-1, userName);
+            }
+        }
+    }
+    textEditor->document()->blockSignals(true);
+    QWidget::paintEvent(e);
+    this->update();
+    textEditor->document()->blockSignals(false);
 }

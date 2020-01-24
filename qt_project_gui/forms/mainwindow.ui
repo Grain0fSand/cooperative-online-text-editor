@@ -398,7 +398,7 @@
    <addaction name="actionAlignRight"/>
    <addaction name="actionAlignJustify"/>
    <addaction name="actionColor"/>
-   <addaction name="actionTestCursor"/>
+   <addaction name="actionCursor"/>
   </widget>
   <widget class="QStatusBar" name="statusBar">
    <property name="sizeGripEnabled">
@@ -422,6 +422,7 @@
     <addaction name="actionExport_to_PDF"/>
     <addaction name="separator"/>
     <addaction name="actionBack"/>
+    <addaction name="actionLogout"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
@@ -533,16 +534,37 @@
    </property>
   </action>
   <action name="actionBack">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/resources/backToPersonalPage.png</normaloff>:/resources/backToPersonalPage.png</iconset>
+   </property>
+   <property name="text">
+    <string>Back to Personal Page...</string>
+   </property>
+  </action>
+  <action name="actionLogout">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/resources/logOut.png</normaloff>:/resources/logOut.png</iconset>
+   </property>
    <property name="text">
     <string>Logout...</string>
    </property>
   </action>
   <action name="actionExport_to_PDF">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/resources/pdfExportButtonIcon.png</normaloff>:/resources/pdfExportButtonIcon.png</iconset>
+   </property>
    <property name="text">
     <string>Export to PDF</string>
    </property>
   </action>
   <action name="actionExit">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/resources/exit.png</normaloff>:/resources/exit.png</iconset>
+   </property>
    <property name="text">
     <string>Exit</string>
    </property>
@@ -560,13 +582,24 @@
    </property>
   </action>
   <action name="actionInvite">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/resources/collaborationButtonIcon.png</normaloff>:/resources/collaborationButtonIcon.png</iconset>
+   </property>
    <property name="text">
     <string>Invite to Collaborate</string>
    </property>
   </action>
-  <action name="actionTestCursor">
+  <action name="actionCursor">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/resources/cursorButtonIcon.png</normaloff>:/resources/cursorButtonIcon.png</iconset>
+   </property>
    <property name="text">
-    <string>TestCursor</string>
+    <string>Cursor</string>
    </property>
   </action>
   <action name="actionColor">

@@ -12,7 +12,6 @@ int main(int argc, char *argv[])
 
     LoginWindow loginWindow;
     do {
-        //SessionData::accessToSessionData().youWannaLogin = false;
         loginWindow.exec();
 
         if(SessionData::accessToSessionData().isLoginCorrect) {

@@ -75,6 +75,8 @@ namespace exchangeable_data {
             d.username = j.at("username").get<std::string>();
             d.image = j.at("image").get<std::string>();
             std::string str = j.at("cursor_json").get<std::string>();
+            if(str=="")
+                str="0,0";
             int index = str.find(',');
             d.lastCursorPosition = std::make_pair(std::stoi(str.substr(0,index)), std::stoi(str.substr(index+1)));
 

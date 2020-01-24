@@ -518,7 +518,7 @@ void LoginWindow::showNewDocResponse(bool goodResponse, QString responseText, QS
         SessionData::accessToSessionData().isUserOnline = true;
         SessionData::accessToSessionData().mutex_online.unlock();
         SessionData::accessToSessionData().isLoginCorrect = true;
-
+        this->docsList.push_back(QString::fromStdString(SessionData::accessToSessionData().docName));
         close();
     }
 }

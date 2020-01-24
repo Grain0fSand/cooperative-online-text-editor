@@ -8,6 +8,7 @@
 #include <data_structure/crdt.h>
 #include <QPointer>
 #include <stack>
+
 class MyTextEdit : public QTextEdit
 {
 public:
@@ -15,10 +16,11 @@ public:
     ~MyTextEdit();
     int previousSelection, previousPreviousSelection;
     bool colorFeatureActive = false;
+    bool wantToShowCursors = false;
+    std::list<RemoteCursor> cursorsList;
     //MyTextEdit(const MyTextEdit &) = delete;
     //MyTextEdit& operator=(const MyTextEdit &) = delete;
 
-    void paintEvent(QPaintEvent *e) override;
     void createRemoteCursor(int id, int pos, QString text, QColor color);
     void clearRemoteCursorList();
     void updateRemoteCursorPosition(int id, int pos);
@@ -32,15 +34,28 @@ public:
 
 public slots:
     void colorText(bool checked);
+    void showRemoteCursors(bool checked);
 
 private:
 
-    std::list<RemoteCursor> cursorsList;
     QStringList fontSizes;
     QStringList fontFamilies;
     QTextCursor* hiddenCursorForText;
     QTextCursor* hiddenCursorForColors;
     QString documentName;
+};
+
+class OverlayWidget : public QWidget
+{
+
+public:
+    OverlayWidget(QWidget *parent);
+    ~OverlayWidget();
+
+    void paintEvent(QPaintEvent *e) override;
+
+private:
+    MyTextEdit* textEditor;
 };
 
 #endif // MYTEXTEDIT_H

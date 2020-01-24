@@ -67,6 +67,7 @@ public:
 
 public slots:
     void exitFromEditor();
+    void backToPersonalPage();
     void backToLogin();
     void exportPDF();
     void selectFont(int);
@@ -79,7 +80,6 @@ public slots:
     void alignRight();
     void alignJustify();
     void checkTextProperty();
-    void insertRemoteCursor();
     void reqInvitationEmailAddress();
     void changeEditorStatus();
     void populateUserTagList();

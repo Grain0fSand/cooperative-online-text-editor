@@ -32,6 +32,12 @@ MainWindow::MainWindow(QWidget *parent) :
     SessionData::accessToSessionData().mainWindowPointer = this;
     SessionData::accessToSessionData().myTextEditPointer = ui->textEditShared;
 
+    auto overlayWidget = new OverlayWidget(ui->docFrame);
+    QRect frameRect = ui->docFrame->geometry();
+    frameRect.setHeight(ui->centralWidget->geometry().height());
+    overlayWidget->setGeometry(frameRect);
+    overlayWidget->setAttribute(Qt::WA_TransparentForMouseEvents);
+
     Crdt::getInstance().init(std::stoi(SessionData::accessToSessionData().userId));
     query = new OnlineQuery{SessionData::accessToSessionData().docId, SessionData::accessToSessionData().token, this};
     query->start();
@@ -65,12 +71,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionAlignCenter, &QAction::triggered, this, &MainWindow::alignCenter);
     connect(ui->actionAlignRight, &QAction::triggered, this, &MainWindow::alignRight);
     connect(ui->actionAlignJustify, &QAction::triggered, this, &MainWindow::alignJustify);
-
-    connect(ui->textEditShared->document(), &QTextDocument::contentsChange, this, [&]() {
-        //for debbuging on text modifications
-
-
-    });
     connect(ui->textEditShared->document(), &QTextDocument::contentsChange, this, &MainWindow::textChanged);
     connect(ui->textEditShared, &QTextEdit::selectionChanged, ui->textEditShared,
             [&]() { ui->textEditShared->previousSelection = ui->textEditShared->textCursor().selectedText().count();
@@ -82,10 +82,11 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this, &MainWindow::setComboSize, comboSize, &QComboBox::setCurrentIndex);
     connect(this, &MainWindow::setComboFont, comboFamily, &QComboBox::setCurrentIndex);
     connect(ui->actionExit, &QAction::triggered, this, &MainWindow::exitFromEditor);
-    connect(ui->actionBack, &QAction::triggered, this, &MainWindow::backToLogin);
+    connect(ui->actionLogout, &QAction::triggered, this, &MainWindow::backToLogin);
+    connect(ui->actionBack, &QAction::triggered, this, &MainWindow::backToPersonalPage);
     connect(ui->actionExport_to_PDF, &QAction::triggered, this, &MainWindow::exportPDF);
     connect(ui->actionInvite, &QAction::triggered, this, &MainWindow::reqInvitationEmailAddress);
-    connect(ui->actionTestCursor, &QAction::triggered, this, &MainWindow::insertRemoteCursor); //only for test
+    connect(ui->actionCursor, &QAction::toggled, ui->textEditShared, &MyTextEdit::showRemoteCursors);
     connect(ui->actionColor, &QAction::toggled, ui->textEditShared, &MyTextEdit::colorText);
     connect(&Crdt::getInstance(),&Crdt::needToResetLastCrdtId,query,&OnlineQuery::resetLastCrdtId);
 }
@@ -104,6 +105,8 @@ void MainWindow::populateUserTagList()
 
     ui->listOnlineUsers->clear();
     ui->listOfflineUsers->clear();
+
+    ui->actionColor->setEnabled(SessionData::accessToSessionData().usersList.size() > 1);
 
     for (auto &tag : SessionData::accessToSessionData().usersList) {
         if (tag.getUserId() == std::stoi(SessionData::accessToSessionData().userId))
@@ -133,7 +136,9 @@ void MainWindow::arrangeUserTagList(std::vector<exchangeable_data::user> remoteV
 
     SessionData *sessionData = &SessionData::accessToSessionData();
 
-    if (sessionData->onlineUsers != remoteVector) {   //number of user change
+    if (sessionData->onlineUsers.size() != remoteVector.size()) {   //number of user change
+
+        ui->actionCursor->setEnabled(remoteVector.size() > 1);
 
         ui->textEditShared->clearRemoteCursorList();
         std::vector<UserTag>::iterator everytimeUser;
@@ -177,7 +182,6 @@ void MainWindow::arrangeUserTagList(std::vector<exchangeable_data::user> remoteV
         populateUserTagList();
     } else {
         sessionData->onlineUsers = remoteVector;
-        std::sort(sessionData->onlineUsers.begin(), sessionData->onlineUsers.end());
     }
 
     for (auto user : remoteVector) {
@@ -200,6 +204,7 @@ void MainWindow::backToLogin() {
     QMessageBox::StandardButton reply = QMessageBox::question(this,"Back to Login","Are you sure you want to logout?");
 
     if(reply == QMessageBox::Yes) {
+        emit stopQueryLoop();
         Crdt::getInstance().reset();
         SessionData::accessToSessionData().loginWindowPointer->switchFrame(-1);
         SessionData::accessToSessionData().onlineUsers.clear();
@@ -207,7 +212,22 @@ void MainWindow::backToLogin() {
         SessionData::accessToSessionData().userColorMap.clear();
         SessionData::accessToSessionData().youWannaLogin = true;
         SessionData::accessToSessionData().isLoginCorrect = false;
+
+        this->close();
+    }
+}
+
+void MainWindow::backToPersonalPage() {
+    QMessageBox::StandardButton reply = QMessageBox::question(this,"Back to your personal page","Are you sure you want to close this document?");
+
+    if(reply == QMessageBox::Yes) {
         emit stopQueryLoop();
+        Crdt::getInstance().reset();
+        SessionData::accessToSessionData().onlineUsers.clear();
+        SessionData::accessToSessionData().usersList.clear();
+        SessionData::accessToSessionData().userColorMap.clear();
+        SessionData::accessToSessionData().youWannaLogin = true;
+
         this->close();
     }
 }
@@ -522,7 +542,7 @@ void MainWindow::checkTextProperty()
     ui->actionCut->setEnabled(ui->textEditShared->textCursor().hasSelection());
 
     ui->statusBar->findChild<QLabel*>("charCount")->setText("Chars: "+QString::number(ui->textEditShared->document()->characterCount()-1));
-    ui->statusBar->findChild<QLabel*>("lineCount")->setText("Lines: "+QString::number(ui->textEditShared->document()->lineCount()));
+    ui->statusBar->findChild<QLabel*>("blockCount")->setText("Block: "+QString::number(ui->textEditShared->document()->blockCount()));
     ui->statusBar->findChild<QLabel*>("cursorPos")->setText("pos: "+QString::number(ui->textEditShared->textCursor().position()));
     ui->statusBar->findChild<QLabel*>("cursorColumn")->setText("col: "+QString::number(ui->textEditShared->textCursor().columnNumber()));
     ui->statusBar->findChild<QLabel*>("cursorSelectionCount")->setText("sel: "+QString::number(ui->textEditShared->textCursor().selectedText().length()));
@@ -531,10 +551,6 @@ void MainWindow::checkTextProperty()
     SessionData::accessToSessionData().cursor = Crdt::getInstance().findRelativePosition(text_cursor.position());
     SessionData::accessToSessionData().mutex_cursor_pos.unlock();
 
-}
-
-void MainWindow::insertRemoteCursor() {  //TODO: to remove when testCursor button has been removed
-    ui->textEditShared->createRemoteCursor(0,ui->textEditShared->textCursor().position(), "prova1", Qt::red);
 }
 
 void MainWindow::reqInvitationEmailAddress()
@@ -578,7 +594,7 @@ void MainWindow::reqInvitationEmailAddress()
 void MainWindow::changeEditorStatus()
 {
     SessionData::accessToSessionData().mutex_online.lock();
-    if(SessionData::accessToSessionData().isUserOnline && SessionData::accessToSessionData().offlineCounter<5) {
+    if(SessionData::accessToSessionData().isUserOnline && SessionData::accessToSessionData().offlineCounter<8) {
         SessionData::accessToSessionData().offlineCounter++;
         SessionData::accessToSessionData().mutex_online.unlock();
         return;
@@ -683,8 +699,8 @@ void MainWindow::setupStatusBar()
     docName->setObjectName("docName");
     auto charCount = new QLabel("Chars: "+QString::number(ui->textEditShared->document()->characterCount()-1));
     charCount->setObjectName("charCount");
-    auto lineCount = new QLabel("Lines: "+QString::number(ui->textEditShared->document()->lineCount()));
-    lineCount->setObjectName("lineCount");
+    auto blockCount = new QLabel("Blocks: "+QString::number(ui->textEditShared->document()->blockCount()));
+    blockCount->setObjectName("blockCount");
     auto cursorPos = new QLabel("pos: "+QString::number(ui->textEditShared->textCursor().position()));
     cursorPos->setObjectName("cursorPos");
     auto cursorColumn = new QLabel("col: "+QString::number(ui->textEditShared->textCursor().columnNumber()));
@@ -694,7 +710,7 @@ void MainWindow::setupStatusBar()
 
     ui->statusBar->addWidget(docName, 2);
     ui->statusBar->addWidget(charCount, 0);
-    ui->statusBar->addWidget(lineCount, 1);
+    ui->statusBar->addWidget(blockCount, 1);
     ui->statusBar->addWidget(cursorPos, 0);
     ui->statusBar->addWidget(cursorColumn, 0);
     ui->statusBar->addWidget(cursorSelectionCount, 2);

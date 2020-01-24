@@ -227,21 +227,7 @@ void Database::insertCrdt(std::string crdt_json,std::string uid,std::string docI
      */
 std::vector<exchangeable_data::send_data> Database::getCrdtUser(std::string lastCrdtId,std::string uid,std::string docId,std::string remoteCursor)
 {
-    // TODO: add lorenzo's parameter cursorPos
-
     std::string sql;
-
-//    if (lastCrdtId!=""){
-//        sql = "UPDATE crdt_delvery SET delivered = '1' WHERE idDoc=" + docId + " AND idCrdt <=" + lastCrdtId + " AND idUser = " + uid + ";";
-//
-//        SQLite::Statement queryUpdate(db,sql);
-//        queryUpdate.exec();
-//
-//
-//        sql = "SELECT id,crdt_json FROM crdt WHERE id IN (SELECT idCrdt from crdt_delvery WHERE idUser=" + uid + " AND idDoc=" + docId + "  AND delivered=0)";
-//    } else {
-//        sql = "SELECT id,crdt_json FROM crdt WHERE id IN (SELECT idCrdt from crdt_delvery WHERE idUser=" + uid + " AND idDoc=" + docId + ")";
-//    }
 
     sql = "UPDATE user_document_request SET cursor_position_json = '" + remoteCursor + "' WHERE idUser='" + uid +
           "' AND idDocument='" + docId + "';";
