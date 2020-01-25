@@ -596,7 +596,7 @@ void MainWindow::reqInvitationEmailAddress()
 void MainWindow::changeEditorStatus()
 {
     SessionData::accessToSessionData().mutex_online.lock();
-    if(SessionData::accessToSessionData().isUserOnline && SessionData::accessToSessionData().offlineCounter<8) {
+    if(SessionData::accessToSessionData().isUserOnline && SessionData::accessToSessionData().offlineCounter<18) {
         SessionData::accessToSessionData().offlineCounter++;
         SessionData::accessToSessionData().mutex_online.unlock();
         return;
