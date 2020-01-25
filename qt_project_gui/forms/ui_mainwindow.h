@@ -77,6 +77,8 @@ public:
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
         MainWindow->resize(1034, 691);
+        MainWindow->setStyleSheet("MainWindow { background: #E6E6E6; }"
+                                  "QLineEdit { background: white; }");
         QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
@@ -242,6 +244,7 @@ public:
         myTag->setSizePolicy(sizePolicy);
         myTag->setMinimumSize(QSize(258, 92));
         myTag->setMaximumSize(QSize(258, 92));
+        myTag->setStyleSheet("QFrame#myTag { background-color: qlineargradient( x1:0 y1:0, x2:1 y2:0, stop:0 #FCFCFC, stop:1 #E5E5E5); }");
         QFont font1;
         font1.setPointSize(8);
         myTag->setFont(font1);
@@ -281,7 +284,7 @@ public:
         onlineRollButton->setMinimumSize(QSize(258, 0));
         onlineRollButton->setMaximumSize(QSize(258, 16777215));
         onlineRollButton->setLayoutDirection(Qt::RightToLeft);
-        onlineRollButton->setStyleSheet(QString::fromUtf8("text-align:left;"));
+        onlineRollButton->setStyleSheet(QString::fromUtf8("text-align:left; padding: 5px;"));
         QIcon icon18;
         icon18.addFile(QString::fromUtf8(":/resources/arrow_up.png"), QSize(), QIcon::Normal, QIcon::Off);
         onlineRollButton->setIcon(icon18);
@@ -305,8 +308,8 @@ public:
         offlineRollButton->setMinimumSize(QSize(258, 0));
         offlineRollButton->setMaximumSize(QSize(258, 16777215));
         offlineRollButton->setLayoutDirection(Qt::RightToLeft);
-        offlineRollButton->setStyleSheet(QString::fromUtf8("text-align:left;"));
-        offlineRollButton->setIcon(icon15);
+        offlineRollButton->setStyleSheet(QString::fromUtf8("text-align:left; padding: 5px;"));
+        offlineRollButton->setIcon(icon18);
         offlineRollButton->setIconSize(QSize(10, 10));
 
         sideLayout->addWidget(offlineRollButton);

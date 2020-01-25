@@ -20,7 +20,7 @@ void UserTag::paint ( QPainter * painter, const QStyleOptionViewItem & option, c
 
     //background
     //alternating colors
-    painter->setBrush( (index.row() % 2) ? Qt::white : QColor(252,252,252) );
+    painter->setBrush( (index.row() % 2) ? QColor(247,247,247) : QColor(252,252,252) );
     painter->drawRect(r);
 
     //border
