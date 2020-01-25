@@ -551,6 +551,8 @@ void MainWindow::checkTextProperty()
     SessionData::accessToSessionData().cursor = Crdt::getInstance().findRelativePosition(text_cursor.position());
     SessionData::accessToSessionData().mutex_cursor_pos.unlock();
 
+    ui->textEditShared->setTextColor({Qt::black});
+    ui->textEditShared->setTextBackgroundColor({Qt::transparent});
 }
 
 void MainWindow::reqInvitationEmailAddress()
