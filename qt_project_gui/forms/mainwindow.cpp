@@ -23,8 +23,7 @@
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow),
-    background_task(200)
+    ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 
@@ -93,8 +92,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    background_task.cancel();
-    background_task.wait();
     delete ui;
 }
 
@@ -212,6 +209,9 @@ void MainWindow::backToLogin() {
         SessionData::accessToSessionData().userColorMap.clear();
         SessionData::accessToSessionData().youWannaLogin = true;
         SessionData::accessToSessionData().isLoginCorrect = false;
+        SessionData::accessToSessionData().mutex_online.lock();
+        SessionData::accessToSessionData().isUserOnline = false;
+        SessionData::accessToSessionData().mutex_online.unlock();
 
         this->close();
     }
@@ -228,6 +228,9 @@ void MainWindow::backToPersonalPage() {
         SessionData::accessToSessionData().userColorMap.clear();
         SessionData::accessToSessionData().youWannaLogin = true;
         SessionData::accessToSessionData().isLoginCorrect = false;
+        SessionData::accessToSessionData().mutex_online.lock();
+        SessionData::accessToSessionData().isUserOnline = false;
+        SessionData::accessToSessionData().mutex_online.unlock();
 
         this->close();
     }

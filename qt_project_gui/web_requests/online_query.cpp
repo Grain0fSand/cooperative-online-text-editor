@@ -155,8 +155,11 @@ void OnlineQuery::checkReply(QNetworkReply *reply) {
 //        if(t.action.getActionType() == Insertion)
 //            qDebug() << t.action.getChars().toUtf8();
 //        else qDebug() << t.action.getActionType();
-
-    emit send_actions(actions);
-    emit users_online_arrived(arrayOnlineUser);
+    SessionData::accessToSessionData().mutex_online.lock();
+    if(SessionData::accessToSessionData().isUserOnline) {
+        emit send_actions(actions);
+        emit users_online_arrived(arrayOnlineUser);
+    }
+    SessionData::accessToSessionData().mutex_online.unlock();
 }
 
