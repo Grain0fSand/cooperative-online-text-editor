@@ -10,6 +10,9 @@
     <height>480</height>
    </rect>
   </property>
+  <property name="styleSheet">
+   <string>background-color:#F2ECFF;</string>
+  </property>
   <property name="windowIcon">
    <iconset resource="resources.qrc">
     <normaloff>:/resources/logoIcon.png</normaloff>:/resources/logoIcon.png</iconset>

@@ -167,6 +167,7 @@ void LoginWindow::changeYourUsername()
     QInputDialog dialog(this);
     dialog.setLabelText("Change your username:");
     dialog.setTextValue(ui->loggedUsernameLabel->text());
+    dialog.setStyleSheet("QLineEdit {background:white}");
     dialog.setModal(true);
     while(true) {
         if(dialog.exec()==QDialog::Accepted) {
@@ -213,6 +214,7 @@ void LoginWindow::changeYourPassword()
     QInputDialog dialog(this);
     dialog.setLabelText("Insert a new password:");
     dialog.setTextEchoMode(QLineEdit::Password);
+    dialog.setStyleSheet("QLineEdit {background:white}");
     dialog.setModal(true);
     while(true) {
         if(dialog.exec()==QDialog::Accepted) {
@@ -242,6 +244,7 @@ void LoginWindow::createDocument()
     QInputDialog dialog(this);
     QMessageBox advice(this);
     dialog.setLabelText("Insert new document name:");
+    dialog.setStyleSheet("QLineEdit {background:white}");
 
     while(true) {
         if(dialog.exec()==QDialog::Accepted) {
@@ -324,16 +327,14 @@ void LoginWindow::openDocument()
     connect(cancButton,&QPushButton::clicked,docListDialog,&QDialog::close);
 
     docListDialog->exec();
-
-    //delete docListDialog;
 }
 
 void LoginWindow::requestURI()
 {
     QInputDialog dialog(this);
     QMessageBox advice(this);
-
     dialog.setLabelText("Paste the URI here:");
+    dialog.setStyleSheet("QLineEdit {background:white}");
     dialog.setModal(true);
     while(true) {
         if(dialog.exec()==QDialog::Accepted) {

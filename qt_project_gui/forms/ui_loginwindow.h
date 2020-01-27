@@ -69,8 +69,7 @@ public:
         if (LoginWindow->objectName().isEmpty())
             LoginWindow->setObjectName(QString::fromUtf8("LoginWindow"));
         LoginWindow->resize(640, 480);
-        LoginWindow->setStyleSheet("background-color:#F2ECFF;"
-                                   "QLineEdit { background: white; }");
+        LoginWindow->setStyleSheet("background-color:#F2ECFF;");
         QIcon icon;
         icon.addFile(QString::fromUtf8(":/resources/logoIcon.png"), QSize(), QIcon::Normal, QIcon::Off);
         LoginWindow->setWindowIcon(icon);

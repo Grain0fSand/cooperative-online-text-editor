@@ -227,6 +227,7 @@ void MainWindow::backToPersonalPage() {
         SessionData::accessToSessionData().usersList.clear();
         SessionData::accessToSessionData().userColorMap.clear();
         SessionData::accessToSessionData().youWannaLogin = true;
+        SessionData::accessToSessionData().isLoginCorrect = false;
 
         this->close();
     }
