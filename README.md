@@ -1,33 +1,17 @@
-# PDS-project
-github account for PDS project
+# SimulPad
 
-## EXTREMELY IMPORTANT CODE RULES FOR THE PROJECT!
+Cooperative text editing system that allows one or more users to edit the content of a document simultaneously ensuring that different insertion or editing operations, carried out by users at the same time, produce the same effects, regardless of the order in which they are performed on different systems in use (commutativity) and that repeated deletions lead to the same result (idempotency). Very much like Google Docs.
 
-1) add the file of your IDE/Development toolchain into gitignore file
-if you wanna a tool that help you to create the gitignore use that
-website -> https://www.gitignore.io/, after had used that site check
-the gitgnore file, maybe not all the files to not push are included
+It includes features of:
+- Copy-Paste
+- Different styles: bold, italic, underline, font and size, alignment, ...
+- Exporting PDF of the document
+- Invite to collaborate via email URI
 
-2) use the test development driven filosophy, before write test and
-after write code
 
-3) NO SPOILER ON AVENGERS FILM
 
-![](https://get.wallhere.com/photo/1920x1080-px-Groot-Guardians-of-the-Galaxy-Guardians-of-the-Galaxy-Vol-2-movies-raccoons-Rocket-Raccoon-1337539.jpg)
+Politecnico di Torino project; done in 6 months for the exam "Programmazione di sistema"; using C++ and Qt 
+### Lorenzo Bonelli, Elia Migliore, Dario Patti       2020
 
-4) write in english
-
-5) use data structure (queque,heap,list,hash table). Possibily use the C++
-standard module, remember:
-"Bad programmers worry about the code. Good programmers worry about data structures and their relationships." Linus Torwald
-
-6) ask but with sense, before search on google the more trivial things
-
-7) NO VARIABLES OR METHODS WITH ITALIAN! An engineer must use english!
-
-8) share ideas and conceptual problems, more mind are better than once
-
-9) before write code think about the general structure of you're library
-a good design avoid problems, also think about common sense names
-
-10) from big languages derives big responsability: ![](https://upload.wikimedia.org/wikipedia/commons/1/18/ISO_C%2B%2B_Logo.svg)
+![Screenshot_20200207_191330](https://user-images.githubusercontent.com/43350903/110866843-860a4700-82a4-11eb-8c3d-4dce9e1a70e2.png)
+![Screenshot_20200207_191527](https://user-images.githubusercontent.com/43350903/110866908-a63a0600-82a4-11eb-81db-fecd4c1c0b81.png)
