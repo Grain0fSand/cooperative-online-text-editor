@@ -6,52 +6,55 @@
 #include <../data_structure/remotecursor.h>
 #include "../data_structure/action.h"
 #include <data_structure/crdt.h>
+#include <QPointer>
+#include <stack>
 
 class MyTextEdit : public QTextEdit
 {
 public:
-    MyTextEdit(const MyTextEdit &) = delete;
-    MyTextEdit& operator=(const MyTextEdit &) = delete;
+    MyTextEdit(QWidget *parent = nullptr);
+    ~MyTextEdit();
+    int previousSelection, previousPreviousSelection;
+    bool colorFeatureActive = false;
+    bool wantToShowCursors = false;
+    std::list<RemoteCursor> cursorsList;
+    //MyTextEdit(const MyTextEdit &) = delete;
+    //MyTextEdit& operator=(const MyTextEdit &) = delete;
 
-    static MyTextEdit& getInstance(){
-        static MyTextEdit instance;
-
-        return instance;
-    }
-
-    void paintEvent(QPaintEvent *e);
-    void createCursor(int pos, QString text, QColor color);
-    void addCursor(RemoteCursor *cursor);
-    void addAction(int cursorPos, int numChars, QString str, ActionType = Insertion);
-    void addAction(int cursorPos, int numChars, ActionType = Deletion);
-    void addAction(int cursorPos, int numChars, bool bold, bool italic, bool underlined, ActionType = TextFormatting);
-    void addAction(int cursorPos, int numChars, BlockFormatType, ActionType = BlockFormatting);
-    void doReceivedAction(const Action& action, const std::vector<int>& all_pos);
-
-    std::list<Action> toDoList;
+    void createRemoteCursor(int id, int pos, QString text, QColor color);
+    void clearRemoteCursorList();
+    void updateRemoteCursorPosition(int id, int pos);
+    int doReceivedAction(const Action& action, int ownerId, const std::vector<int>& all_pos);
+    const QString &getDocumentName() const;
+    void setDocumentName(const QString &documentName);
     QStringList getFontSizes() const;
     QStringList getFontFamilies() const;
+    static QColor chooseColorTextFromBackground(const QColor& background);
+    void clearDocument();
 
 public slots:
     void colorText(bool checked);
+    void showRemoteCursors(bool checked);
 
 private:
-    MyTextEdit(QWidget *parent = nullptr);
-    ~MyTextEdit();
-
-    std::list<RemoteCursor*> cursorsList;
-  //  std::list<Action> toSendList;
     QStringList fontSizes;
     QStringList fontFamilies;
-    QTextCursor* hiddenCursor;
+    QTextCursor* hiddenCursorForText;
+    QTextCursor* hiddenCursorForColors;
     QString documentName;
+};
+
+class OverlayWidget : public QWidget
+{
 
 public:
-    const QString &getDocumentName() const;
-    void setDocumentName(const QString &documentName);
+    OverlayWidget(QWidget *parent);
+    ~OverlayWidget();
+
+    void paintEvent(QPaintEvent *e) override;
 
 private:
-    int user_id;
+    MyTextEdit* textEditor;
 };
 
 #endif // MYTEXTEDIT_H

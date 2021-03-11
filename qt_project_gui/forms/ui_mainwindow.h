@@ -42,14 +42,14 @@ public:
     QAction *actionAlignLeft;
     QAction *actionAlignCenter;
     QAction *actionAlignRight;
-    QAction *actionConnect;
+    QAction *actionBack;
+    QAction *actionLogout;
     QAction *actionExport_to_PDF;
     QAction *actionExit;
     QAction *actionAlignJustify;
     QAction *actionInvite;
-    QAction *actionTestCursor;
-    QAction *actionTestDisconnect;
-    QAction *actionTestColor;
+    QAction *actionCursor;
+    QAction *actionColor;
     QWidget *centralWidget;
     QHBoxLayout *horizontalLayout;
     QWidget *docFrame;
@@ -77,6 +77,8 @@ public:
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
         MainWindow->resize(1034, 691);
+        MainWindow->setStyleSheet("MainWindow { background: #E6E6E6; }"
+                                  "QLineEdit { background: white; }");
         QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
@@ -137,30 +139,49 @@ public:
         QIcon icon9;
         icon9.addFile(QString::fromUtf8(":/resources/ic_format_align_right_36pt_2x.png"), QSize(), QIcon::Normal, QIcon::Off);
         actionAlignRight->setIcon(icon9);
-        actionConnect = new QAction(MainWindow);
-        actionConnect->setObjectName(QString::fromUtf8("actionConnect"));
+        actionBack = new QAction(MainWindow);
+        actionBack->setObjectName(QString::fromUtf8("actionBack"));
+        QIcon icon10;
+        icon10.addFile(QString::fromUtf8(":/resources/backToPersonalPage.png"), QSize(), QIcon::Normal, QIcon::Off);
+        actionBack->setIcon(icon10);
+        actionLogout = new QAction(MainWindow);
+        actionLogout->setObjectName(QString::fromUtf8("actionLogout"));
+        QIcon icon11;
+        icon11.addFile(QString::fromUtf8(":/resources/logOut.png"), QSize(), QIcon::Normal, QIcon::Off);
+        actionLogout->setIcon(icon11);
         actionExport_to_PDF = new QAction(MainWindow);
         actionExport_to_PDF->setObjectName(QString::fromUtf8("actionExport_to_PDF"));
+        QIcon icon12;
+        icon12.addFile(QString::fromUtf8(":/resources/pdfExportButtonIcon.png"), QSize(), QIcon::Normal, QIcon::Off);
+        actionExport_to_PDF->setIcon(icon12);
         actionExit = new QAction(MainWindow);
         actionExit->setObjectName(QString::fromUtf8("actionExit"));
+        QIcon icon13;
+        icon13.addFile(QString::fromUtf8(":/resources/exit.png"), QSize(), QIcon::Normal, QIcon::Off);
+        actionExit->setIcon(icon13);
         actionAlignJustify = new QAction(MainWindow);
         actionAlignJustify->setObjectName(QString::fromUtf8("actionAlignJustify"));
         actionAlignJustify->setCheckable(true);
-        QIcon icon10;
-        icon10.addFile(QString::fromUtf8(":/resources/ic_format_align_justify_36pt_2x.png"), QSize(), QIcon::Normal, QIcon::Off);
-        actionAlignJustify->setIcon(icon10);
+        QIcon icon14;
+        icon14.addFile(QString::fromUtf8(":/resources/ic_format_align_justify_36pt_2x.png"), QSize(), QIcon::Normal, QIcon::Off);
+        actionAlignJustify->setIcon(icon14);
         actionInvite = new QAction(MainWindow);
         actionInvite->setObjectName(QString::fromUtf8("actionInvite"));
-        actionTestCursor = new QAction(MainWindow);
-        actionTestCursor->setObjectName(QString::fromUtf8("actionTestCursor"));
-        actionTestDisconnect = new QAction(MainWindow);
-        actionTestDisconnect->setObjectName(QString::fromUtf8("actionTestDisconnect"));
-        actionTestColor = new QAction(MainWindow);
-        actionTestColor->setObjectName(QString::fromUtf8("actionTestColor"));
-        actionTestColor->setCheckable(true);
-        QIcon icon11;
-        icon11.addFile(QString::fromUtf8(":/resources/colorButtonIcon.png"), QSize(), QIcon::Normal, QIcon::Off);
-        actionTestColor->setIcon(icon11);
+        QIcon icon15;
+        icon15.addFile(QString::fromUtf8(":/resources/collaborateButtonIcon.png"), QSize(), QIcon::Normal, QIcon::Off);
+        actionInvite->setIcon(icon15);
+        actionCursor = new QAction(MainWindow);
+        actionCursor->setObjectName(QString::fromUtf8("actionCursor"));
+        actionCursor->setCheckable(true);
+        QIcon icon16;
+        icon16.addFile(QString::fromUtf8(":/resources/cursorButtonIcon.png"), QSize(), QIcon::Normal, QIcon::Off);
+        actionCursor->setIcon(icon16);
+        actionColor = new QAction(MainWindow);
+        actionColor->setObjectName(QString::fromUtf8("actionColor"));
+        actionColor->setCheckable(true);
+        QIcon icon17;
+        icon17.addFile(QString::fromUtf8(":/resources/colorButtonIcon.png"), QSize(), QIcon::Normal, QIcon::Off);
+        actionColor->setIcon(icon17);
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QString::fromUtf8("centralWidget"));
         sizePolicy.setHeightForWidth(centralWidget->sizePolicy().hasHeightForWidth());
@@ -184,7 +205,7 @@ public:
         docFrameLayout->setContentsMargins(11, 11, 11, 11);
         docFrameLayout->setObjectName(QString::fromUtf8("docFrameLayout"));
         docFrameLayout->setContentsMargins(0, 0, 0, 0);
-        textEditShared = &MyTextEdit::getInstance();
+        textEditShared = new MyTextEdit(docFrame);
         textEditShared->setObjectName(QString::fromUtf8("textEditShared"));
         QSizePolicy sizePolicy2(QSizePolicy::Fixed, QSizePolicy::Expanding);
         sizePolicy2.setHorizontalStretch(0);
@@ -223,6 +244,7 @@ public:
         myTag->setSizePolicy(sizePolicy);
         myTag->setMinimumSize(QSize(258, 92));
         myTag->setMaximumSize(QSize(258, 92));
+        myTag->setStyleSheet("QFrame#myTag { background-color: qlineargradient( x1:0 y1:0, x2:1 y2:0, stop:0 #FCFCFC, stop:1 #E5E5E5); }");
         QFont font1;
         font1.setPointSize(8);
         myTag->setFont(font1);
@@ -262,10 +284,10 @@ public:
         onlineRollButton->setMinimumSize(QSize(258, 0));
         onlineRollButton->setMaximumSize(QSize(258, 16777215));
         onlineRollButton->setLayoutDirection(Qt::RightToLeft);
-        onlineRollButton->setStyleSheet(QString::fromUtf8("text-align:left;"));
-        QIcon icon12;
-        icon11.addFile(QString::fromUtf8(":/resources/arrow_up.png"), QSize(), QIcon::Normal, QIcon::Off);
-        onlineRollButton->setIcon(icon11);
+        onlineRollButton->setStyleSheet(QString::fromUtf8("text-align:left; padding: 5px;"));
+        QIcon icon18;
+        icon18.addFile(QString::fromUtf8(":/resources/arrow_up.png"), QSize(), QIcon::Normal, QIcon::Off);
+        onlineRollButton->setIcon(icon18);
         onlineRollButton->setIconSize(QSize(10, 10));
 
         sideLayout->addWidget(onlineRollButton);
@@ -286,8 +308,8 @@ public:
         offlineRollButton->setMinimumSize(QSize(258, 0));
         offlineRollButton->setMaximumSize(QSize(258, 16777215));
         offlineRollButton->setLayoutDirection(Qt::RightToLeft);
-        offlineRollButton->setStyleSheet(QString::fromUtf8("text-align:left;"));
-        offlineRollButton->setIcon(icon11);
+        offlineRollButton->setStyleSheet(QString::fromUtf8("text-align:left; padding: 5px;"));
+        offlineRollButton->setIcon(icon18);
         offlineRollButton->setIconSize(QSize(10, 10));
 
         sideLayout->addWidget(offlineRollButton);
@@ -342,14 +364,18 @@ public:
         mainToolBar->addAction(actionAlignRight);
         mainToolBar->addAction(actionAlignJustify);
         mainToolBar->addSeparator();
-        mainToolBar->addAction(actionTestColor);
-        mainToolBar->addAction(actionTestCursor);
-        mainToolBar->addAction(actionTestDisconnect);
+        mainToolBar->addAction(actionColor);
+        mainToolBar->addAction(actionCursor);
+        mainToolBar->addSeparator();
+        mainToolBar->addAction(actionExport_to_PDF);
+        mainToolBar->addAction(actionInvite);
         menuBar->addAction(menuMain->menuAction());
         menuBar->addAction(menuAbout->menuAction());
-        menuMain->addAction(actionConnect);
-        menuMain->addAction(actionExport_to_PDF);
         menuMain->addAction(actionInvite);
+        menuMain->addAction(actionExport_to_PDF);
+        menuMain->addSeparator();
+        menuMain->addAction(actionBack);
+        menuMain->addAction(actionLogout);
         menuMain->addSeparator();
         menuMain->addAction(actionExit);
 
@@ -370,19 +396,19 @@ public:
         actionAlignLeft->setText(QCoreApplication::translate("MainWindow", "AlignLeft", nullptr));
         actionAlignCenter->setText(QCoreApplication::translate("MainWindow", "AlignCenter", nullptr));
         actionAlignRight->setText(QCoreApplication::translate("MainWindow", "AlignRight", nullptr));
-        actionConnect->setText(QCoreApplication::translate("MainWindow", "Connect...", nullptr));
+        actionBack->setText(QCoreApplication::translate("MainWindow", "Back to Personal Page", nullptr));
+        actionLogout->setText(QCoreApplication::translate("MainWindow", "Logout...", nullptr));
         actionExport_to_PDF->setText(QCoreApplication::translate("MainWindow", "Export to PDF", nullptr));
         actionExit->setText(QCoreApplication::translate("MainWindow", "Exit", nullptr));
         actionAlignJustify->setText(QCoreApplication::translate("MainWindow", "AlignJustify", nullptr));
         actionInvite->setText(QCoreApplication::translate("MainWindow", "Invite to Collaborate", nullptr));
-        actionTestCursor->setText(QCoreApplication::translate("MainWindow", "TestCursor", nullptr));
-        actionTestDisconnect->setText(QCoreApplication::translate("MainWindow", "TestDisconnect", nullptr));
+        actionCursor->setText(QCoreApplication::translate("MainWindow", "Cursor", nullptr));
+        actionColor->setText(QCoreApplication::translate("MainWindow", "Color", nullptr));
 #if QT_CONFIG(tooltip)
-        actionTestDisconnect->setToolTip(QCoreApplication::translate("MainWindow", "TestDisconnect", nullptr));
-#endif // QT_CONFIG(tooltip)
-        actionTestColor->setText(QCoreApplication::translate("MainWindow", "TestColor", nullptr));
-#if QT_CONFIG(tooltip)
-        actionTestColor->setToolTip(QCoreApplication::translate("MainWindow", "Highlights the text based on who entered it", nullptr));
+        actionColor->setToolTip(QCoreApplication::translate("MainWindow", "Highlights the text based on who entered it", nullptr));
+        actionCursor->setToolTip(QCoreApplication::translate("MainWindow", "Show remote cursors live in the document", nullptr));
+        actionInvite->setToolTip(QCoreApplication::translate("MainWindow", "Invite someone to work with you on this document", nullptr));
+        actionExport_to_PDF->setToolTip(QCoreApplication::translate("MainWindow", "Export this document in a PDF format file", nullptr));
 #endif // QT_CONFIG(tooltip)
         textEditShared->setHtml(QCoreApplication::translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
                                                                           "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"

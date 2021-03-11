@@ -15,7 +15,6 @@ class Crdt : public QObject {
     std::vector<SymbolId> list;
     int usr_id;
     unsigned int op = 0; //incremental counter
-    std::queue<ActionWrapper> action_queue;
     // for managing the non monotonicity problem in the messages
     std::vector<ActionWrapper> action_unresolved;
 
@@ -25,7 +24,6 @@ class Crdt : public QObject {
 public:
     void init(int usr_id)  {
         this->usr_id = usr_id;
-        //TODO add loading from server and insert of block starter
         if (list.empty()) {
             list.push_back(SymbolId());
             list.front().setBlockStart();
@@ -37,9 +35,7 @@ public:
        return instance;
     }
 
-    //TODO: verify usefulness
-    // no race condition because of the single threaded application
-    // nb: mainwindow and crdt always work on that object atomically
+    void reset();
     std::vector<SymbolId>& getSymbolList(){
         return this->list;
     }
@@ -48,9 +44,11 @@ public:
 public slots:
     void update_income(std::vector<ActionWrapper> actions);
 
+signals:
+    void needToResetLastCrdtId();
+
 private:
 
-    // TODO: check if necessary lock shared between local and server updates
     //client
     void symbolInsertion(const std::pair<int,int>& left_sym, int n, const std::pair<int,int>& symbol, const QString chars);
     std::vector<std::pair<int,int>> symbolDeletion(int n, const std::pair<int,int>& first_symbol);
@@ -58,19 +56,18 @@ private:
     std::vector<std::pair<int,int>> blockFormatting(int n, const std::pair<int,int>& first_symbol);
 
     //server
-    // TODO: chiedere a dario se è il caso di salvare la posizione relativa del cursore e ripristinarla dopo
-    // TODO: aver applicato le azioni remote
     std::vector<int> symbolInsertionExt(const std::pair<int,int>& left_sym, int n, const std::pair<int,int>& symbol, const QString chars);
     std::vector<int> symbolDeletionExt(const std::vector<std::pair<int,int>>& symbol);
     std::vector<int> formattingExt(const std::pair<int,int>& rel_symbol, const std::vector<std::pair<int,int>>& symbol, int select);
 
 public:
-    //TODO: remember to save ABSOLUTE position of the cursor before start to apply modification
     //so the action will be coherent with the position of the cursor
     //void actionsArrived(std::list<Action> actions);   //queue non needed
     void receiveActionFromServer(ActionWrapper& actionWrapper);
     void sendActionToServer(Action& action, int cursorPos, int numChars);
-    std::pair<int,int> findRelativePosition(int left_pos); //for cursor sending
+    std::pair<int,int> findRelativePosition(int left_pos);
+    int findAbsolutePosition(std::pair<int,int>);
+
 };
 
 

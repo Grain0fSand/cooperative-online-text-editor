@@ -20,19 +20,42 @@
         <file>resources/bannerApp.png</file>
         <file>resources/logoApp.png</file>
         <file>resources/logoIcon.png</file>
+        <file>resources/backToPersonalPage.png</file>
         <file>resources/logOut.png</file>
+        <file>resources/exit.png</file>
         <file>resources/newDoc.png</file>
         <file>resources/openDoc.png</file>
         <file>resources/avatar.png</file>
         <file>resources/openURI.png</file>
-        <file>resources/cursor.svg</file>
-        <file>resources/test.svg</file>
+        <file>resources/cursorButtonIcon.png</file>
+        <file>resources/colorButtonIcon.png</file>
+        <file>resources/pdfExportButtonIcon.png</file>
+        <file>resources/collaborateButtonIcon.png</file>
         <file>resources/arrow_down.png</file>
         <file>resources/arrow_up.png</file>
         <file>resources/font_icon.png</file>
-        <file>resources/colorButtonIcon.png</file>
         <file>resources/loader.gif</file>
         <file>resources/correct_icon.gif</file>
         <file>resources/error_icon.gif</file>
+        <file>resources/fonts/Arial.ttf</file>
+        <file>resources/fonts/Arial Black.ttf</file>
+        <file>resources/fonts/Berlin Sans FB.ttf</file>
+        <file>resources/fonts/Calibri.ttf</file>
+        <file>resources/fonts/Century Gothic.ttf</file>
+        <file>resources/fonts/Consolas.ttf</file>
+        <file>resources/fonts/Constantia.ttf</file>
+        <file>resources/fonts/Forte.ttf</file>
+        <file>resources/fonts/Freestyle Script.ttf</file>
+        <file>resources/fonts/Georgia.ttf</file>
+        <file>resources/fonts/Gill Sans MT.ttf</file>
+        <file>resources/fonts/Harrington.ttf</file>
+        <file>resources/fonts/Informal Roman.ttf</file>
+        <file>resources/fonts/Lucida Calligraphy.ttf</file>
+        <file>resources/fonts/Palatino Linotype.ttf</file>
+        <file>resources/fonts/Segoe Script.ttf</file>
+        <file>resources/fonts/Tahoma.ttf</file>
+        <file>resources/fonts/Times New Roman.ttf</file>
+        <file>resources/fonts/Verdana.ttf</file>
+        <file>resources/fonts/Vivaldi.ttf</file>
     </qresource>
 </RCC>

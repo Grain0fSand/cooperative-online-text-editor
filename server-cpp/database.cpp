@@ -1,13 +1,7 @@
 #include "database.h"
 
 Database::Database() :
-    db(dbUri, SQLite::OPEN_READWRITE|SQLite::OPEN_CREATE)
-{
-    // TODO: only for test, remove it
-    std::cout << "db opened";
-    sessionLogged["1"] = 1;
-    sessionLogged["2"] = 2;
-}
+    db(dbUri, SQLite::OPEN_READWRITE|SQLite::OPEN_CREATE) {}
 
 int Database::userLogged(std::string token)
 {
@@ -178,7 +172,8 @@ void Database::updateTimestamp(std::string docId,std::string uid)
 
 void Database::updateTimestamp(std::string docId,std::string uid,std::string remoteCursor)
 {
-    std::string sql = "UPDATE user_document_request SET lastReq = datetime('now','localtime'), cursor_position_json = ? WHERE idUser = " + uid + " AND idDocument = " + docId;
+    std::string sql = "UPDATE user_document_request SET lastReq = datetime('now','localtime'), cursor_position_json = ? "
+                      "WHERE idUser = " + uid + " AND idDocument = " + docId;
     SQLite::Statement query(db,sql);
     query.bind(1,remoteCursor);
     query.exec();
@@ -232,21 +227,14 @@ void Database::insertCrdt(std::string crdt_json,std::string uid,std::string docI
      */
 std::vector<exchangeable_data::send_data> Database::getCrdtUser(std::string lastCrdtId,std::string uid,std::string docId,std::string remoteCursor)
 {
-    // TODO: add lorenzo's parameter cursorPos
-
     std::string sql;
 
-//    if (lastCrdtId!=""){
-//        sql = "UPDATE crdt_delvery SET delivered = '1' WHERE idDoc=" + docId + " AND idCrdt <=" + lastCrdtId + " AND idUser = " + uid + ";";
-//
-//        SQLite::Statement queryUpdate(db,sql);
-//        queryUpdate.exec();
-//
-//
-//        sql = "SELECT id,crdt_json FROM crdt WHERE id IN (SELECT idCrdt from crdt_delvery WHERE idUser=" + uid + " AND idDoc=" + docId + "  AND delivered=0)";
-//    } else {
-//        sql = "SELECT id,crdt_json FROM crdt WHERE id IN (SELECT idCrdt from crdt_delvery WHERE idUser=" + uid + " AND idDoc=" + docId + ")";
-//    }
+    sql = "UPDATE user_document_request SET cursor_position_json = '" + remoteCursor + "' WHERE idUser='" + uid +
+          "' AND idDocument='" + docId + "';";
+
+    SQLite::Statement query2(db, sql);
+    query2.exec();
+
 
     if (lastCrdtId == "")
         sql = "SELECT id, crdt_json FROM crdt WHERE idDoc = " + docId;
@@ -263,15 +251,14 @@ std::vector<exchangeable_data::send_data> Database::getCrdtUser(std::string last
         vect.push_back(exchangeable_data::send_data(id,crdt_json));
     }
 
-    updateTimestamp(docId,uid,remoteCursor);
+    updateTimestamp(docId,uid);
 
     return vect;
 }
 
 std::string Database::hashed_pass(std::string pass)
 {
-    //TODO: io dico che questo ci dimentichiamo di modificarlo
-    return sha256(pass + "my crazy random salt porcamadonna PDS");
+    return sha256(pass + "my crazy random salt PDS");
 }
 
 std::string Database::random_string(size_t length)
@@ -291,10 +278,9 @@ std::string Database::random_string(size_t length)
 }
 
 std::vector<exchangeable_data::user>
-Database::getOnlineUsers() {
+Database::getOnlineUsers(std::string docId) {
 
-    // TODO: replace 90000 with 30, is the seconds, note that there are 2 90000 inside the query
-    std::string sql = "select id,email,username,image,(select cursor_position_json from user_document_request where lastReq >= datetime((strftime('%s','now')-90000),'unixepoch','localtime')) as json_cursor from users where id in (select idUser from user_document_request where lastReq >= datetime((strftime('%s','now')-90000),'unixepoch','localtime'))";
+    std::string sql = "select id,email,username,image,(select cursor_position_json from user_document_request where lastReq >= datetime((strftime('%s','now')-3),'unixepoch','localtime')) as json_cursor from users where id in (select idUser from user_document_request where idDocument = " + docId + " AND lastReq >= datetime((strftime('%s','now')-3),'unixepoch','localtime'))";
 
     SQLite::Statement query(db, sql);
     std::vector<exchangeable_data::user> vect;

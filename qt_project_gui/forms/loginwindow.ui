@@ -10,6 +10,9 @@
     <height>480</height>
    </rect>
   </property>
+  <property name="styleSheet">
+   <string>background-color:#F2ECFF;</string>
+  </property>
   <property name="windowIcon">
    <iconset resource="resources.qrc">
     <normaloff>:/resources/logoIcon.png</normaloff>:/resources/logoIcon.png</iconset>
@@ -183,7 +186,6 @@ border-style: solid;
 }
 
 QPushButton:hover {
-widget-animation-duration: 100;
 background-color: #E4EFF9;
 border-color: #0C7BD4;
 }
@@ -476,7 +478,6 @@ border-style: solid;
 }
 
 QPushButton:hover {
-widget-animation-duration: 100;
 background-color: #E4EFF9;
 border-color: #0C7BD4;
 }
@@ -813,9 +814,9 @@ QPushButton:hover {
     <widget class="QLabel" name="informationLabel">
      <property name="geometry">
       <rect>
-       <x>40</x>
+       <x>5</x>
        <y>200</y>
-       <width>240</width>
+       <width>310</width>
        <height>100</height>
       </rect>
      </property>
@@ -868,7 +869,6 @@ QPushButton:hover {
        }
 
        QPushButton:hover {
-       widget-animation-duration: 100;
        background-color: #E4EFF9;
        border-color: #0C7BD4;
        }

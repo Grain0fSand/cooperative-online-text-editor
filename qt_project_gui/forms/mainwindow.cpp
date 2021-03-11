@@ -12,7 +12,6 @@
 #include <QFontComboBox>
 #include <QComboBox>
 #include <QLabel>
-#include <QClipboard>
 #include <QPrinter>
 #include <QFileDialog>
 #include <QMessageBox>
@@ -20,25 +19,33 @@
 #include <QPainter>
 #include <QPushButton>
 #include <QStringListModel>
+#include <QClipboard>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow),
-    background_task(200)
+    ui(new Ui::MainWindow)
 {
-    getSessionDataFromLogin();
+    ui->setupUi(this);
 
-    Crdt::getInstance().init(std::stoi(this->sessionData.userId));
+    SessionData::accessToSessionData().youWannaLogin = false;
+    SessionData::accessToSessionData().mainWindowPointer = this;
+    SessionData::accessToSessionData().myTextEditPointer = ui->textEditShared;
 
-    query = new OnlineQuery{this->sessionData.docId,this->sessionData.token,this};
+    auto overlayWidget = new OverlayWidget(ui->docFrame);
+    QRect frameRect = ui->docFrame->geometry();
+    frameRect.setHeight(ui->centralWidget->geometry().height());
+    overlayWidget->setGeometry(frameRect);
+    overlayWidget->setAttribute(Qt::WA_TransparentForMouseEvents);
+
+    Crdt::getInstance().init(std::stoi(SessionData::accessToSessionData().userId));
+    query = new OnlineQuery{SessionData::accessToSessionData().docId, SessionData::accessToSessionData().token, this};
     query->start();
 
-    ui->setupUi(this);
-    ui->myUsername->setText(QString::fromStdString(sessionData.username));
-    ui->myAvatar->setPixmap(sessionData.avatar);
+    ui->myUsername->setText(QString::fromStdString(SessionData::accessToSessionData().username));
+    ui->myAvatar->setPixmap(SessionData::accessToSessionData().avatar);
     ui->textEditShared->setAcceptRichText(false); //this needs to be false to avoid pasting formatted text with CTRL+V
     ui->textEditShared->installEventFilter(this);
-    ui->textEditShared->setDocumentName(QString::fromStdString(sessionData.docName));
+    ui->textEditShared->setDocumentName(QString::fromStdString(SessionData::accessToSessionData().docName));
     Shared_editor::getInstance().initString(ui->textEditShared->toHtml());
 
     ui->sideLayout->layout()->setAlignment(Qt::AlignTop);
@@ -51,71 +58,69 @@ MainWindow::MainWindow(QWidget *parent) :
     populateUserTagList();
 
     // setting up my connect event
-    connect(ui->actionCopy,&QAction::triggered,ui->textEditShared,&QTextEdit::copy);
-    connect(ui->actionCut,&QAction::triggered,ui->textEditShared,&QTextEdit::cut);
-    connect(ui->actionPaste,&QAction::triggered,ui->textEditShared,&QTextEdit::paste);
-    connect(comboFamily,SIGNAL(activated(int)),this,SLOT(selectFont(int)));
-    connect(comboSize,SIGNAL(activated(int)),this,SLOT(selectSize(int)));
-    connect(ui->actionBold,&QAction::triggered,this,&MainWindow::makeBold);
-    connect(ui->actionItalic,&QAction::triggered,this,&MainWindow::makeItalic);
-    connect(ui->actionUnderlined,&QAction::triggered,this,&MainWindow::makeUnderline);
-    connect(ui->actionAlignLeft,&QAction::triggered,this,&MainWindow::alignLeft);
-    connect(ui->actionAlignCenter,&QAction::triggered,this,&MainWindow::alignCenter);
-    connect(ui->actionAlignRight,&QAction::triggered,this,&MainWindow::alignRight);
-    connect(ui->actionAlignJustify,&QAction::triggered,this,&MainWindow::alignJustify);
-
-    connect(ui->textEditShared->document(),&QTextDocument::contentsChange,this,[&](){
-        //for debbuging on text modifications
-
-
+    connect(ui->actionCopy, &QAction::triggered, ui->textEditShared, &QTextEdit::copy);
+    connect(ui->actionCut, &QAction::triggered, ui->textEditShared, &QTextEdit::cut);
+    connect(ui->actionPaste, &QAction::triggered, ui->textEditShared, &QTextEdit::paste);
+    connect(comboFamily, SIGNAL(activated(int)), this, SLOT(selectFont(int)));
+    connect(comboSize, SIGNAL(activated(int)), this, SLOT(selectSize(int)));
+    connect(ui->actionBold, &QAction::triggered, this, &MainWindow::makeBold);
+    connect(ui->actionItalic, &QAction::triggered, this, &MainWindow::makeItalic);
+    connect(ui->actionUnderlined, &QAction::triggered, this, &MainWindow::makeUnderline);
+    connect(ui->actionAlignLeft, &QAction::triggered, this, &MainWindow::alignLeft);
+    connect(ui->actionAlignCenter, &QAction::triggered, this, &MainWindow::alignCenter);
+    connect(ui->actionAlignRight, &QAction::triggered, this, &MainWindow::alignRight);
+    connect(ui->actionAlignJustify, &QAction::triggered, this, &MainWindow::alignJustify);
+    connect(ui->textEditShared->document(), &QTextDocument::contentsChange, this, &MainWindow::textChanged);
+    connect(ui->textEditShared, &QTextEdit::selectionChanged, ui->textEditShared,
+            [&]() { ui->textEditShared->previousSelection = ui->textEditShared->textCursor().selectedText().count();
+                if (ui->textEditShared->previousPreviousSelection != ui->textEditShared->previousSelection)
+                    ui->textEditShared->colorText(ui->textEditShared->colorFeatureActive);
+                ui->textEditShared->previousPreviousSelection = ui->textEditShared->previousSelection;
     });
-    connect(ui->textEditShared->document(),&QTextDocument::contentsChange,this,&MainWindow::textChanged);
-    connect(ui->textEditShared,&QTextEdit::cursorPositionChanged,this,&MainWindow::checkTextProperty);
-    connect(this,&MainWindow::setComboSize,comboSize,&QComboBox::setCurrentIndex);
-    connect(this,&MainWindow::setComboFont,comboFamily,&QComboBox::setCurrentIndex);
-    connect(ui->actionExit,&QAction::triggered,this,&MainWindow::exitFromEditor);
-    connect(ui->actionExport_to_PDF,&QAction::triggered,this,&MainWindow::exportPDF);
-    connect(ui->actionInvite,&QAction::triggered,this,&MainWindow::reqInvitationEmailAddress);
-    connect(ui->actionTestCursor,&QAction::triggered,this,&MainWindow::insertRemoteCursor); //only for test
-    connect(ui->actionTestDisconnect,&QAction::triggered,this,&MainWindow::disableEditor); //only for test
-    connect(ui->actionTestColor,&QAction::toggled,ui->textEditShared,&MyTextEdit::colorText);
+    connect(ui->textEditShared, &QTextEdit::cursorPositionChanged, this, &MainWindow::checkTextProperty);
+    connect(this, &MainWindow::setComboSize, comboSize, &QComboBox::setCurrentIndex);
+    connect(this, &MainWindow::setComboFont, comboFamily, &QComboBox::setCurrentIndex);
+    connect(ui->actionExit, &QAction::triggered, this, &MainWindow::exitFromEditor);
+    connect(ui->actionLogout, &QAction::triggered, this, &MainWindow::backToLogin);
+    connect(ui->actionBack, &QAction::triggered, this, &MainWindow::backToPersonalPage);
+    connect(ui->actionExport_to_PDF, &QAction::triggered, this, &MainWindow::exportPDF);
+    connect(ui->actionInvite, &QAction::triggered, this, &MainWindow::reqInvitationEmailAddress);
+    connect(ui->actionCursor, &QAction::toggled, ui->textEditShared, &MyTextEdit::showRemoteCursors);
+    connect(ui->actionColor, &QAction::toggled, ui->textEditShared, &MyTextEdit::colorText);
+    connect(&Crdt::getInstance(),&Crdt::needToResetLastCrdtId,query,&OnlineQuery::resetLastCrdtId);
 }
 
 MainWindow::~MainWindow()
 {
-    background_task.cancel();
-    background_task.wait();
     delete ui;
-}
-
-void MainWindow::getSessionDataFromLogin() {
-    this->sessionData = LoginWindow::getInstance().sessionData;
 }
 
 void MainWindow::populateUserTagList()
 {
     QString statusLabel;
     QPixmap led;
-    for(auto &tag : this->sessionData.usersList) {
+
+    ui->listOnlineUsers->clear();
+    ui->listOfflineUsers->clear();
+
+    ui->actionColor->setEnabled(SessionData::accessToSessionData().usersList.size() > 1);
+
+    for (auto &tag : SessionData::accessToSessionData().usersList) {
+        if (tag.getUserId() == std::stoi(SessionData::accessToSessionData().userId))
+            continue;
+
         auto item = new QListWidgetItem();
-        if(tag.getStatus()) {
+        if (tag.getStatus()) {
             led.load(":/resources/greenLed.png");
             statusLabel = "Online";
             ui->listOnlineUsers->setItemDelegate(&tag);
             ui->listOnlineUsers->addItem(item);
-        }
-        else {
+        } else {
             led.load(":/resources/redLed.png");
             statusLabel = "Offline";
             ui->listOfflineUsers->setItemDelegate(&tag);
             ui->listOfflineUsers->addItem(item);
         }
-
-        std::default_random_engine generator(std::chrono::system_clock::now().time_since_epoch().count());
-        std::uniform_int_distribution<int> distribution(0,255);
-        auto random_value = std::bind(distribution, generator);
-        QColor color(random_value(),random_value(),random_value());
-
         item->setData(Qt::UserRole + 1, tag.getUsername());
         item->setData(Qt::UserRole + 2, statusLabel);
         item->setData(Qt::UserRole + 3, tag.getAvatar());
@@ -124,28 +129,123 @@ void MainWindow::populateUserTagList()
     }
 }
 
-void MainWindow::update_id(std::string id){
-    if (id.compare("")!=0)
-        this->sessionData.lastCrdtId = id;
+void MainWindow::arrangeUserTagList(std::vector<exchangeable_data::user> remoteVector) {
+
+    SessionData *sessionData = &SessionData::accessToSessionData();
+
+    if (sessionData->onlineUsers.size() != remoteVector.size()) {   //number of user change
+
+        ui->actionCursor->setEnabled(remoteVector.size() > 1);
+
+        ui->textEditShared->clearRemoteCursorList();
+        std::vector<UserTag>::iterator everytimeUser;
+        std::vector<exchangeable_data::user>::iterator onlineUser;
+
+        for(everytimeUser=sessionData->usersList.begin(); everytimeUser<sessionData->usersList.end(); everytimeUser++) {
+            everytimeUser->setUserStatus(false);
+        }
+
+        for(onlineUser=remoteVector.begin(); onlineUser<remoteVector.end(); onlineUser++) {
+            if(onlineUser->id==sessionData->userId)
+                continue;
+
+            bool found = false;
+            for(everytimeUser=sessionData->usersList.begin(); everytimeUser<sessionData->usersList.end(); everytimeUser++) {
+                if(*everytimeUser==*onlineUser) {
+                    everytimeUser->setUserStatus(true);
+                    found = true;
+                    break;
+                }
+            }
+            if(!found) {
+                UserTag userTag;
+                userTag.setUserId(std::stoi(onlineUser->id));
+                userTag.setUserColor(LoginWindow::chooseColorFromString(QString::fromStdString(onlineUser->email)));
+                userTag.setUsername(QString::fromStdString(onlineUser->username));
+                userTag.setAvatar(LoginWindow::recoverImageFromEncodedString(QString::fromStdString(onlineUser->image)));
+                userTag.setUserStatus(true);
+
+                sessionData->usersList.push_back(userTag);
+                sessionData->userColorMap[userTag.getUserId()] = userTag.getUserColor();
+            }
+
+            int pos = Crdt::getInstance().findAbsolutePosition(onlineUser->lastCursorPosition);
+            QColor color = LoginWindow::chooseColorFromString(QString::fromStdString(onlineUser->email));
+            ui->textEditShared->createRemoteCursor(std::stoi(onlineUser->id),pos,QString::fromStdString(onlineUser->username),color);
+        }
+        sessionData->onlineUsers = remoteVector;
+        std::sort(sessionData->onlineUsers.begin(), sessionData->onlineUsers.end());
+
+        populateUserTagList();
+    } else {
+        sessionData->onlineUsers = remoteVector;
+    }
+
+    for (auto user : remoteVector) {
+        if (user.id != sessionData->userId) {
+            int pos = Crdt::getInstance().findAbsolutePosition(user.lastCursorPosition);
+            ui->textEditShared->updateRemoteCursorPosition(std::stoi(user.id), pos);
+        }
+    }
 }
 
 void MainWindow::exitFromEditor() {
-    QMessageBox::StandardButton reply = QMessageBox::question(this,"Exit from Simulpad","Are you sure you want to quit?");
-    if(reply == QMessageBox::Yes) {
+    QMessageBox::StandardButton reply = QMessageBox::question(this, "Exit from Simulpad",
+                                                              "Are you sure you want to quit?");
+    if (reply == QMessageBox::Yes) {
         this->close();
     }
 }
 
-void MainWindow::exportPDF()
-{
-    QString file_path = QFileDialog::getSaveFileName(this,"Export to PDF..","","Pdf file (*.pdf);;All Files (*)");
+void MainWindow::backToLogin() {
+    QMessageBox::StandardButton reply = QMessageBox::question(this,"Back to Login","Are you sure you want to logout?");
 
-    if(file_path!="") {
-        QPrinter printer(QPrinter::PrinterResolution);
+    if(reply == QMessageBox::Yes) {
+        emit stopQueryLoop();
+        Crdt::getInstance().reset();
+        SessionData::accessToSessionData().loginWindowPointer->switchFrame(-1);
+        SessionData::accessToSessionData().onlineUsers.clear();
+        SessionData::accessToSessionData().usersList.clear();
+        SessionData::accessToSessionData().userColorMap.clear();
+        SessionData::accessToSessionData().youWannaLogin = true;
+        SessionData::accessToSessionData().isLoginCorrect = false;
+        SessionData::accessToSessionData().mutex_online.lock();
+        SessionData::accessToSessionData().isUserOnline = false;
+        SessionData::accessToSessionData().mutex_online.unlock();
+
+        this->close();
+    }
+}
+
+void MainWindow::backToPersonalPage() {
+    QMessageBox::StandardButton reply = QMessageBox::question(this,"Back to your personal page","Are you sure you want to close this document?");
+
+    if(reply == QMessageBox::Yes) {
+        emit stopQueryLoop();
+        Crdt::getInstance().reset();
+        SessionData::accessToSessionData().onlineUsers.clear();
+        SessionData::accessToSessionData().usersList.clear();
+        SessionData::accessToSessionData().userColorMap.clear();
+        SessionData::accessToSessionData().youWannaLogin = true;
+        SessionData::accessToSessionData().isLoginCorrect = false;
+        SessionData::accessToSessionData().mutex_online.lock();
+        SessionData::accessToSessionData().isUserOnline = false;
+        SessionData::accessToSessionData().mutex_online.unlock();
+
+        this->close();
+    }
+}
+
+void MainWindow::exportPDF() {
+    QString file_path = QFileDialog::getSaveFileName(this, "Export to PDF..", "", "Pdf file (*.pdf);;All Files (*)");
+
+    if (file_path != "") {
+        QPrinter printer(QPrinter::ScreenResolution);
         printer.setOutputFormat(QPrinter::PdfFormat);
         printer.setOutputFileName(file_path);
         printer.setPaperSize(QPrinter::A4);
-        ui->textEditShared->print(&printer);
+        printer.setPageSizeMM(QSizeF(228.5,317));
+        ui->textEditShared->document()->print(&printer);
         QString file_name = file_path.split("/").last();
         if (printer.printerState()<2) {
             QMessageBox::information(this,"Export to PDF","File "+file_name+" exported successfully.");
@@ -168,10 +268,11 @@ void MainWindow::alignLeft()
     ui->actionAlignRight->setChecked(false);
     ui->actionAlignJustify->setChecked(false);
 
+    ui->textEditShared->document()->blockSignals(true);
     cursor.mergeBlockFormat(textBlockFormat);
     textEdit->setTextCursor(cursor);
-
-    Action a = Action( AlignLeft);
+    ui->textEditShared->document()->blockSignals(false);
+    Action a = Action(AlignLeft);
     Crdt::getInstance().sendActionToServer(a, cursor.selectionStart(), cursor.selectedText().length());
 }
 
@@ -187,10 +288,12 @@ void MainWindow::alignCenter()
     ui->actionAlignRight->setChecked(false);
     ui->actionAlignJustify->setChecked(false);
 
+    ui->textEditShared->document()->blockSignals(true);
     cursor.mergeBlockFormat(textBlockFormat);
     textEdit->setTextCursor(cursor);
+    ui->textEditShared->document()->blockSignals(false);
 
-    Action a = Action( AlignCenter);
+    Action a = Action(AlignCenter);
     Crdt::getInstance().sendActionToServer(a, cursor.selectionStart(), cursor.selectedText().length());
 }
 
@@ -206,8 +309,10 @@ void MainWindow::alignRight()
     ui->actionAlignRight->setChecked(true);
     ui->actionAlignJustify->setChecked(false);
 
+    ui->textEditShared->document()->blockSignals(true);
     cursor.mergeBlockFormat(textBlockFormat);
     textEdit->setTextCursor(cursor);
+    ui->textEditShared->document()->blockSignals(false);
 
     Action a = Action(AlignRight);
     Crdt::getInstance().sendActionToServer(a, cursor.selectionStart(), cursor.selectedText().length());
@@ -225,8 +330,10 @@ void MainWindow::alignJustify()
     ui->actionAlignRight->setChecked(false);
     ui->actionAlignJustify->setChecked(true);
 
+    ui->textEditShared->document()->blockSignals(true);
     cursor.mergeBlockFormat(textBlockFormat);
     textEdit->setTextCursor(cursor);
+    ui->textEditShared->document()->blockSignals(false);
 
     Action a = Action(AlignJustify);
     Crdt::getInstance().sendActionToServer(a, cursor.selectionStart(), cursor.selectedText().length());
@@ -289,28 +396,40 @@ void MainWindow::makeUnderline()
     }
 }
 
-//TODO: create multiple actions when copy pasting text with different styles
 void MainWindow::textChanged(int pos, int nDel, int nIns) {
-    if(!ui->textEditShared->textCursor().hasSelection()) {
-        qDebug() << "pos: " << pos << " dels: " << nDel << " inss: "<< nIns;
 
-        if (nDel>0) { //deletion
+    if(SessionData::accessToSessionData().skipChanges)
+        return;
+
+    if(!ui->textEditShared->textCursor().hasSelection()) {
+        if (lastEventType == QEvent::InputMethod)   //no idea what are these events and why they arrive here
+            return;
+        //IMPORTANT: Pasting text other than when the document is empty will result in unexpected behaviour
+        //https://bugreports.qt.io/browse/QTBUG-3495?focusedCommentId=264621&page=com.atlassian.jira.plugin.system.issuetabpanels%3Acomment-tabpanel#comment-264621
+
+        if((pos == 0 || nIns > ui->textEditShared->document()->characterCount())  && nIns > 1 ) {   //workaround of a CTRL-V bug.
+            auto clipboard = QApplication::clipboard();
+            QString originalText = clipboard->text();
+            std::string s = ui->textEditShared->textCursor().selectedText().toStdString();
+            nIns = clipboard->text().count();
+            //  ui->textEditShared->previousSelection.pop();
+            nDel = ui->textEditShared->previousSelection;
+        }
+
+        if (nDel > 0) { //deletion
             Action action;
             Crdt::getInstance().sendActionToServer(action, pos + 1, nDel);
         }
 
-        if (nIns>0) { //insertion
+        if (nIns > 0) { //insertion
             QString str = ui->textEditShared->document()->toPlainText().mid(pos, nIns);
-//        for(int i=0; i<nIns; i++) {
-//            str += ui->textEditShared->document()->characterAt(pos+i);
-//        }
-//        qDebug() << str;
-
             //check all properties of inserted chars
             auto text_cursor = ui->textEditShared->textCursor();
+            if (nIns > 1)
+                text_cursor.movePosition(QTextCursor::Left, QTextCursor::MoveAnchor, nIns);
             auto format = text_cursor.charFormat();
-            auto font = format.font();
 
+            auto font = format.font();
             QString fontSize = QString::number(font.pointSize());
             int sizeIndex = ui->textEditShared->getFontSizes().indexOf(fontSize);
             int familyIndex = ui->textEditShared->getFontFamilies().indexOf(font.family());
@@ -331,14 +450,35 @@ void MainWindow::textChanged(int pos, int nDel, int nIns) {
                 blockFormatType = AlignRight;
             else if (alignment == Qt::AlignJustify)
                 blockFormatType = AlignJustify;
-
-//  this is for copying multiple blocks
-//        for (int i = 0; i < str.size())
-
+            if (nIns > 1)
+                text_cursor.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor, nIns);
+            //following part is for pasting multiple blocks, creates 2 actions because the alignment of the cursor is kept only for the first pasted block
+            if (blockFormatType != AlignLeft) {
+                int i = 0;
+                for (; i < str.size(); ++i) {
+                    if (str[i] == '\n') {
+                        ++i;
+                        break;
+                    }
+                }
+                if (i < str.size()) {
+                    Action action(str.left(i), familyIndex, sizeIndex, bold, italic, underlined, blockFormatType);
+                    Crdt::getInstance().sendActionToServer(action, pos, i);
+                    pos += i;
+                    nIns = str.size() - i;
+                    str = str.right(str.size() - i);
+                    blockFormatType = AlignLeft;
+                }
+            }
 
             Action action(str, familyIndex, sizeIndex, bold, italic, underlined, blockFormatType);
             Crdt::getInstance().sendActionToServer(action, pos, nIns);
-
+        }
+        for(auto user : SessionData::accessToSessionData().onlineUsers){
+            if(user.id != SessionData::accessToSessionData().userId) {
+                int pos = Crdt::getInstance().findAbsolutePosition(user.lastCursorPosition);
+                ui->textEditShared->updateRemoteCursorPosition(std::stoi(user.id), pos);
+            }
         }
     }
 }
@@ -353,6 +493,7 @@ void MainWindow::selectFont(int familyIndex)
     format.setFontFamily(family);
     cursor.mergeCharFormat(format);
     textEdit->setTextCursor(cursor);
+    textEdit->setFocus();
 
     Action a = Action(3, familyIndex);
     if (cursor.selectedText().length())
@@ -369,6 +510,7 @@ void MainWindow::selectSize(int sizeIndex)
     format.setFontPointSize(size);
     cursor.mergeCharFormat(format);
     textEdit->setTextCursor(cursor);
+    textEdit->setFocus();
 
     Action a = Action(4, sizeIndex);
     if (cursor.selectedText().length())
@@ -404,17 +546,17 @@ void MainWindow::checkTextProperty()
     ui->actionCut->setEnabled(ui->textEditShared->textCursor().hasSelection());
 
     ui->statusBar->findChild<QLabel*>("charCount")->setText("Chars: "+QString::number(ui->textEditShared->document()->characterCount()-1));
-    ui->statusBar->findChild<QLabel*>("lineCount")->setText("Lines: "+QString::number(ui->textEditShared->document()->lineCount()));
+    ui->statusBar->findChild<QLabel*>("blockCount")->setText("Block: "+QString::number(ui->textEditShared->document()->blockCount()));
     ui->statusBar->findChild<QLabel*>("cursorPos")->setText("pos: "+QString::number(ui->textEditShared->textCursor().position()));
     ui->statusBar->findChild<QLabel*>("cursorColumn")->setText("col: "+QString::number(ui->textEditShared->textCursor().columnNumber()));
     ui->statusBar->findChild<QLabel*>("cursorSelectionCount")->setText("sel: "+QString::number(ui->textEditShared->textCursor().selectedText().length()));
 
-    ui->textEditShared->setTextColor(QColor("black"));
-}
+    SessionData::accessToSessionData().mutex_cursor_pos.lock();
+    SessionData::accessToSessionData().cursor = Crdt::getInstance().findRelativePosition(text_cursor.position());
+    SessionData::accessToSessionData().mutex_cursor_pos.unlock();
 
-void MainWindow::insertRemoteCursor() {
-    ui->textEditShared->createCursor(ui->textEditShared->textCursor().position(),"prova1",Qt::red);
-    ui->textEditShared->repaint();
+    ui->textEditShared->setTextColor({Qt::black});
+    ui->textEditShared->setTextBackgroundColor({Qt::transparent});
 }
 
 void MainWindow::reqInvitationEmailAddress()
@@ -447,7 +589,7 @@ void MainWindow::reqInvitationEmailAddress()
                 advice.exec();
             }
             else {
-                sendInvitationEmail(QString::fromStdString(this->sessionData.docName), dialog.textValue());
+                sendInvitationEmail(QString::fromStdString(SessionData::accessToSessionData().docName), dialog.textValue());
                 break;
             }
         }
@@ -455,31 +597,89 @@ void MainWindow::reqInvitationEmailAddress()
     }
 }
 
-void MainWindow::disableEditor()
+void MainWindow::changeEditorStatus()
 {
-    ui->textEditShared->setEnabled(!ui->textEditShared->isEnabled());
-    ui->statusBar->setEnabled(!ui->statusBar->isEnabled());
-    ui->actionCopy->setEnabled(!ui->actionCopy->isEnabled());
-    ui->actionCut->setEnabled(!ui->actionCut->isEnabled());
-    ui->actionPaste->setEnabled(!ui->actionPaste->isEnabled());
+    SessionData::accessToSessionData().mutex_online.lock();
+    if(SessionData::accessToSessionData().isUserOnline && SessionData::accessToSessionData().offlineCounter<18) {
+        SessionData::accessToSessionData().offlineCounter++;
+        SessionData::accessToSessionData().mutex_online.unlock();
+        return;
+    }
+
+    bool isUserOnline = !SessionData::accessToSessionData().isUserOnline;
+    SessionData::accessToSessionData().isUserOnline = isUserOnline;
+
+    //operations to do BEFORE the editor changes its status
+    if(isUserOnline) {  //operations to do when back online
+        ui->textEditShared->clearDocument();
+    } else {    //operations to do when it turns offline
+        if(ui->listOfflineUsers->isVisible())
+            ui->offlineRollButton->click();
+        if(ui->listOnlineUsers->isVisible())
+            ui->onlineRollButton->click();
+    }
+    ui->textEditShared->setEnabled(isUserOnline);
+    ui->statusBar->setEnabled(isUserOnline);
+    ui->actionCopy->setEnabled(isUserOnline);
+    ui->actionCut->setEnabled(isUserOnline);
+    ui->actionPaste->setEnabled(isUserOnline);
     auto comboBoxes = ui->mainToolBar->findChildren<QComboBox*>();
-    comboBoxes[0]->setEnabled(!comboBoxes[0]->isEnabled());
-    comboBoxes[1]->setEnabled(!comboBoxes[1]->isEnabled());
-    ui->actionBold->setEnabled(!ui->actionBold->isEnabled());
-    ui->actionItalic->setEnabled(!ui->actionItalic->isEnabled());
-    ui->actionUnderlined->setEnabled(!ui->actionUnderlined->isEnabled());
-    ui->actionAlignLeft->setEnabled(!ui->actionAlignLeft->isEnabled());
-    ui->actionAlignCenter->setEnabled(!ui->actionAlignCenter->isEnabled());
-    ui->actionAlignRight->setEnabled(!ui->actionAlignRight->isEnabled());
-    ui->actionAlignJustify->setEnabled(!ui->actionAlignJustify->isEnabled());
-    ui->listOnlineUsers->setEnabled(!ui->listOnlineUsers->isEnabled());
-    ui->listOfflineUsers->setEnabled(!ui->listOfflineUsers->isEnabled());
-    ui->onlineRollButton->setEnabled(!ui->onlineRollButton->isEnabled());
-    ui->offlineRollButton->setEnabled(!ui->offlineRollButton->isEnabled());
+    comboBoxes[0]->setEnabled(isUserOnline);
+    comboBoxes[1]->setEnabled(isUserOnline);
+    ui->actionBold->setEnabled(isUserOnline);
+    ui->actionItalic->setEnabled(isUserOnline);
+    ui->actionUnderlined->setEnabled(isUserOnline);
+    ui->actionAlignLeft->setEnabled(isUserOnline);
+    ui->actionAlignCenter->setEnabled(isUserOnline);
+    ui->actionAlignRight->setEnabled(isUserOnline);
+    ui->actionAlignJustify->setEnabled(isUserOnline);
+    ui->actionColor->setEnabled(isUserOnline);
+    ui->listOnlineUsers->setEnabled(isUserOnline);
+    ui->listOfflineUsers->setEnabled(isUserOnline);
+    ui->onlineRollButton->setEnabled(isUserOnline);
+    ui->offlineRollButton->setEnabled(isUserOnline);
+
+    //operations to do POST the editor changes its status
+    if(isUserOnline) {  //operations to do when back online
+        if(!ui->listOfflineUsers->isVisible())
+            ui->offlineRollButton->click();
+        if(!ui->listOnlineUsers->isVisible())
+            ui->onlineRollButton->click();
+
+        ui->myLed->setPixmap(QPixmap(QString::fromUtf8(":/resources/greenLed.png")));
+        ui->myStatus->setText("Online");
+    } else {    //operations to do when it turns offline
+        ui->myLed->setPixmap(QPixmap(QString::fromUtf8(":/resources/redLed.png")));
+        ui->myStatus->setText("Offline");
+
+        Crdt::getInstance().reset();
+    }
+    SessionData::accessToSessionData().mutex_online.unlock();
 }
 
 void MainWindow::setupFontComboBoxes(QComboBox* comboSize, QComboBox* comboFamily)
 {
+    QFontDatabase::addApplicationFont(":/resources/fonts/Arial.ttf");
+    QFontDatabase::addApplicationFont(":/resources/fonts/Arial Black.ttf");
+    QFontDatabase::addApplicationFont(":/resources/fonts/Berlin Sans FB.ttf");
+    QFontDatabase::addApplicationFont(":/resources/fonts/Calibri.ttf");
+    QFontDatabase::addApplicationFont(":/resources/fonts/Century Gothic.ttf");
+    QFontDatabase::addApplicationFont(":/resources/fonts/Consolas.ttf");
+    QFontDatabase::addApplicationFont(":/resources/fonts/Constantia.ttf");
+    QFontDatabase::addApplicationFont(":/resources/fonts/Forte.ttf");
+    QFontDatabase::addApplicationFont(":/resources/fonts/Freestyle Script.ttf");
+    QFontDatabase::addApplicationFont(":/resources/fonts/Georgia.ttf");
+    QFontDatabase::addApplicationFont(":/resources/fonts/Gill Sans MT.ttf");
+    QFontDatabase::addApplicationFont(":/resources/fonts/Harrington.ttf");
+    QFontDatabase::addApplicationFont(":/resources/fonts/Informal Roman.ttf");
+    QFontDatabase::addApplicationFont(":/resources/fonts/Lucida Calligraphy.ttf");
+    QFontDatabase::addApplicationFont(":/resources/fonts/Palatino Linotype.ttf");
+    QFontDatabase::addApplicationFont(":/resources/fonts/Segoe Script.ttf");
+    QFontDatabase::addApplicationFont(":/resources/fonts/Tahoma.ttf");
+    QFontDatabase::addApplicationFont(":/resources/fonts/Times New Roman.ttf");
+    QFontDatabase::addApplicationFont(":/resources/fonts/Verdana.ttf");
+    QFontDatabase::addApplicationFont(":/resources/fonts/Vivaldi.ttf");
+
     auto font = comboSize->font();
     font.setPointSize(13);
     comboSize->setFont(font);
@@ -505,8 +705,8 @@ void MainWindow::setupStatusBar()
     docName->setObjectName("docName");
     auto charCount = new QLabel("Chars: "+QString::number(ui->textEditShared->document()->characterCount()-1));
     charCount->setObjectName("charCount");
-    auto lineCount = new QLabel("Lines: "+QString::number(ui->textEditShared->document()->lineCount()));
-    lineCount->setObjectName("lineCount");
+    auto blockCount = new QLabel("Blocks: "+QString::number(ui->textEditShared->document()->blockCount()));
+    blockCount->setObjectName("blockCount");
     auto cursorPos = new QLabel("pos: "+QString::number(ui->textEditShared->textCursor().position()));
     cursorPos->setObjectName("cursorPos");
     auto cursorColumn = new QLabel("col: "+QString::number(ui->textEditShared->textCursor().columnNumber()));
@@ -516,7 +716,7 @@ void MainWindow::setupStatusBar()
 
     ui->statusBar->addWidget(docName, 2);
     ui->statusBar->addWidget(charCount, 0);
-    ui->statusBar->addWidget(lineCount, 1);
+    ui->statusBar->addWidget(blockCount, 1);
     ui->statusBar->addWidget(cursorPos, 0);
     ui->statusBar->addWidget(cursorColumn, 0);
     ui->statusBar->addWidget(cursorSelectionCount, 2);
@@ -544,8 +744,20 @@ void MainWindow::sendInvitationEmail(QString docName, QString destEmailAddress)
     smtp.quit();
 }
 
-bool MainWindow::eventFilter(QObject *obj, QEvent *event)
-{
+bool MainWindow::eventFilter(QObject *obj, QEvent *event) {
+
+    if (event->type() == QEvent::KeyPress || event->type() == QEvent::KeyRelease) {
+        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+
+        // disabling/ the ability to send enter in the document
+        if (keyEvent->key() == Qt::Key_Shift) {
+            if (keyEvent->type() == QEvent::KeyPress) {
+                SessionData::accessToSessionData().go_down = false;
+            } else {
+                SessionData::accessToSessionData().go_down = true;
+            }
+        }
+    }
 
     if (event->type() == QEvent::KeyPress) {
         QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
@@ -562,8 +774,16 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
             qDebug() << "Redo pressed" << keyEvent->key();
             return true;
         }
+
+        // based on enter send enter
+        if ((keyEvent->key() == Qt::Key_Enter) || (keyEvent->key() == Qt::Key_Return)) {
+            if (!SessionData::accessToSessionData().go_down)
+                return true;
+        }
+
         return false;
     } else {
+        lastEventType = event->type();
         return false;
     }
 }
@@ -588,68 +808,3 @@ void MainWindow::on_offlineRollButton_clicked()
         ui->offlineRollButton->setIcon(QIcon(":/resources/arrow_down.png"));
     }
 }
-
-
-void MainWindow::update_online_users_and_cursors_positions(std::vector<exchangeable_data::user> vector){
-    // NB: è ancora da debuggare andando a creare dei dati fittizzi dentro userBar in modo
-    // da verificare che tutto funzioni, il problema è che non so come creare degli oggetti di tipo
-    // UserTag, perdonami ma senza di te mi è difficile utilizzarlo
-    std::vector<UserTag>& usersBar = this->sessionData.usersList;
-    std::vector<UserTag> userBarUpdated;
-
-    for(exchangeable_data::user u : vector){
-        auto iterator_user = std::find(usersBar.begin(),usersBar.end(),u);
-
-        if (iterator_user != usersBar.end()){
-            // the user was already present, i only copy it in the new bar updated
-            UserTag user = *iterator_user; //  called copy constructor
-            // TODO: dario check if is correct use true
-            user.setUserStatus(true); // was more clear use like: user.setUserIsOnline(...) status is not auto explicative
-            userBarUpdated.push_back(std::move(user)); // forwarded using movement semantic, std::move is optional, the compiler
-            // is smart enought to understand it automatically, is only for you dario with love
-        } else {
-            // TODO: dario please call che constructor correctly i'm not sure of how to calc the data like color for eg
-            // all the data required are inside object u
-            std::cout << "add the user" << u.username << std::endl;
-        }
-
-    }
-    // at this point userBarUpdated contains all the online users, to detect the offline i can subtract the online
-    // from the original one
-
-    // TODO: dario check also this comments please, if you do not undestand ask me! cit. elia
-    // please for working the original data must be sorted in the same way that i will now use to sort the new list
-    // this also is required for the draw operation otherwise the list will change from an instant to the next also
-    // in the order
-    std::sort(userBarUpdated.begin(),userBarUpdated.end(),[](const UserTag& u1,const UserTag& u2) -> bool {
-        return u1.getUsername().compare(u2.getUsername()); // get... is java like syntax, cpp programmer tend to prefer more concise syntax in general
-        // is absolutely not wrong, i had written only because the cpp general way of programming is that
-    });
-
-    std::vector<UserTag> difference;
-
-    std::set_difference(
-            usersBar.begin(),usersBar.end(),
-            userBarUpdated.begin(),userBarUpdated.end(),
-            std::back_inserter(difference)
-            );
-
-    for(UserTag& user : difference){
-        user.setUserStatus(false); // TODO: dario check if correct, that are the users that are offline
-        userBarUpdated.push_back(user);
-    }
-
-    // now i replace the old data with the new calculated
-    this->sessionData.usersList = userBarUpdated;
-
-    // TODO: now that data are updated need to be refreshed the interface
-
-    for(exchangeable_data::user u : vector){
-        std::cout << "manage the remote cursor json : " << u.lastCursorPositionJson << std::endl;
-    }
-
-    std::cout << "arrived new users and cursors, update the data!" << std::endl;
-}
-
-//TODO: clicking on bold/cursive/etc. with nothing highlighted sends an action but it shouldn't
-//TODO: block formatting doesn't result in sending an action but it should

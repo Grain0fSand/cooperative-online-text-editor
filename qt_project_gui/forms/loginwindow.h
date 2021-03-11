@@ -14,15 +14,10 @@ class LoginWindow : public QDialog
     Q_OBJECT
 
 public:
-    SessionData sessionData;
-    LoginWindow(const LoginWindow&) = delete;
-    LoginWindow& operator=(const LoginWindow&) = delete;
-
-    static LoginWindow& getInstance(){
-        static LoginWindow instance;
-
-        return instance;
-    }
+    LoginWindow(QWidget *parent = nullptr);
+    ~LoginWindow();
+    //LoginWindow(const LoginWindow&) = delete;
+    //LoginWindow& operator=(const LoginWindow&) = delete;
 
     enum Frame {
         Registration,
@@ -31,7 +26,6 @@ public:
     };
 
     static bool validateEmail(QString email);
-    bool isLoginCorrect();
     void showLoading(Frame frame);
     static QString generateEncodedImage(QPixmap avatar);
     static QPixmap recoverImageFromEncodedString(const QString& code);
@@ -56,11 +50,7 @@ public slots:
     void resetInputFields();
 
 private:
-    explicit LoginWindow(QWidget *parent = nullptr);
-    ~LoginWindow();
-
     Ui::LoginWindow *ui;
-    bool loginCorrect;
     QStringList docsList;
 
     void mousePressEvent(QMouseEvent *event);

@@ -44,14 +44,14 @@ namespace exchangeable_data {
         std::string email;
 
         json get_json() {
-            return json{{"id", this->id},{"username", this->username},{"image", this->image}, {"curson_json", this->lastCursorPositionJson},{"email", this->email}};
+            return json{{"id", this->id},{"username", this->username},{"image", this->image}, {"cursor_json", this->lastCursorPositionJson},{"email", this->email}};
         }
 
         static void from_json(user& d,const json& j){
             d.id = j.at("id").get<std::string>();
             d.username = j.at("username").get<std::string>();
             d.image = j.at("image").get<std::string>();
-            d.lastCursorPositionJson = j.at("curson_json").get<std::string>();
+            d.lastCursorPositionJson = j.at("cursor_json").get<std::string>();
             d.email = j.at("email").get<std::string>();
         }
     };

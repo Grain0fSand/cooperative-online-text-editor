@@ -9,36 +9,31 @@ std::string Database::dbUri = "../pds.db";
  * function to prevent input to be dangerous for the db
  */
 
-std::vector<std::string> split(const std::string& s, char delimiter)
-{
+std::vector<std::string> split(const std::string &s, char delimiter) {
     std::vector<std::string> tokens;
     std::string token;
     std::istringstream tokenStream(s);
-    while (std::getline(tokenStream, token, delimiter))
-    {
+    while (std::getline(tokenStream, token, delimiter)) {
         tokens.push_back(token);
     }
     return tokens;
 }
 
 
-void str_replace(std::string & data, std::string toSearch, std::string replaceStr)
-{
+void str_replace(std::string &data, std::string toSearch, std::string replaceStr) {
     // Get the first occurrence
     size_t pos = data.find(toSearch);
 
     // Repeat till end is reached
-    while( pos != std::string::npos)
-    {
+    while (pos != std::string::npos) {
         // Replace this occurrence of Sub String
         data.replace(pos, toSearch.size(), replaceStr);
         // Get the next occurrence from the current position
-        pos =data.find(toSearch, pos + replaceStr.size());
+        pos = data.find(toSearch, pos + replaceStr.size());
     }
 }
 
-void sanitize(std::string &stringValue)
-{
+void sanitize(std::string &stringValue) {
     // Add backslashes.
     for (auto i = stringValue.begin();;) {
         auto const pos = std::find_if(
@@ -69,34 +64,34 @@ int main() {
 
     CROW_ROUTE(app,"/try_registration")
             .methods("GET"_method)
-                ([&](const crow::request& req){
-                    auto params = req.url_params;
-
-                    if(params.get("email") == nullptr || params.get("username") == nullptr
-                       || params.get("password") == nullptr || params.get("image")==nullptr)
-                        return crow::response(500);
-
-                    std::string email = params.get("email");
-                    std::string username = params.get("username");
-                    std::string password = params.get("password");
-                    std::string image = params.get("image");
-
-                    sanitize(email);
-                    sanitize(username);
-                    sanitize(password);
-                    // sanitize(image); maybe sanitize can lose information, better binding
-
-                    int replyCode = db.userRegistration(email,username,password,image);
-
-                    return crow::response{std::to_string(replyCode)};
-                });
-
-    CROW_ROUTE(app,"/new_doc")
-            .methods("GET"_method)
-                    ([&](const crow::request& req){
+                    ([&](const crow::request &req) {
                         auto params = req.url_params;
 
-                        if(params.get("token") == nullptr || params.get("docName") == nullptr)
+                        if (params.get("email") == nullptr || params.get("username") == nullptr
+                            || params.get("password") == nullptr || params.get("image") == nullptr)
+                            return crow::response(500);
+
+                        std::string email = params.get("email");
+                        std::string username = params.get("username");
+                        std::string password = params.get("password");
+                        std::string image = params.get("image");
+
+                        sanitize(email);
+                        sanitize(username);
+                        sanitize(password);
+                        // sanitize(image); maybe sanitize can lose information, better binding
+
+                        int replyCode = db.userRegistration(email, username, password, image);
+
+                        return crow::response{std::to_string(replyCode)};
+                    });
+
+    CROW_ROUTE(app, "/new_doc")
+            .methods("GET"_method)
+                    ([&](const crow::request &req) {
+                        auto params = req.url_params;
+
+                        if (params.get("token") == nullptr || params.get("docName") == nullptr)
                             return crow::response(500);
 
                         std::string token = params.get("token");
@@ -105,17 +100,17 @@ int main() {
                         sanitize(token);
                         sanitize(docName);
 
-                        std::string replyString = db.newDocument(token,docName);
+                        std::string replyString = db.newDocument(token, docName);
 
                         return crow::response{replyString};
                     });
 
-    CROW_ROUTE(app,"/get_partecipants")
+    CROW_ROUTE(app, "/get_partecipants")
             .methods("GET"_method)
-                    ([&](const crow::request& req){
+                    ([&](const crow::request &req) {
                         auto params = req.url_params;
 
-                        if(params.get("token") == nullptr || params.get("docName") == nullptr)
+                        if (params.get("token") == nullptr || params.get("docName") == nullptr)
                             return crow::response(500);
 
                         std::string token = params.get("token");
@@ -124,17 +119,17 @@ int main() {
                         sanitize(token);
                         sanitize(docName);
 
-                        std::string dbReply = db.getPartecipants(token,docName);
+                        std::string dbReply = db.getPartecipants(token, docName);
 
                         return crow::response{dbReply};
                     });
 
-    CROW_ROUTE(app,"/try_login")
+    CROW_ROUTE(app, "/try_login")
             .methods("GET"_method)
-                    ([&](const crow::request& req){
+                    ([&](const crow::request &req) {
                         auto params = req.url_params;
 
-                        if(params.get("username") == nullptr || params.get("password") == nullptr)
+                        if (params.get("username") == nullptr || params.get("password") == nullptr)
                             return crow::response(500);
 
                         std::string username = params.get("username");
@@ -143,47 +138,46 @@ int main() {
                         sanitize(username);
                         sanitize(password);
 
-                        std::string dbReply = db.userLogin(username,password);
+                        std::string dbReply = db.userLogin(username, password);
 
                         return crow::response{dbReply};
                     });
 
-    CROW_ROUTE(app,"/update_user_data")
-           .methods("GET"_method)
-                ([&](const crow::request& req){
+    CROW_ROUTE(app, "/update_user_data")
+            .methods("GET"_method)
+                    ([&](const crow::request &req) {
 
-                    auto params = req.url_params;
+                        auto params = req.url_params;
 
-                    if(params.get("token") == nullptr || params.get("username") == nullptr
-                       || params.get("avatar") == nullptr || params.get("password") == nullptr)
-                        return crow::response(500);
+                        if (params.get("token") == nullptr || params.get("username") == nullptr
+                            || params.get("avatar") == nullptr || params.get("password") == nullptr)
+                            return crow::response(500);
 
-                    std::string token = params.get("token");
-                    std::string username = params.get("username");
-                    std::string avatar = params.get("avatar");
-                    std::string password = params.get("password");
+                        std::string token = params.get("token");
+                        std::string username = params.get("username");
+                        std::string avatar = params.get("avatar");
+                        std::string password = params.get("password");
 
-                    sanitize(token);
-                    sanitize(username);
-                    // sanitize(avatar); maybe lose information, better binding
-                    sanitize(password);
+                        sanitize(token);
+                        sanitize(username);
+                        // sanitize(avatar); maybe lose information, better binding
+                        sanitize(password);
 
-                    int dbReply = db.updateUserData(token,username,avatar,password);
+                        int dbReply = db.updateUserData(token, username, avatar, password);
 
-                    return crow::response{std::to_string(dbReply)};
+                        return crow::response{std::to_string(dbReply)};
 
-                });
+                    });
 
     // to test launch and open
     // http://localhost:6969/get_crdt?token=1&lastcrdt=&docId=1&remoteCursor=0
-    CROW_ROUTE(app,"/get_crdt")
+    CROW_ROUTE(app, "/get_crdt")
             .methods("GET"_method)
-                    ([&](const crow::request& req){
+                    ([&](const crow::request &req) {
                         auto params = req.url_params;
 
-                        if(params.get("token") == nullptr || params.get("lastcrdt") == nullptr
+                        if (params.get("token") == nullptr || params.get("lastcrdt") == nullptr
                             || params.get("docId") == nullptr || params.get("remoteCursor") == nullptr)
-                            // TODO: see remoteCursor param
                             return crow::response(500);
 
                         std::string token = params.get("token");
@@ -197,24 +191,24 @@ int main() {
                         // sanitize(remoteCursor); the remote cursor is an json value so it must not be sanitized
 
                         int idUser = db.userLogged(token);
-                        idUser = 1;
 
-                        if(idUser<0)
+                        if (idUser < 0)
                             return crow::response(403);
 
-                        std::vector<exchangeable_data::send_data> d = db.getCrdtUser(lastcrdt,std::to_string(idUser),docId,remoteCursor);
-                        // TODO: check if now gui crash
+                        std::vector<exchangeable_data::send_data> d = db.getCrdtUser(lastcrdt, std::to_string(idUser),
+                                                                                     docId, remoteCursor);
+
                         json j;
 
-                        for(exchangeable_data::send_data t : d){
+                        for (exchangeable_data::send_data t : d) {
                             j.push_back(t.get_json());
                         }
 
                         json k;
 
-                        std::vector<exchangeable_data::user> u = db.getOnlineUsers();
+                        std::vector<exchangeable_data::user> u = db.getOnlineUsers(docId);
 
-                        for(exchangeable_data::user t : u){
+                        for (exchangeable_data::user t : u) {
                             k.push_back(t.get_json());
                         }
 
@@ -231,18 +225,17 @@ int main() {
                         return crow::response{os.str()};
                     });
 
-    CROW_ROUTE(app,"/format_db")
+    CROW_ROUTE(app, "/format_db")
             .methods("GET"_method)
-                    ([&](const crow::request& req){
+                    ([&](const crow::request &req) {
                         auto params = req.url_params;
 
-                        if(params.get("pass") == nullptr)
-                            // TODO: see remoteCursor param
+                        if (params.get("pass") == nullptr)
                             return crow::response(500);
 
                         std::string pass = params.get("pass");
 
-                        if(pass.compare(std::string("porcodio"))!=0)
+                        if (pass.compare(std::string("porcodio")) != 0)
                             return crow::response(500);
 
 
@@ -253,26 +246,27 @@ int main() {
                     });
 
     // to test launch and open
-    // TODO: add remoteCursor parameter
-    // http://localhost:8080/push_crdt?token=1&crdt=mannaggia il porco&docId=1
-    CROW_ROUTE(app,"/push_crdt")
+    // http://localhost:8080/push_crdt?token=1&crdt=qualcosa&docId=1
+    CROW_ROUTE(app, "/push_crdt")
             .methods("POST"_method)
-                    ([&](const crow::request& req){
+                    ([&](const crow::request &req) {
                         std::string all_params = req.body;
-                        std::vector<std::string> params = split(all_params,'&');
+                        std::vector<std::string> params = split(all_params, '&');
                         std::unordered_map<std::string, std::string> parameters;
 
-                        for(auto it = std::begin(params);it != std::end(params);it++){
-                            std::vector<std::string> param = split(*it,'=');
+                        for (auto it = std::begin(params); it != std::end(params); it++) {
+                            std::vector<std::string> param = split(*it, '=');
                             parameters[param[0]] = param[1];
                         }
 
-                        if(!(parameters.find(std::string("token")) != parameters.end() && parameters.find("crdt")!=parameters.end() && parameters.find("docId") != parameters.end()))
+                        if (!(parameters.find(std::string("token")) != parameters.end() &&
+                              parameters.find("crdt") != parameters.end() &&
+                              parameters.find("docId") != parameters.end()))
                             return crow::response(500);
 
                         std::string uid = parameters["token"];
                         std::string crdt = parameters["crdt"];
-                        str_replace(crdt,"%3D","=");
+                        str_replace(crdt, "%3D", "=");
                         std::string docId = parameters["docId"];
 
                         sanitize(uid);
@@ -282,10 +276,10 @@ int main() {
                         std::cout << crdt << std::endl;
 
                         int idUser = db.userLogged(uid);
-                        if(idUser<0)
+                        if (idUser < 0)
                             return crow::response(403);
 
-                        db.insertCrdt(crdt,std::to_string(idUser),docId);
+                        db.insertCrdt(crdt, std::to_string(idUser), docId);
 
                         std::ostringstream os;
 
@@ -296,8 +290,8 @@ int main() {
                     });
 
     app.port(6969)
-    //.multithreaded() // active only if you need more performance
-    .run();
+                    //.multithreaded() // active only if you need more performance
+            .run();
 
     return 0;
 }

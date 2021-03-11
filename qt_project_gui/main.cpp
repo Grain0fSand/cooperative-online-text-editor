@@ -6,11 +6,21 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+    SessionData::accessToSessionData();
     a.setStyle(QStyleFactory::create("Fusion")); // for uniform style
-    LoginWindow::getInstance().exec();
-    if(LoginWindow::getInstance().isLoginCorrect()) {
-        MainWindow::getInstance().showMaximized();
+    int exitCode=0;
 
-        return a.exec();
-    }
+    LoginWindow loginWindow;
+    do {
+        loginWindow.exec();
+
+        if(SessionData::accessToSessionData().isLoginCorrect) {
+            MainWindow mainWindow;
+            mainWindow.showMaximized();
+
+            exitCode = a.exec();
+        } else break;
+    } while(SessionData::accessToSessionData().youWannaLogin);
+
+    return exitCode;
 }

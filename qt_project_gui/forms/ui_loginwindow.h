@@ -140,7 +140,6 @@ public:
 "}\n"
 "\n"
 "QPushButton:hover {\n"
-"widget-animation-duration: 100;\n"
 "background-color: #E4EFF9;\n"
 "border-color: #0C7BD4;\n"
 "}\n"
@@ -238,7 +237,6 @@ public:
 "}\n"
 "\n"
 "QPushButton:hover {\n"
-"widget-animation-duration: 100;\n"
 "background-color: #E4EFF9;\n"
 "border-color: #0C7BD4;\n"
 "}\n"
@@ -362,7 +360,7 @@ public:
         informationWhiteFrame->setFrameShadow(QFrame::Plain);
         informationLabel = new QLabel(informationWhiteFrame);
         informationLabel->setObjectName(QString::fromUtf8("informationLabel"));
-        informationLabel->setGeometry(QRect(40, 200, 240, 100));
+        informationLabel->setGeometry(QRect(5, 200, 310, 100));
         QFont font6;
         font6.setFamily(QString::fromUtf8("Gill Sans MT"));
         font6.setPointSize(12);
@@ -388,7 +386,6 @@ public:
 "}\n"
 "\n"
 "QPushButton:hover {\n"
-"widget-animation-duration: 100;\n"
 "background-color: #E4EFF9;\n"
 "border-color: #0C7BD4;\n"
 "}\n"

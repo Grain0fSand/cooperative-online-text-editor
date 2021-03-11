@@ -7,23 +7,25 @@
 class RemoteCursor
 {
 public:
-    RemoteCursor();
-
-    void setX(int x);
-    int getX();
-    void setY(int y);
-    int getY();
-    void setVerticalOffset(int offset);
-    int getVerticalOffset();
-    void setText(QString text);
-    QString getText();
-    void setColor(QColor color);
-    QColor getColor();
+    RemoteCursor() :
+        pos(0),
+        text(""),
+        color(Qt::black)
+    {
+        //nothing else to add (for now...)
+    }
+    void setId(int id) { this->id = id; }
+    int getId() { return this->id; }
+    void setPos(int pos) { this->pos = pos; }
+    int getPos() { return this->pos; }
+    void setText(QString text) { this->text = text; }
+    QString getText() { return this->text; }
+    void setColor(QColor color) { this->color = color; }
+    QColor getColor() { return this->color; }
 
 private:
-    int x;
-    int y;
-    int verticalOffset;
+    int id;
+    int pos;
     QString text;
     QColor color;
 };

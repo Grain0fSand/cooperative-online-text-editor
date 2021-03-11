@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
-set(TARGET_NAME translator)
+set(TARGET_NAME SimulPad)
 
 project(${TARGET_NAME})
 
@@ -73,8 +73,7 @@ set(SOURCES
 		main.cpp
 		data_structure/action.cpp
 		data_structure/action.h
-		data_structure/remotecursor.cpp
-		data_structure/remotecursor.h
+        data_structure/remotecursor.h
 		data_structure/crdt.cpp
 		data_structure/crdt.h
 		data_structure/exchangeable.h
@@ -87,7 +86,6 @@ set(SOURCES
 		forms/mytextedit.h
 		forms/usertag.cpp
 		forms/usertag.h
-		utility/image_utility.h
 		utility/json_comunicator.cpp
 		utility/json_comunicator.h
 		utility/shared_editor.h
@@ -96,7 +94,7 @@ set(SOURCES
 		web_requests/smtpclient.cpp
 		web_requests/smtpclient.h
 		web_requests/online_sender.cpp
-		web_requests/online_sender.h)
+		web_requests/online_sender.h web_requests/ReplyTimeout.cpp web_requests/ReplyTimeout.h)
 
 # User interface files
 set(FORMS

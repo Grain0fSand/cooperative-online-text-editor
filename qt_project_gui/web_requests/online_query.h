@@ -24,11 +24,12 @@ public:
     OnlineQuery(std::string docId,std::string token,QObject* m);
 
     void run() override;
-    void stop() { continue_run = false; }
+    void resetLastCrdtId();
 
 public slots:
     void getCrdtRequest();
     void checkReply(QNetworkReply *reply);
+    void slotErrorConnection();
 
 private:
     QNetworkAccessManager manager{this};
@@ -37,14 +38,12 @@ private:
     std::string docId;
     std::string token;
     std::string lastCrdtId;
-    std::atomic<bool> continue_run;
 
 signals:
-    void response_arrived(std::string response);
-    void update_id(std::string id);
     void request_time();
     void send_actions(std::vector<ActionWrapper> actions);
     void users_online_arrived(std::vector<exchangeable_data::user> vector);
+    void user_changed_his_status();
 };
 
 #endif // ONLINE_QUERY_H

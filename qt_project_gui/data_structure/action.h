@@ -49,7 +49,6 @@ public:
     void setBlockFormat(const BlockFormatType &value);
 
 private:
-    //TODO: inserted strings must have uniform formatting
     ActionType actionType;
     QString chars;
     int select;  //indicates which style feature is being changed
@@ -77,17 +76,19 @@ public:
             symbol(std::move(symbol))
     {}
 
-    // NON TOGLIERE, SERVE PER RISOLVERE I CONFLITTI DOVUTI ALL'ORDINE
     bool operator <(const ActionWrapper other) {
+
+        int ret = this->action.getActionType() - other.action.getActionType();
+        if (ret != 0)
+            return ret < 0;
+
         std::pair<int,int> sym_a = this->rel_symbol;
         std::pair<int,int> sym_b = other.rel_symbol;
+        ret = sym_a.first-sym_b.first;
+        if (ret != 0)
+            return ret < 0;
 
-        int ret = sym_a.first-sym_b.first;
-
-        if (ret==0)
-            ret = sym_a.second-sym_b.second;
-
-        return ret < 0;
+         return sym_a.second-sym_b.second;
     }
 
     ActionWrapper(){}

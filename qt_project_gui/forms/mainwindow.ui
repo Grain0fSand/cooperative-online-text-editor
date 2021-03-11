@@ -10,6 +10,9 @@
     <height>691</height>
    </rect>
   </property>
+  <property name="styleSheet">
+   <string>MainWindow { background: #E6E6E6; } QLineEdit { background: white; }</string>
+  </property>
   <property name="sizePolicy">
    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
     <horstretch>0</horstretch>
@@ -142,6 +145,9 @@
           <height>92</height>
          </size>
         </property>
+        <property name="styleSheet">
+         <string notr="true">QFrame#myTag { background-color: qlineargradient( x1:0 y1:0, x2:1 y2:0, stop:0 #FCFCFC, stop:1 #E5E5E5); }</string>
+        </property>
         <property name="font">
          <font>
           <pointsize>8</pointsize>
@@ -255,7 +261,7 @@
          <enum>Qt::RightToLeft</enum>
         </property>
         <property name="styleSheet">
-         <string notr="true">text-align:left;</string>
+         <string notr="true">text-align:left; padding: 5px;</string>
         </property>
         <property name="text">
          <string>Online Users</string>
@@ -318,7 +324,7 @@
          <enum>Qt::RightToLeft</enum>
         </property>
         <property name="styleSheet">
-         <string notr="true">text-align:left;</string>
+         <string notr="true">text-align:left; padding: 5px;</string>
         </property>
         <property name="text">
          <string>Offline Users</string>
@@ -397,9 +403,8 @@
    <addaction name="actionAlignCenter"/>
    <addaction name="actionAlignRight"/>
    <addaction name="actionAlignJustify"/>
-   <addaction name="actionTestColor"/>
-   <addaction name="actionTestCursor"/>
-   <addaction name="actionTestDisconnect"/>
+   <addaction name="actionColor"/>
+   <addaction name="actionCursor"/>
   </widget>
   <widget class="QStatusBar" name="statusBar">
    <property name="sizeGripEnabled">
@@ -419,9 +424,11 @@
     <property name="title">
      <string>Main</string>
     </property>
-    <addaction name="actionConnect"/>
-    <addaction name="actionExport_to_PDF"/>
     <addaction name="actionInvite"/>
+    <addaction name="actionExport_to_PDF"/>
+    <addaction name="separator"/>
+    <addaction name="actionBack"/>
+    <addaction name="actionLogout"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
@@ -532,17 +539,38 @@
     <string>AlignRight</string>
    </property>
   </action>
-  <action name="actionConnect">
+  <action name="actionBack">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/resources/backToPersonalPage.png</normaloff>:/resources/backToPersonalPage.png</iconset>
+   </property>
    <property name="text">
-    <string>Connect...</string>
+    <string>Back to Personal Page...</string>
+   </property>
+  </action>
+  <action name="actionLogout">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/resources/logOut.png</normaloff>:/resources/logOut.png</iconset>
+   </property>
+   <property name="text">
+    <string>Logout...</string>
    </property>
   </action>
   <action name="actionExport_to_PDF">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/resources/pdfExportButtonIcon.png</normaloff>:/resources/pdfExportButtonIcon.png</iconset>
+   </property>
    <property name="text">
     <string>Export to PDF</string>
    </property>
   </action>
   <action name="actionExit">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/resources/exit.png</normaloff>:/resources/exit.png</iconset>
+   </property>
    <property name="text">
     <string>Exit</string>
    </property>
@@ -560,24 +588,27 @@
    </property>
   </action>
   <action name="actionInvite">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/resources/collaborationButtonIcon.png</normaloff>:/resources/collaborationButtonIcon.png</iconset>
+   </property>
    <property name="text">
     <string>Invite to Collaborate</string>
    </property>
   </action>
-  <action name="actionTestCursor">
+  <action name="actionCursor">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/resources/cursorButtonIcon.png</normaloff>:/resources/cursorButtonIcon.png</iconset>
+   </property>
    <property name="text">
-    <string>TestCursor</string>
+    <string>Cursor</string>
    </property>
   </action>
-  <action name="actionTestDisconnect">
-   <property name="text">
-    <string>TestDisconnect</string>
-   </property>
-   <property name="toolTip">
-    <string>TestDisconnect</string>
-   </property>
-  </action>
-  <action name="actionTestColor">
+  <action name="actionColor">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -586,7 +617,7 @@
      <normaloff>:/resources/colorButtonIcon.png</normaloff>:/resources/colorButtonIcon.png</iconset>
    </property>
    <property name="text">
-    <string>TestColor</string>
+    <string>Color</string>
    </property>
    <property name="toolTip">
     <string>Highlights the text based on who entered it</string>
